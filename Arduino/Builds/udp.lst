@@ -1,0 +1,1013 @@
+   1               		.file	"udp.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   8               		.text
+   9               	.Ltext0:
+ 118               	.global	udp_create_socket
+ 120               	udp_create_socket:
+   1:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c **** //
+   2:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c **** //  udp.c
+   3:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c **** //  Arduino
+   4:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c **** //
+   5:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c **** //  Created by Projectgroep TI2.4 on 05-01-15.
+   6:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c **** //  Copyright (c) 2015 Projectgroep TI2.4. All rights reserved.
+   7:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c **** //
+   8:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c **** 
+   9:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c **** #include <stdio.h>
+  10:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c **** #include <util/delay.h>
+  11:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c **** 
+  12:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c **** #include "spi.h"
+  13:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c **** #include "eth.h"
+  14:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c **** #include "udp.h"
+  15:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c **** #include "uart.h"
+  16:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c **** 
+  17:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c **** // Methode om een UDP socket mee te creeren
+  18:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c **** void udp_create_socket(void) {
+ 122               	.LM0:
+ 123               	.LFBB1:
+ 124               	/* prologue: function */
+ 125               	/* frame size = 0 */
+ 126               	/* stack size = 0 */
+ 127               	.L__stack_usage = 0
+ 128               	.L3:
+  19:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     spi_transmit(S0MR, (1 << P1));              // Maakt van socket 0 een UDP socket
+ 130               	.LM1:
+ 131 0000 62E0      		ldi r22,lo8(2)
+ 132 0002 80E0      		ldi r24,0
+ 133 0004 94E0      		ldi r25,lo8(4)
+ 134 0006 0E94 0000 		call spi_transmit
+  20:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     
+  21:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     uint16_t port = 30000;                      // Luistert naar data op poort 3000
+  22:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     spi_transmit(S0PORTH, port >> 8);           // Zet hoogste byte
+ 136               	.LM2:
+ 137 000a 65E7      		ldi r22,lo8(117)
+ 138 000c 84E0      		ldi r24,lo8(4)
+ 139 000e 94E0      		ldi r25,lo8(4)
+ 140 0010 0E94 0000 		call spi_transmit
+  23:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     spi_transmit(S0PORTL, port);                // Zet laagste byte
+ 142               	.LM3:
+ 143 0014 60E3      		ldi r22,lo8(48)
+ 144 0016 85E0      		ldi r24,lo8(5)
+ 145 0018 94E0      		ldi r25,lo8(4)
+ 146 001a 0E94 0000 		call spi_transmit
+  24:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     
+  25:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     spi_transmit(S0CR, OPEN);                   // Initialiseert de socket met de instellingen
+ 148               	.LM4:
+ 149 001e 61E0      		ldi r22,lo8(1)
+ 150 0020 81E0      		ldi r24,lo8(1)
+ 151 0022 94E0      		ldi r25,lo8(4)
+ 152 0024 0E94 0000 		call spi_transmit
+  26:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     uint8_t status = spi_receive(S0SR);         // Haalt de status op
+ 154               	.LM5:
+ 155 0028 83E0      		ldi r24,lo8(3)
+ 156 002a 94E0      		ldi r25,lo8(4)
+ 157 002c 0E94 0000 		call spi_receive
+  27:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     
+  28:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     if(status != SOCK_UDP) {                    // Check of de status (SOCK_UDP) klopt met de inste
+ 159               	.LM6:
+ 160 0030 8232      		cpi r24,lo8(34)
+ 161 0032 01F0      		breq .L1
+  29:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****         spi_transmit(S0CR, CLOSE);              // Anders sluit de verbinding
+ 163               	.LM7:
+ 164 0034 60E1      		ldi r22,lo8(16)
+ 165 0036 81E0      		ldi r24,lo8(1)
+ 166 0038 94E0      		ldi r25,lo8(4)
+ 167 003a 0E94 0000 		call spi_transmit
+ 168 003e 00C0      		rjmp .L3
+ 169               	.L1:
+ 170 0040 0895      		ret
+ 172               	.Lscope1:
+ 174               	.global	udp_close_socket
+ 176               	udp_close_socket:
+  30:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****         udp_create_socket();                    // Probeer opnieuw
+  31:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     }
+  32:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c **** }
+  33:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c **** 
+  34:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c **** // Methode om de UDP socket mee te sluiten
+  35:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c **** void udp_close_socket(void) {
+ 178               	.LM8:
+ 179               	.LFBB2:
+ 180               	/* prologue: function */
+ 181               	/* frame size = 0 */
+ 182               	/* stack size = 0 */
+ 183               	.L__stack_usage = 0
+  36:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     spi_transmit(S0CR, CLOSE);                  // Sluit de verbinding
+ 185               	.LM9:
+ 186 0042 60E1      		ldi r22,lo8(16)
+ 187 0044 81E0      		ldi r24,lo8(1)
+ 188 0046 94E0      		ldi r25,lo8(4)
+ 189 0048 0C94 0000 		jmp spi_transmit
+ 191               	.Lscope2:
+ 192               		.section	.rodata
+ 193               	.LC0:
+ 194 0000 0A00      		.word	10
+ 195 0002 0000      		.word	0
+ 196 0004 0400      		.word	4
+ 197 0006 0100      		.word	1
+ 198               		.text
+ 202               	.global	udp_broadcast
+ 204               	udp_broadcast:
+  37:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c **** }
+  38:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c **** 
+  39:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c **** // Methode om mee te broadcasten
+  40:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c **** void udp_broadcast(udpflag flag, int length) {
+ 206               	.LM10:
+ 207               	.LFBB3:
+ 208 004c CF92      		push r12
+ 209 004e DF92      		push r13
+ 210 0050 EF92      		push r14
+ 211 0052 FF92      		push r15
+ 212 0054 0F93      		push r16
+ 213 0056 1F93      		push r17
+ 214 0058 CF93      		push r28
+ 215 005a DF93      		push r29
+ 216 005c CDB7      		in r28,__SP_L__
+ 217 005e DEB7      		in r29,__SP_H__
+ 218 0060 2897      		sbiw r28,8
+ 219 0062 0FB6      		in __tmp_reg__,__SREG__
+ 220 0064 F894      		cli
+ 221 0066 DEBF      		out __SP_H__,r29
+ 222 0068 0FBE      		out __SREG__,__tmp_reg__
+ 223 006a CDBF      		out __SP_L__,r28
+ 224               	/* prologue: function */
+ 225               	/* frame size = 8 */
+ 226               	/* stack size = 16 */
+ 227               	.L__stack_usage = 16
+ 228 006c D82E      		mov r13,r24
+ 229 006e 8B01      		movw r16,r22
+ 230               	.L8:
+  41:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     
+  42:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     // Vraag de vrije ruimte op voor het versturen van pakket
+  43:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     // Als deze niet groot genoeg wacht op beschikbare ruimte
+  44:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     uint16_t size = 0;
+  45:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     do {
+  46:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****         size = spi_receive(S0TXFSRH);
+ 232               	.LM11:
+ 233 0070 80E2      		ldi r24,lo8(32)
+ 234 0072 94E0      		ldi r25,lo8(4)
+ 235 0074 0E94 0000 		call spi_receive
+ 236 0078 E82E      		mov r14,r24
+ 237 007a F12C      		mov r15,__zero_reg__
+  47:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****         size <<= 8;
+ 239               	.LM12:
+ 240 007c FE2C      		mov r15,r14
+ 241 007e EE24      		clr r14
+  48:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****         size |= spi_receive(S0TXFSRL);
+ 243               	.LM13:
+ 244 0080 81E2      		ldi r24,lo8(33)
+ 245 0082 94E0      		ldi r25,lo8(4)
+ 246 0084 0E94 0000 		call spi_receive
+ 247               	.LBB9:
+ 248               	.LBB10:
+ 250               	.Ltext1:
+   1:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** /* Copyright (c) 2002, Marek Michalkiewicz
+   2:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Copyright (c) 2004,2005,2007 Joerg Wunsch
+   3:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Copyright (c) 2007  Florin-Viorel Petrov
+   4:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    All rights reserved.
+   5:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+   6:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Redistribution and use in source and binary forms, with or without
+   7:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    modification, are permitted provided that the following conditions are met:
+   8:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+   9:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    * Redistributions of source code must retain the above copyright
+  10:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****      notice, this list of conditions and the following disclaimer.
+  11:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  12:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    * Redistributions in binary form must reproduce the above copyright
+  13:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****      notice, this list of conditions and the following disclaimer in
+  14:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****      the documentation and/or other materials provided with the
+  15:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****      distribution.
+  16:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  17:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    * Neither the name of the copyright holders nor the names of
+  18:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****      contributors may be used to endorse or promote products derived
+  19:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****      from this software without specific prior written permission.
+  20:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  21:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  22:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  23:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+  24:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+  25:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+  26:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+  27:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+  28:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+  29:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+  30:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+  31:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   POSSIBILITY OF SUCH DAMAGE. */
+  32:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  33:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** /* $Id$ */
+  34:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  35:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #ifndef _UTIL_DELAY_H_
+  36:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #define _UTIL_DELAY_H_ 1
+  37:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  38:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #ifndef __HAS_DELAY_CYCLES
+  39:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #define __HAS_DELAY_CYCLES 1
+  40:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #endif
+  41:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  42:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #include <inttypes.h>
+  43:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #include <util/delay_basic.h>
+  44:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #include <math.h>
+  45:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  46:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** /** \file */
+  47:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** /** \defgroup util_delay <util/delay.h>: Convenience functions for busy-wait delay loops
+  48:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     \code
+  49:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     #define F_CPU 1000000UL  // 1 MHz
+  50:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     //#define F_CPU 14.7456E6
+  51:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     #include <util/delay.h>
+  52:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     \endcode
+  53:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  54:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     \note As an alternative method, it is possible to pass the
+  55:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     F_CPU macro down to the compiler from the Makefile.
+  56:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     Obviously, in that case, no \c \#define statement should be
+  57:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     used.
+  58:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  59:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     The functions in this header file are wrappers around the basic
+  60:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     busy-wait functions from <util/delay_basic.h>.  They are meant as
+  61:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     convenience functions where actual time values can be specified
+  62:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     rather than a number of cycles to wait for.  The idea behind is
+  63:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     that compile-time constant expressions will be eliminated by
+  64:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     compiler optimization so floating-point expressions can be used
+  65:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     to calculate the number of delay cycles needed based on the CPU
+  66:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     frequency passed by the macro F_CPU.
+  67:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  68:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     \note In order for these functions to work as intended, compiler
+  69:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     optimizations <em>must</em> be enabled, and the delay time
+  70:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     <em>must</em> be an expression that is a known constant at
+  71:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     compile-time.  If these requirements are not met, the resulting
+  72:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     delay will be much longer (and basically unpredictable), and
+  73:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     applications that otherwise do not use floating-point calculations
+  74:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     will experience severe code bloat by the floating-point library
+  75:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     routines linked into the application.
+  76:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  77:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     The functions available allow the specification of microsecond, and
+  78:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     millisecond delays directly, using the application-supplied macro
+  79:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     F_CPU as the CPU clock frequency (in Hertz).
+  80:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  81:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** */
+  82:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  83:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #if !defined(__DOXYGEN__)
+  84:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** static inline void _delay_us(double __us) __attribute__((always_inline));
+  85:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** static inline void _delay_ms(double __ms) __attribute__((always_inline));
+  86:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #endif
+  87:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  88:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #ifndef F_CPU
+  89:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** /* prevent compiler error by supplying a default */
+  90:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** # warning "F_CPU not defined for <util/delay.h>"
+  91:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** # define F_CPU 1000000UL
+  92:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #endif
+  93:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  94:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #ifndef __OPTIMIZE__
+  95:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** # warning "Compiler optimizations disabled; functions from <util/delay.h> won't work as designed"
+  96:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #endif
+  97:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  98:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #if __HAS_DELAY_CYCLES && defined(__OPTIMIZE__) && \
+  99:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   !defined(__DELAY_BACKWARD_COMPATIBLE__) &&	   \
+ 100:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   __STDC_HOSTED__
+ 101:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #  include <math.h>
+ 102:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #endif
+ 103:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 104:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** /**
+ 105:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    \ingroup util_delay
+ 106:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 107:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Perform a delay of \c __ms milliseconds, using _delay_loop_2().
+ 108:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 109:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    The macro F_CPU is supposed to be defined to a
+ 110:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    constant defining the CPU clock frequency (in Hertz).
+ 111:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 112:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    The maximal possible delay is 262.14 ms / F_CPU in MHz.
+ 113:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 114:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    When the user request delay which exceed the maximum possible one,
+ 115:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    _delay_ms() provides a decreased resolution functionality. In this
+ 116:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    mode _delay_ms() will work with a resolution of 1/10 ms, providing
+ 117:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    delays up to 6.5535 seconds (independent from CPU frequency).  The
+ 118:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    user will not be informed about decreased resolution.
+ 119:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 120:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    If the avr-gcc toolchain has __builtin_avr_delay_cycles(unsigned long)
+ 121:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    support, maximal possible delay is 4294967.295 ms/ F_CPU in MHz. For
+ 122:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    values greater than the maximal possible delay, overflows results in
+ 123:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    no delay i.e., 0ms.
+ 124:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 125:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Conversion of __us into clock cycles may not always result in integer.
+ 126:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    By default, the clock cycles rounded up to next integer. This ensures that
+ 127:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    the user gets atleast __us microseconds of delay.
+ 128:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 129:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Alternatively, user can define __DELAY_ROUND_DOWN__ and __DELAY_ROUND_CLOSEST__
+ 130:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    to round down and round to closest integer.
+ 131:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 132:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Note: The new implementation of _delay_ms(double __ms) with 
+ 133:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     __builtin_avr_delay_cycles(unsigned long) support is not backward compatible. 
+ 134:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    User can define __DELAY_BACKWARD_COMPATIBLE__ to get a backward compatible delay.
+ 135:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Also, the backward compatible
+ 136:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    algorithm will be chosen if the code is compiled in a <em>freestanding
+ 137:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    environment</em> (GCC option \c -ffreestanding), as the math functions
+ 138:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    required for rounding are not available to the compiler then.
+ 139:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 140:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****  */
+ 141:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** void
+ 142:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** _delay_ms(double __ms)
+ 143:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** {
+ 144:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	double __tmp ; 
+ 145:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #if __HAS_DELAY_CYCLES && defined(__OPTIMIZE__) && \
+ 146:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   !defined(__DELAY_BACKWARD_COMPATIBLE__) &&	   \
+ 147:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   __STDC_HOSTED__
+ 148:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	uint32_t __ticks_dc;
+ 149:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	extern void __builtin_avr_delay_cycles(unsigned long);
+ 150:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	__tmp = ((F_CPU) / 1e3) * __ms;
+ 151:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 152:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	#if defined(__DELAY_ROUND_DOWN__)
+ 153:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 		__ticks_dc = (uint32_t)fabs(__tmp);
+ 154:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 155:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	#elif defined(__DELAY_ROUND_CLOSEST__)
+ 156:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 		__ticks_dc = (uint32_t)(fabs(__tmp)+0.5);
+ 157:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 158:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	#else
+ 159:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 		//round up by default
+ 160:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
+ 161:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	#endif
+ 162:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 163:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	__builtin_avr_delay_cycles(__ticks_dc);
+ 252               	.LM14:
+ 253 0088 EFE9      		ldi r30,lo8(3999)
+ 254 008a FFE0      		ldi r31,hi8(3999)
+ 255 008c 3197      		1: sbiw r30,1
+ 256 008e 01F4      		brne 1b
+ 257 0090 00C0      		rjmp .
+ 258 0092 0000      		nop
+ 259               	.LBE10:
+ 260               	.LBE9:
+ 262               	.Ltext2:
+ 264               	.LM15:
+ 265 0094 E82A      		or r14,r24
+  49:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****         _delay_ms(1);
+  50:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     }
+  51:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     while(length > size);
+ 267               	.LM16:
+ 268 0096 E016      		cp r14,r16
+ 269 0098 F106      		cpc r15,r17
+ 270 009a 00F0      		brlo .L8
+  52:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     
+  53:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     // Zet het ipadres op broadcast
+  54:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     spi_transmit(S0DIPR + 0, 255);
+ 272               	.LM17:
+ 273 009c 6FEF      		ldi r22,lo8(-1)
+ 274 009e 8CE0      		ldi r24,lo8(12)
+ 275 00a0 94E0      		ldi r25,lo8(4)
+ 276 00a2 0E94 0000 		call spi_transmit
+  55:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     spi_transmit(S0DIPR + 1, 255);
+ 278               	.LM18:
+ 279 00a6 6FEF      		ldi r22,lo8(-1)
+ 280 00a8 8DE0      		ldi r24,lo8(13)
+ 281 00aa 94E0      		ldi r25,lo8(4)
+ 282 00ac 0E94 0000 		call spi_transmit
+  56:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     spi_transmit(S0DIPR + 2, 255);
+ 284               	.LM19:
+ 285 00b0 6FEF      		ldi r22,lo8(-1)
+ 286 00b2 8EE0      		ldi r24,lo8(14)
+ 287 00b4 94E0      		ldi r25,lo8(4)
+ 288 00b6 0E94 0000 		call spi_transmit
+  57:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     spi_transmit(S0DIPR + 3, 255);
+ 290               	.LM20:
+ 291 00ba 6FEF      		ldi r22,lo8(-1)
+ 292 00bc 8FE0      		ldi r24,lo8(15)
+ 293 00be 94E0      		ldi r25,lo8(4)
+ 294 00c0 0E94 0000 		call spi_transmit
+  58:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     
+  59:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     // Zet de destination poort
+  60:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     spi_transmit(S0DPORTH, 30000 >> 8);
+ 296               	.LM21:
+ 297 00c4 65E7      		ldi r22,lo8(117)
+ 298 00c6 80E1      		ldi r24,lo8(16)
+ 299 00c8 94E0      		ldi r25,lo8(4)
+ 300 00ca 0E94 0000 		call spi_transmit
+  61:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     spi_transmit(S0DPORTL, 30000 & 0xFF);
+ 302               	.LM22:
+ 303 00ce 60E3      		ldi r22,lo8(48)
+ 304 00d0 81E1      		ldi r24,lo8(17)
+ 305 00d2 94E0      		ldi r25,lo8(4)
+ 306 00d4 0E94 0000 		call spi_transmit
+  62:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     
+  63:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     // Vraagt de pointer naar het socket geheugen
+  64:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     uint16_t pointer = spi_receive(S0TXWRH) << 8;
+ 308               	.LM23:
+ 309 00d8 84E2      		ldi r24,lo8(36)
+ 310 00da 94E0      		ldi r25,lo8(4)
+ 311 00dc 0E94 0000 		call spi_receive
+ 312 00e0 082F      		mov r16,r24
+ 313 00e2 10E0      		ldi r17,0
+ 314 00e4 102F      		mov r17,r16
+ 315 00e6 0027      		clr r16
+  65:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     pointer |= spi_receive(S0TXWRL);
+ 317               	.LM24:
+ 318 00e8 85E2      		ldi r24,lo8(37)
+ 319 00ea 94E0      		ldi r25,lo8(4)
+ 320 00ec 0E94 0000 		call spi_receive
+ 321 00f0 082B      		or r16,r24
+  66:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     
+  67:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     // Berekent het adres met de pointer en mask
+  68:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     uint16_t address = S0TXBASE + (pointer & 0x07FF);
+ 323               	.LM25:
+ 324 00f2 C801      		movw r24,r16
+ 325 00f4 9770      		andi r25,7
+  69:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     
+  70:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     // Schrijft de flag weg in het socketgeheugen
+  71:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     spi_transmit(address, flag);
+ 327               	.LM26:
+ 328 00f6 6D2D      		mov r22,r13
+ 329 00f8 905C      		subi r25,-64
+ 330 00fa 0E94 0000 		call spi_transmit
+  72:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     ++pointer;
+  73:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     
+  74:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     // Schrijft het ipadres weg in het socketgeheugen
+  75:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     int ip_addr[]  = {10, 0, 4, 1};
+ 332               	.LM27:
+ 333 00fe 88E0      		ldi r24,lo8(8)
+ 334 0100 E0E0      		ldi r30,lo8(.LC0)
+ 335 0102 F0E0      		ldi r31,hi8(.LC0)
+ 336 0104 DE01      		movw r26,r28
+ 337 0106 1196      		adiw r26,1
+ 338               		0:
+ 339 0108 0190      		ld r0,Z+
+ 340 010a 0D92      		st X+,r0
+ 341 010c 8A95      		dec r24
+ 342 010e 01F4      		brne 0b
+ 343 0110 CE01      		movw r24,r28
+ 344 0112 0196      		adiw r24,1
+ 345 0114 6C01      		movw r12,r24
+ 346 0116 EE24      		clr r14
+ 347 0118 E394      		inc r14
+ 348 011a F12C      		mov r15,__zero_reg__
+ 349               	.L10:
+ 350               	.LBB11:
+  76:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     for (int i = 0; i < 4; ++i) {
+  77:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****         address = S0TXBASE + (pointer++ & 0x07FF);
+  78:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****         spi_transmit(address, ip_addr[i]);
+ 352               	.LM28:
+ 353 011c F601      		movw r30,r12
+ 354 011e 6081      		ld r22,Z
+ 355 0120 F2E0      		ldi r31,2
+ 356 0122 CF0E      		add r12,r31
+ 357 0124 D11C      		adc r13,__zero_reg__
+ 358 0126 C701      		movw r24,r14
+ 359 0128 800F      		add r24,r16
+ 360 012a 911F      		adc r25,r17
+  77:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****         address = S0TXBASE + (pointer++ & 0x07FF);
+ 362               	.LM29:
+ 363 012c 9770      		andi r25,7
+ 365               	.LM30:
+ 366 012e 905C      		subi r25,-64
+ 367 0130 0E94 0000 		call spi_transmit
+ 368 0134 8FEF      		ldi r24,-1
+ 369 0136 E81A      		sub r14,r24
+ 370 0138 F80A      		sbc r15,r24
+  76:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     for (int i = 0; i < 4; ++i) {
+ 372               	.LM31:
+ 373 013a 95E0      		ldi r25,5
+ 374 013c E916      		cp r14,r25
+ 375 013e F104      		cpc r15,__zero_reg__
+ 376 0140 01F4      		brne .L10
+ 377 0142 0B5F      		subi r16,-5
+ 378 0144 1F4F      		sbci r17,-1
+ 379               	.LBE11:
+  79:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     }
+  80:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     
+  81:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     // Berg de pointer weer op
+  82:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     spi_transmit(S0TXWRH, pointer >> 8);
+ 381               	.LM32:
+ 382 0146 612F      		mov r22,r17
+ 383 0148 84E2      		ldi r24,lo8(36)
+ 384 014a 94E0      		ldi r25,lo8(4)
+ 385 014c 0E94 0000 		call spi_transmit
+  83:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     spi_transmit(S0TXWRL, pointer);
+ 387               	.LM33:
+ 388 0150 602F      		mov r22,r16
+ 389 0152 85E2      		ldi r24,lo8(37)
+ 390 0154 94E0      		ldi r25,lo8(4)
+ 391 0156 0E94 0000 		call spi_transmit
+  84:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     
+  85:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     // Verstuurt het pakket
+  86:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     spi_transmit(S0CR, SEND);
+ 393               	.LM34:
+ 394 015a 60E2      		ldi r22,lo8(32)
+ 395 015c 81E0      		ldi r24,lo8(1)
+ 396 015e 94E0      		ldi r25,lo8(4)
+ 397 0160 0E94 0000 		call spi_transmit
+ 398               	.L12:
+  87:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     
+  88:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     // Wacht op het versturen (0x00 = verstuurd)
+  89:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     while(spi_receive(S0CR));
+ 400               	.LM35:
+ 401 0164 81E0      		ldi r24,lo8(1)
+ 402 0166 94E0      		ldi r25,lo8(4)
+ 403 0168 0E94 0000 		call spi_receive
+ 404 016c 8111      		cpse r24,__zero_reg__
+ 405 016e 00C0      		rjmp .L12
+ 406               	/* epilogue start */
+  90:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     
+  91:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     // Sluit de verbinding
+  92:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     // SPI_Transmit(S0CR, CLOSE);
+  93:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c **** }
+ 408               	.LM36:
+ 409 0170 2896      		adiw r28,8
+ 410 0172 0FB6      		in __tmp_reg__,__SREG__
+ 411 0174 F894      		cli
+ 412 0176 DEBF      		out __SP_H__,r29
+ 413 0178 0FBE      		out __SREG__,__tmp_reg__
+ 414 017a CDBF      		out __SP_L__,r28
+ 415 017c DF91      		pop r29
+ 416 017e CF91      		pop r28
+ 417 0180 1F91      		pop r17
+ 418 0182 0F91      		pop r16
+ 419 0184 FF90      		pop r15
+ 420 0186 EF90      		pop r14
+ 421 0188 DF90      		pop r13
+ 422 018a CF90      		pop r12
+ 423 018c 0895      		ret
+ 428               	.Lscope3:
+ 433               	.global	udp_to_monitor
+ 435               	udp_to_monitor:
+  94:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c **** 
+  95:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c **** // Methode om data te sturen naar de monitor
+  96:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c **** void udp_to_monitor(udpflag flag, uint8_t data[], int length) {
+ 437               	.LM37:
+ 438               	.LFBB4:
+ 439 018e 8F92      		push r8
+ 440 0190 9F92      		push r9
+ 441 0192 AF92      		push r10
+ 442 0194 BF92      		push r11
+ 443 0196 CF92      		push r12
+ 444 0198 DF92      		push r13
+ 445 019a EF92      		push r14
+ 446 019c FF92      		push r15
+ 447 019e 0F93      		push r16
+ 448 01a0 1F93      		push r17
+ 449 01a2 CF93      		push r28
+ 450 01a4 DF93      		push r29
+ 451 01a6 00D0      		rcall .
+ 452 01a8 00D0      		rcall .
+ 453 01aa CDB7      		in r28,__SP_L__
+ 454 01ac DEB7      		in r29,__SP_H__
+ 455               	/* prologue: function */
+ 456               	/* frame size = 4 */
+ 457               	/* stack size = 16 */
+ 458               	.L__stack_usage = 16
+ 459 01ae F82E      		mov r15,r24
+ 460 01b0 5B01      		movw r10,r22
+ 461 01b2 6A01      		movw r12,r20
+ 462               	.L15:
+  97:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     
+  98:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     // Vraag de vrije ruimte op voor het versturen van pakket
+  99:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     // Als deze niet groot genoeg wacht op beschikbare ruimte
+ 100:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     uint16_t size = 0;
+ 101:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     do {
+ 102:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****         size = spi_receive(S0TXFSRH);
+ 464               	.LM38:
+ 465 01b4 80E2      		ldi r24,lo8(32)
+ 466 01b6 94E0      		ldi r25,lo8(4)
+ 467 01b8 0E94 0000 		call spi_receive
+ 468 01bc 082F      		mov r16,r24
+ 469 01be 10E0      		ldi r17,0
+ 103:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****         size <<= 8;
+ 471               	.LM39:
+ 472 01c0 102F      		mov r17,r16
+ 473 01c2 0027      		clr r16
+ 104:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****         size |= spi_receive(S0TXFSRL);
+ 475               	.LM40:
+ 476 01c4 81E2      		ldi r24,lo8(33)
+ 477 01c6 94E0      		ldi r25,lo8(4)
+ 478 01c8 0E94 0000 		call spi_receive
+ 479               	.LBB12:
+ 480               	.LBB13:
+ 482               	.Ltext3:
+ 484               	.LM41:
+ 485 01cc EFE9      		ldi r30,lo8(3999)
+ 486 01ce FFE0      		ldi r31,hi8(3999)
+ 487 01d0 3197      		1: sbiw r30,1
+ 488 01d2 01F4      		brne 1b
+ 489 01d4 00C0      		rjmp .
+ 490 01d6 0000      		nop
+ 491               	.LBE13:
+ 492               	.LBE12:
+ 494               	.Ltext4:
+ 496               	.LM42:
+ 497 01d8 082B      		or r16,r24
+ 105:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****         _delay_ms(1);
+ 106:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     }
+ 107:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     while(length > size);
+ 499               	.LM43:
+ 500 01da 0C15      		cp r16,r12
+ 501 01dc 1D05      		cpc r17,r13
+ 502 01de 00F0      		brlo .L15
+ 108:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     
+ 109:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     // Zet het ipadres voor de bestemming
+ 110:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c **** #if school
+ 111:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     spi_transmit(S0DIPR + 0, 10);
+ 112:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     spi_transmit(S0DIPR + 1, 0);
+ 113:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     spi_transmit(S0DIPR + 2, 4);
+ 114:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     spi_transmit(S0DIPR + 3, 0);
+ 115:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c **** 
+ 116:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c **** #else
+ 117:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     spi_transmit(S0DIPR + 0, 192);
+ 504               	.LM44:
+ 505 01e0 60EC      		ldi r22,lo8(-64)
+ 506 01e2 8CE0      		ldi r24,lo8(12)
+ 507 01e4 94E0      		ldi r25,lo8(4)
+ 508 01e6 0E94 0000 		call spi_transmit
+ 118:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     spi_transmit(S0DIPR + 1, 168);
+ 510               	.LM45:
+ 511 01ea 68EA      		ldi r22,lo8(-88)
+ 512 01ec 8DE0      		ldi r24,lo8(13)
+ 513 01ee 94E0      		ldi r25,lo8(4)
+ 514 01f0 0E94 0000 		call spi_transmit
+ 119:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     spi_transmit(S0DIPR + 2, 178);
+ 516               	.LM46:
+ 517 01f4 62EB      		ldi r22,lo8(-78)
+ 518 01f6 8EE0      		ldi r24,lo8(14)
+ 519 01f8 94E0      		ldi r25,lo8(4)
+ 520 01fa 0E94 0000 		call spi_transmit
+ 120:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     spi_transmit(S0DIPR + 3, 12);
+ 522               	.LM47:
+ 523 01fe 6CE0      		ldi r22,lo8(12)
+ 524 0200 8FE0      		ldi r24,lo8(15)
+ 525 0202 94E0      		ldi r25,lo8(4)
+ 526 0204 0E94 0000 		call spi_transmit
+ 121:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c **** #endif
+ 122:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     
+ 123:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     // Zet de destination poort
+ 124:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     spi_transmit(S0DPORTH, 30000 >> 8);
+ 528               	.LM48:
+ 529 0208 65E7      		ldi r22,lo8(117)
+ 530 020a 80E1      		ldi r24,lo8(16)
+ 531 020c 94E0      		ldi r25,lo8(4)
+ 532 020e 0E94 0000 		call spi_transmit
+ 125:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     spi_transmit(S0DPORTL, 30000 & 0xFF);
+ 534               	.LM49:
+ 535 0212 60E3      		ldi r22,lo8(48)
+ 536 0214 81E1      		ldi r24,lo8(17)
+ 537 0216 94E0      		ldi r25,lo8(4)
+ 538 0218 0E94 0000 		call spi_transmit
+ 126:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     
+ 127:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     // Vraagt de pointer naar het socket geheugen
+ 128:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     uint16_t pointer = spi_receive(S0TXWRH) << 8;
+ 540               	.LM50:
+ 541 021c 84E2      		ldi r24,lo8(36)
+ 542 021e 94E0      		ldi r25,lo8(4)
+ 543 0220 0E94 0000 		call spi_receive
+ 544 0224 082F      		mov r16,r24
+ 545 0226 10E0      		ldi r17,0
+ 546 0228 102F      		mov r17,r16
+ 547 022a 0027      		clr r16
+ 129:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     pointer |= spi_receive(S0TXWRL);
+ 549               	.LM51:
+ 550 022c 85E2      		ldi r24,lo8(37)
+ 551 022e 94E0      		ldi r25,lo8(4)
+ 552 0230 0E94 0000 		call spi_receive
+ 553 0234 082B      		or r16,r24
+ 130:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     
+ 131:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     // Berekent het adres met de pointer en mask
+ 132:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     uint16_t address = S0TXBASE + (pointer & 0x07FF);
+ 555               	.LM52:
+ 556 0236 C801      		movw r24,r16
+ 557 0238 9770      		andi r25,7
+ 133:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     
+ 134:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     // Schrijft de flag weg in het socketgeheugen
+ 135:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     spi_transmit(address, flag);
+ 559               	.LM53:
+ 560 023a 6F2D      		mov r22,r15
+ 561 023c 905C      		subi r25,-64
+ 562 023e 0E94 0000 		call spi_transmit
+ 136:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     ++pointer;
+ 137:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     
+ 138:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     // Schrijft het ipadres weg in het socketgeheugen
+ 139:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     char ip_addr[]  = {'1','0','4','1'};
+ 564               	.LM54:
+ 565 0242 81E3      		ldi r24,lo8(49)
+ 566 0244 8983      		std Y+1,r24
+ 567 0246 90E3      		ldi r25,lo8(48)
+ 568 0248 9A83      		std Y+2,r25
+ 569 024a 94E3      		ldi r25,lo8(52)
+ 570 024c 9B83      		std Y+3,r25
+ 571 024e 8C83      		std Y+4,r24
+ 572 0250 CE01      		movw r24,r28
+ 573 0252 0196      		adiw r24,1
+ 574 0254 4C01      		movw r8,r24
+ 575 0256 EE24      		clr r14
+ 576 0258 E394      		inc r14
+ 577 025a F12C      		mov r15,__zero_reg__
+ 578               	.L18:
+ 579               	.LBB14:
+ 140:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     for (int i = 0; i < 4; ++i) {
+ 141:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****         address = S0TXBASE + (pointer++ & 0x07FF);
+ 142:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****         spi_transmit(address, ip_addr[i]);
+ 581               	.LM55:
+ 582 025c F401      		movw r30,r8
+ 583 025e 6191      		ld r22,Z+
+ 584 0260 4F01      		movw r8,r30
+ 585 0262 C701      		movw r24,r14
+ 586 0264 800F      		add r24,r16
+ 587 0266 911F      		adc r25,r17
+ 141:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****         address = S0TXBASE + (pointer++ & 0x07FF);
+ 589               	.LM56:
+ 590 0268 9770      		andi r25,7
+ 592               	.LM57:
+ 593 026a 905C      		subi r25,-64
+ 594 026c 0E94 0000 		call spi_transmit
+ 595 0270 FFEF      		ldi r31,-1
+ 596 0272 EF1A      		sub r14,r31
+ 597 0274 FF0A      		sbc r15,r31
+ 140:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     for (int i = 0; i < 4; ++i) {
+ 599               	.LM58:
+ 600 0276 25E0      		ldi r18,5
+ 601 0278 E216      		cp r14,r18
+ 602 027a F104      		cpc r15,__zero_reg__
+ 603 027c 01F4      		brne .L18
+ 604 027e 0B5F      		subi r16,-5
+ 605 0280 1F4F      		sbci r17,-1
+ 140:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     for (int i = 0; i < 4; ++i) {
+ 607               	.LM59:
+ 608 0282 7501      		movw r14,r10
+ 141:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****         address = S0TXBASE + (pointer++ & 0x07FF);
+ 610               	.LM60:
+ 611 0284 C801      		movw r24,r16
+ 612               	.L17:
+ 613 0286 9701      		movw r18,r14
+ 614 0288 2A19      		sub r18,r10
+ 615 028a 3B09      		sbc r19,r11
+ 616               	.LBE14:
+ 617               	.LBB15:
+ 143:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     }
+ 144:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     
+ 145:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     // Schrijft de buffer weg in het socketgeheugen
+ 146:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     for (int i = 0; i < length; ++i) {
+ 619               	.LM61:
+ 620 028c 2C15      		cp r18,r12
+ 621 028e 3D05      		cpc r19,r13
+ 622 0290 04F4      		brge .L23
+ 147:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****         address = S0TXBASE + ((pointer++) & 0x07FF);
+ 624               	.LM62:
+ 625 0292 4C01      		movw r8,r24
+ 626 0294 EFEF      		ldi r30,-1
+ 627 0296 8E1A      		sub r8,r30
+ 628 0298 9E0A      		sbc r9,r30
+ 148:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****         spi_transmit(address, data[i]);
+ 630               	.LM63:
+ 631 029a F701      		movw r30,r14
+ 632 029c 6191      		ld r22,Z+
+ 633 029e 7F01      		movw r14,r30
+ 147:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****         address = S0TXBASE + ((pointer++) & 0x07FF);
+ 635               	.LM64:
+ 636 02a0 9770      		andi r25,7
+ 638               	.LM65:
+ 639 02a2 905C      		subi r25,-64
+ 640 02a4 0E94 0000 		call spi_transmit
+ 147:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****         address = S0TXBASE + ((pointer++) & 0x07FF);
+ 642               	.LM66:
+ 643 02a8 C401      		movw r24,r8
+ 644 02aa 00C0      		rjmp .L17
+ 645               	.L23:
+ 646 02ac D7FE      		sbrs r13,7
+ 647 02ae 00C0      		rjmp .L20
+ 648 02b0 C12C      		mov r12,__zero_reg__
+ 649 02b2 D12C      		mov r13,__zero_reg__
+ 650               	.L20:
+ 651 02b4 C00E      		add r12,r16
+ 652 02b6 D11E      		adc r13,r17
+ 653               	.LBE15:
+ 149:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     }
+ 150:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     
+ 151:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     // Berg de pointer weer op
+ 152:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     spi_transmit(S0TXWRH, pointer >> 8);
+ 655               	.LM67:
+ 656 02b8 6D2D      		mov r22,r13
+ 657 02ba 84E2      		ldi r24,lo8(36)
+ 658 02bc 94E0      		ldi r25,lo8(4)
+ 659 02be 0E94 0000 		call spi_transmit
+ 153:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     spi_transmit(S0TXWRL, pointer);
+ 661               	.LM68:
+ 662 02c2 6C2D      		mov r22,r12
+ 663 02c4 85E2      		ldi r24,lo8(37)
+ 664 02c6 94E0      		ldi r25,lo8(4)
+ 665 02c8 0E94 0000 		call spi_transmit
+ 154:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     
+ 155:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     // Verstuurt het pakket
+ 156:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     spi_transmit(S0CR, SEND);
+ 667               	.LM69:
+ 668 02cc 60E2      		ldi r22,lo8(32)
+ 669 02ce 81E0      		ldi r24,lo8(1)
+ 670 02d0 94E0      		ldi r25,lo8(4)
+ 671 02d2 0E94 0000 		call spi_transmit
+ 672               	.L22:
+ 157:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     
+ 158:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     // Wacht op het versturen (0x00 = verstuurd)
+ 159:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     while(spi_receive(S0CR));
+ 674               	.LM70:
+ 675 02d6 81E0      		ldi r24,lo8(1)
+ 676 02d8 94E0      		ldi r25,lo8(4)
+ 677 02da 0E94 0000 		call spi_receive
+ 678 02de 8111      		cpse r24,__zero_reg__
+ 679 02e0 00C0      		rjmp .L22
+ 680               	/* epilogue start */
+ 160:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c **** }
+ 682               	.LM71:
+ 683 02e2 0F90      		pop __tmp_reg__
+ 684 02e4 0F90      		pop __tmp_reg__
+ 685 02e6 0F90      		pop __tmp_reg__
+ 686 02e8 0F90      		pop __tmp_reg__
+ 687 02ea DF91      		pop r29
+ 688 02ec CF91      		pop r28
+ 689 02ee 1F91      		pop r17
+ 690 02f0 0F91      		pop r16
+ 691 02f2 FF90      		pop r15
+ 692 02f4 EF90      		pop r14
+ 693 02f6 DF90      		pop r13
+ 694 02f8 CF90      		pop r12
+ 695 02fa BF90      		pop r11
+ 696 02fc AF90      		pop r10
+ 697 02fe 9F90      		pop r9
+ 698 0300 8F90      		pop r8
+ 699 0302 0895      		ret
+ 704               	.Lscope4:
+ 707               	.global	udp_from_monitor
+ 709               	udp_from_monitor:
+ 161:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c **** 
+ 162:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c **** // Methode om data mee te ontvangen
+ 163:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c **** void udp_from_monitor(uint8_t buffer[]) {
+ 711               	.LM72:
+ 712               	.LFBB5:
+ 713 0304 8F92      		push r8
+ 714 0306 9F92      		push r9
+ 715 0308 AF92      		push r10
+ 716 030a BF92      		push r11
+ 717 030c CF92      		push r12
+ 718 030e DF92      		push r13
+ 719 0310 EF92      		push r14
+ 720 0312 FF92      		push r15
+ 721 0314 0F93      		push r16
+ 722 0316 1F93      		push r17
+ 723 0318 CF93      		push r28
+ 724 031a DF93      		push r29
+ 725               	/* prologue: function */
+ 726               	/* frame size = 0 */
+ 727               	/* stack size = 12 */
+ 728               	.L__stack_usage = 12
+ 729 031c 7C01      		movw r14,r24
+ 164:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     // Vraag de grootte van de binnenkomende data op
+ 165:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     uint16_t size = spi_receive(S0RXRSRH) << 8;
+ 731               	.LM73:
+ 732 031e 86E2      		ldi r24,lo8(38)
+ 733 0320 94E0      		ldi r25,lo8(4)
+ 734 0322 0E94 0000 		call spi_receive
+ 735 0326 C82F      		mov r28,r24
+ 736 0328 D0E0      		ldi r29,0
+ 737 032a DC2F      		mov r29,r28
+ 738 032c CC27      		clr r28
+ 166:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     size |= spi_receive(S0RXRSRL);
+ 740               	.LM74:
+ 741 032e 87E2      		ldi r24,lo8(39)
+ 742 0330 94E0      		ldi r25,lo8(4)
+ 743 0332 0E94 0000 		call spi_receive
+ 744 0336 C82B      		or r28,r24
+ 167:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     
+ 168:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     // Haalt de header van de groote af
+ 169:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     size -= 8;
+ 746               	.LM75:
+ 747 0338 8E01      		movw r16,r28
+ 748 033a 0850      		subi r16,8
+ 749 033c 1109      		sbc r17,__zero_reg__
+ 170:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     
+ 171:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     // Vraagt de pointer naar het socket geheugen
+ 172:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     uint16_t pointer = spi_receive(S0RXRRH) << 8;
+ 751               	.LM76:
+ 752 033e 88E2      		ldi r24,lo8(40)
+ 753 0340 94E0      		ldi r25,lo8(4)
+ 754 0342 0E94 0000 		call spi_receive
+ 755 0346 C82E      		mov r12,r24
+ 756 0348 D12C      		mov r13,__zero_reg__
+ 757 034a DC2C      		mov r13,r12
+ 758 034c CC24      		clr r12
+ 173:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     pointer |= spi_receive(S0RXRRL);
+ 760               	.LM77:
+ 761 034e 89E2      		ldi r24,lo8(41)
+ 762 0350 94E0      		ldi r25,lo8(4)
+ 763 0352 0E94 0000 		call spi_receive
+ 764 0356 9601      		movw r18,r12
+ 765 0358 282B      		or r18,r24
+ 766 035a C901      		movw r24,r18
+ 174:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     
+ 175:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     // Voegt 8 toe voor de header
+ 176:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     pointer += 8;
+ 768               	.LM78:
+ 769 035c 5C01      		movw r10,r24
+ 770 035e 38E0      		ldi r19,8
+ 771 0360 A30E      		add r10,r19
+ 772 0362 B11C      		adc r11,__zero_reg__
+ 773 0364 6701      		movw r12,r14
+ 774 0366 C80F      		add r28,r24
+ 775 0368 D91F      		adc r29,r25
+ 776 036a 9501      		movw r18,r10
+ 777               	.L25:
+ 778               	.LBB16:
+ 177:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     
+ 178:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     // Berekent het adres met de pointer en mask
+ 179:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     // Haalt de data op uit het geheugen minus de eerste 8 header bytes
+ 180:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     uint16_t address;
+ 181:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     for (int i = 0; i < (size ); ++i) {
+ 780               	.LM79:
+ 781 036c 2C17      		cp r18,r28
+ 782 036e 3D07      		cpc r19,r29
+ 783 0370 01F0      		breq .L27
+ 182:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****         address = S0RXBASE + ((pointer++) & 0x07FF);
+ 785               	.LM80:
+ 786 0372 4901      		movw r8,r18
+ 787 0374 8FEF      		ldi r24,-1
+ 788 0376 881A      		sub r8,r24
+ 789 0378 980A      		sbc r9,r24
+ 790 037a C901      		movw r24,r18
+ 791 037c 9770      		andi r25,7
+ 183:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****         buffer[i] = spi_receive(address);
+ 793               	.LM81:
+ 794 037e 905A      		subi r25,-96
+ 795 0380 0E94 0000 		call spi_receive
+ 796 0384 F601      		movw r30,r12
+ 797 0386 8193      		st Z+,r24
+ 798 0388 6F01      		movw r12,r30
+ 182:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****         address = S0RXBASE + ((pointer++) & 0x07FF);
+ 800               	.LM82:
+ 801 038a 9401      		movw r18,r8
+ 802 038c 00C0      		rjmp .L25
+ 803               	.L27:
+ 804 038e E801      		movw r28,r16
+ 805 0390 CA0D      		add r28,r10
+ 806 0392 DB1D      		adc r29,r11
+ 807               	.LBE16:
+ 184:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     }
+ 185:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     
+ 186:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     // Harde nul voor string
+ 187:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     buffer[size] = '\0';
+ 809               	.LM83:
+ 810 0394 F701      		movw r30,r14
+ 811 0396 E00F      		add r30,r16
+ 812 0398 F11F      		adc r31,r17
+ 813 039a 1082      		st Z,__zero_reg__
+ 188:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c **** 
+ 189:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     // Berg de pointer weer op
+ 190:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     spi_transmit(S0RXRRH, pointer >> 8);
+ 815               	.LM84:
+ 816 039c 6D2F      		mov r22,r29
+ 817 039e 88E2      		ldi r24,lo8(40)
+ 818 03a0 94E0      		ldi r25,lo8(4)
+ 819 03a2 0E94 0000 		call spi_transmit
+ 191:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     spi_transmit(S0RXRRL, pointer);
+ 821               	.LM85:
+ 822 03a6 6C2F      		mov r22,r28
+ 823 03a8 89E2      		ldi r24,lo8(41)
+ 824 03aa 94E0      		ldi r25,lo8(4)
+ 825 03ac 0E94 0000 		call spi_transmit
+ 192:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     
+ 193:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     // Registreer dat het pakket is opgehaald
+ 194:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     spi_transmit(S0CR, RECV);
+ 827               	.LM86:
+ 828 03b0 60E4      		ldi r22,lo8(64)
+ 829 03b2 81E0      		ldi r24,lo8(1)
+ 830 03b4 94E0      		ldi r25,lo8(4)
+ 831               	/* epilogue start */
+ 195:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     
+ 196:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     // Stuur een acknowledge
+ 197:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     // udp_to_monitor(udpack, buffer, size);
+ 198:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c **** }...
+ 833               	.LM87:
+ 834 03b6 DF91      		pop r29
+ 835 03b8 CF91      		pop r28
+ 836 03ba 1F91      		pop r17
+ 837 03bc 0F91      		pop r16
+ 838 03be FF90      		pop r15
+ 839 03c0 EF90      		pop r14
+ 840 03c2 DF90      		pop r13
+ 841 03c4 CF90      		pop r12
+ 842 03c6 BF90      		pop r11
+ 843 03c8 AF90      		pop r10
+ 844 03ca 9F90      		pop r9
+ 845 03cc 8F90      		pop r8
+ 194:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/udp.c ****     spi_transmit(S0CR, RECV);
+ 847               	.LM88:
+ 848 03ce 0C94 0000 		jmp spi_transmit
+ 850               	.Lscope5:
+ 852               	.Letext0:
+ 853               		.ident	"GCC: (GNU) 4.8.1"
+ 854               	.global __do_copy_data
+DEFINED SYMBOLS
+                            *ABS*:00000000 udp.c
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc3NKtiu.s:2      *ABS*:0000003e __SP_H__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc3NKtiu.s:3      *ABS*:0000003d __SP_L__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc3NKtiu.s:4      *ABS*:0000003f __SREG__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc3NKtiu.s:5      *ABS*:00000000 __tmp_reg__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc3NKtiu.s:6      *ABS*:00000001 __zero_reg__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc3NKtiu.s:120    .text:00000000 udp_create_socket
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc3NKtiu.s:176    .text:00000042 udp_close_socket
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc3NKtiu.s:204    .text:0000004c udp_broadcast
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc3NKtiu.s:435    .text:0000018e udp_to_monitor
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc3NKtiu.s:709    .text:00000304 udp_from_monitor
+
+UNDEFINED SYMBOLS
+spi_transmit
+spi_receive
+__do_copy_data

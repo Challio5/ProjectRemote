@@ -1,0 +1,559 @@
+   1               		.file	"ethernet.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   8               		.text
+   9               	.Ltext0:
+ 112               	.global	initWiznet
+ 114               	initWiznet:
+   1:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** //
+   2:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** //  ethernet.c
+   3:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** //  Arduino
+   4:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** //
+   5:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** //  Created by Rob Bonhof on 10-12-14.
+   6:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** //  Copyright (c) 2014 Rob Bonhof. All rights reserved.
+   7:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** //
+   8:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** 
+   9:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** #include <stdio.h>
+  10:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** 
+  11:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** #include "ethernet.h"
+  12:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** #include "spi.h"
+  13:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** #include "uart.h"
+  14:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** 
+  15:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** // Het ipadres van de router
+  16:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** unsigned char gtw_addr[] = {10,0,0,1};
+  17:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** // Subnetmask, de laatste twee bytes zijn het subnet
+  18:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** unsigned char sub_mask[] = {255,255,0,0};
+  19:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** // Mac address
+  20:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** unsigned char mac_addr[] = {0x00,0x16,0x36,0xDE,0x58,0xF7};
+  21:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** // 3e byte is het groepsnummer: 4 en de 4e byte de arduino/monitor: 0 (arduino)
+  22:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** unsigned char ip_addr[]  = {10,0,4,0};
+  23:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** 
+  24:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** // Methode om wiznet mee in te stellen
+  25:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** void initWiznet(void) {
+ 116               	.LM0:
+ 117               	.LFBB1:
+ 118               	/* prologue: function */
+ 119               	/* frame size = 0 */
+ 120               	/* stack size = 0 */
+ 121               	.L__stack_usage = 0
+  26:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     SPI_Transmit(MR, (1 << RST));   // Initialiseer registers ethernet shield
+ 123               	.LM1:
+ 124 0000 60E8      		ldi r22,lo8(-128)
+ 125 0002 80E0      		ldi r24,0
+ 126 0004 90E0      		ldi r25,0
+ 127 0006 0E94 0000 		call SPI_Transmit
+  27:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     SPI_Transmit(TMSR, ((1 << S0S0) | (1 << S1S0) | (1 << S2S0) | (1 << S3S0)));    // 2kb grootte
+ 129               	.LM2:
+ 130 000a 65E5      		ldi r22,lo8(85)
+ 131 000c 8BE1      		ldi r24,lo8(27)
+ 132 000e 90E0      		ldi r25,0
+ 133 0010 0E94 0000 		call SPI_Transmit
+  28:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     SPI_Transmit(RMSR, ((1 << S0S0) | (1 << S1S0) | (1 << S2S0) | (1 << S3S0)));    // 2kb grootte
+ 135               	.LM3:
+ 136 0014 65E5      		ldi r22,lo8(85)
+ 137 0016 8AE1      		ldi r24,lo8(26)
+ 138 0018 90E0      		ldi r25,0
+ 139 001a 0C94 0000 		jmp SPI_Transmit
+ 141               	.Lscope1:
+ 143               	.global	set_gateway
+ 145               	set_gateway:
+  29:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** }
+  30:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** 
+  31:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** // Methode om de bytes uit het gateway array mee te versturen
+  32:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** void set_gateway(void) {
+ 147               	.LM4:
+ 148               	.LFBB2:
+ 149 001e 0F93      		push r16
+ 150 0020 1F93      		push r17
+ 151 0022 CF93      		push r28
+ 152 0024 DF93      		push r29
+ 153               	/* prologue: function */
+ 154               	/* frame size = 0 */
+ 155               	/* stack size = 4 */
+ 156               	.L__stack_usage = 4
+ 157 0026 00E0      		ldi r16,lo8(gtw_addr)
+ 158 0028 10E0      		ldi r17,hi8(gtw_addr)
+ 159               	.LBB2:
+  33:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     for(int i = 0; i < (sizeof(gtw_addr) / sizeof(gtw_addr[0])); ++i) {
+ 161               	.LM5:
+ 162 002a C0E0      		ldi r28,0
+ 163 002c D0E0      		ldi r29,0
+ 164               	.L3:
+  34:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****         SPI_Transmit(GAR + i, gtw_addr[i]);
+ 166               	.LM6:
+ 167 002e F801      		movw r30,r16
+ 168 0030 6191      		ld r22,Z+
+ 169 0032 8F01      		movw r16,r30
+ 170 0034 2196      		adiw r28,1
+ 171 0036 CE01      		movw r24,r28
+ 172 0038 0E94 0000 		call SPI_Transmit
+  33:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     for(int i = 0; i < (sizeof(gtw_addr) / sizeof(gtw_addr[0])); ++i) {
+ 174               	.LM7:
+ 175 003c C430      		cpi r28,4
+ 176 003e D105      		cpc r29,__zero_reg__
+ 177 0040 01F4      		brne .L3
+ 178               	/* epilogue start */
+ 179               	.LBE2:
+  35:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     }
+  36:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** }
+ 181               	.LM8:
+ 182 0042 DF91      		pop r29
+ 183 0044 CF91      		pop r28
+ 184 0046 1F91      		pop r17
+ 185 0048 0F91      		pop r16
+ 186 004a 0895      		ret
+ 191               	.Lscope2:
+ 193               	.global	set_submask
+ 195               	set_submask:
+  37:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** 
+  38:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** // Methode om de bytes uit het subnet array mee te versturen
+  39:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** void set_submask(void) {
+ 197               	.LM9:
+ 198               	.LFBB3:
+ 199 004c 0F93      		push r16
+ 200 004e 1F93      		push r17
+ 201 0050 CF93      		push r28
+ 202 0052 DF93      		push r29
+ 203               	/* prologue: function */
+ 204               	/* frame size = 0 */
+ 205               	/* stack size = 4 */
+ 206               	.L__stack_usage = 4
+ 207 0054 00E0      		ldi r16,lo8(sub_mask)
+ 208 0056 10E0      		ldi r17,hi8(sub_mask)
+ 210               	.LM10:
+ 211 0058 C5E0      		ldi r28,lo8(5)
+ 212 005a D0E0      		ldi r29,0
+ 213               	.L7:
+ 214               	.LBB3:
+  40:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     for(int i = 0; i < (sizeof(sub_mask) / sizeof(sub_mask[0])); ++i) {
+  41:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****         SPI_Transmit(SUBR + i, sub_mask[i]);
+ 216               	.LM11:
+ 217 005c F801      		movw r30,r16
+ 218 005e 6191      		ld r22,Z+
+ 219 0060 8F01      		movw r16,r30
+ 220 0062 CE01      		movw r24,r28
+ 221 0064 0E94 0000 		call SPI_Transmit
+ 222 0068 2196      		adiw r28,1
+  40:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     for(int i = 0; i < (sizeof(sub_mask) / sizeof(sub_mask[0])); ++i) {
+ 224               	.LM12:
+ 225 006a C930      		cpi r28,9
+ 226 006c D105      		cpc r29,__zero_reg__
+ 227 006e 01F4      		brne .L7
+ 228               	/* epilogue start */
+ 229               	.LBE3:
+  42:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     }
+  43:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** }
+ 231               	.LM13:
+ 232 0070 DF91      		pop r29
+ 233 0072 CF91      		pop r28
+ 234 0074 1F91      		pop r17
+ 235 0076 0F91      		pop r16
+ 236 0078 0895      		ret
+ 238               	.Lscope3:
+ 240               	.global	set_macaddress
+ 242               	set_macaddress:
+  44:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** 
+  45:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** // Methode om de bytes uit het macaddress array mee te versturen
+  46:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** void set_macaddress(void) {
+ 244               	.LM14:
+ 245               	.LFBB4:
+ 246 007a 0F93      		push r16
+ 247 007c 1F93      		push r17
+ 248 007e CF93      		push r28
+ 249 0080 DF93      		push r29
+ 250               	/* prologue: function */
+ 251               	/* frame size = 0 */
+ 252               	/* stack size = 4 */
+ 253               	.L__stack_usage = 4
+ 254 0082 00E0      		ldi r16,lo8(mac_addr)
+ 255 0084 10E0      		ldi r17,hi8(mac_addr)
+ 257               	.LM15:
+ 258 0086 C9E0      		ldi r28,lo8(9)
+ 259 0088 D0E0      		ldi r29,0
+ 260               	.L10:
+ 261               	.LBB4:
+  47:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     for(int i = 0; i < (sizeof(mac_addr) / sizeof(mac_addr[0])); ++i) {
+  48:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****         SPI_Transmit(SHAR + i, mac_addr[i]);
+ 263               	.LM16:
+ 264 008a F801      		movw r30,r16
+ 265 008c 6191      		ld r22,Z+
+ 266 008e 8F01      		movw r16,r30
+ 267 0090 CE01      		movw r24,r28
+ 268 0092 0E94 0000 		call SPI_Transmit
+ 269 0096 2196      		adiw r28,1
+  47:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     for(int i = 0; i < (sizeof(mac_addr) / sizeof(mac_addr[0])); ++i) {
+ 271               	.LM17:
+ 272 0098 CF30      		cpi r28,15
+ 273 009a D105      		cpc r29,__zero_reg__
+ 274 009c 01F4      		brne .L10
+ 275               	/* epilogue start */
+ 276               	.LBE4:
+  49:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     }
+  50:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** }
+ 278               	.LM18:
+ 279 009e DF91      		pop r29
+ 280 00a0 CF91      		pop r28
+ 281 00a2 1F91      		pop r17
+ 282 00a4 0F91      		pop r16
+ 283 00a6 0895      		ret
+ 285               	.Lscope4:
+ 287               	.global	set_ipaddress
+ 289               	set_ipaddress:
+  51:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** 
+  52:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** // Methode om de bytes uit het ipadres array mee te versturen
+  53:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** void set_ipaddress(void) {
+ 291               	.LM19:
+ 292               	.LFBB5:
+ 293 00a8 0F93      		push r16
+ 294 00aa 1F93      		push r17
+ 295 00ac CF93      		push r28
+ 296 00ae DF93      		push r29
+ 297               	/* prologue: function */
+ 298               	/* frame size = 0 */
+ 299               	/* stack size = 4 */
+ 300               	.L__stack_usage = 4
+ 301 00b0 00E0      		ldi r16,lo8(ip_addr)
+ 302 00b2 10E0      		ldi r17,hi8(ip_addr)
+ 304               	.LM20:
+ 305 00b4 CFE0      		ldi r28,lo8(15)
+ 306 00b6 D0E0      		ldi r29,0
+ 307               	.L13:
+ 308               	.LBB5:
+  54:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     for(int i = 0; i < (sizeof(ip_addr) / sizeof(ip_addr[0])); ++i) {
+  55:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****         SPI_Transmit(SIPR + i, ip_addr[i]);
+ 310               	.LM21:
+ 311 00b8 F801      		movw r30,r16
+ 312 00ba 6191      		ld r22,Z+
+ 313 00bc 8F01      		movw r16,r30
+ 314 00be CE01      		movw r24,r28
+ 315 00c0 0E94 0000 		call SPI_Transmit
+ 316 00c4 2196      		adiw r28,1
+  54:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     for(int i = 0; i < (sizeof(ip_addr) / sizeof(ip_addr[0])); ++i) {
+ 318               	.LM22:
+ 319 00c6 C331      		cpi r28,19
+ 320 00c8 D105      		cpc r29,__zero_reg__
+ 321 00ca 01F4      		brne .L13
+ 322               	/* epilogue start */
+ 323               	.LBE5:
+  56:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     }
+  57:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** }
+ 325               	.LM23:
+ 326 00cc DF91      		pop r29
+ 327 00ce CF91      		pop r28
+ 328 00d0 1F91      		pop r17
+ 329 00d2 0F91      		pop r16
+ 330 00d4 0895      		ret
+ 332               	.Lscope5:
+ 334               	.global	create_UDP_socket
+ 336               	create_UDP_socket:
+  58:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** 
+  59:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** 
+  60:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** // Methode om een UDP socket mee te creeren
+  61:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** void create_UDP_socket(void) {
+ 338               	.LM24:
+ 339               	.LFBB6:
+ 340               	/* prologue: function */
+ 341               	/* frame size = 0 */
+ 342               	/* stack size = 0 */
+ 343               	.L__stack_usage = 0
+ 344               	.L17:
+  62:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     SPI_Transmit(S0MR, (1 << P1));              // Maakt van socket 0 een UDP socket
+ 346               	.LM25:
+ 347 00d6 62E0      		ldi r22,lo8(2)
+ 348 00d8 80E0      		ldi r24,0
+ 349 00da 94E0      		ldi r25,lo8(4)
+ 350 00dc 0E94 0000 		call SPI_Transmit
+  63:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     SPI_Transmit(S0CR, OPEN);                   // Initialiseert de socket met de instellingen uit 
+ 352               	.LM26:
+ 353 00e0 61E0      		ldi r22,lo8(1)
+ 354 00e2 81E0      		ldi r24,lo8(1)
+ 355 00e4 94E0      		ldi r25,lo8(4)
+ 356 00e6 0E94 0000 		call SPI_Transmit
+  64:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     unsigned char status = SPI_Receive(S0SR);   // Haalt de status op
+ 358               	.LM27:
+ 359 00ea 83E0      		ldi r24,lo8(3)
+ 360 00ec 94E0      		ldi r25,lo8(4)
+ 361 00ee 0E94 0000 		call SPI_Receive
+  65:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     
+  66:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     if(status != SOCK_UDP) {                    // Check of de status (SOCK_UDP) klopt met de inste
+ 363               	.LM28:
+ 364 00f2 8232      		cpi r24,lo8(34)
+ 365 00f4 01F0      		breq .L15
+  67:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****         SPI_Transmit(S0CR, CLOSE);              // Anders sluit de verbinding
+ 367               	.LM29:
+ 368 00f6 60E1      		ldi r22,lo8(16)
+ 369 00f8 81E0      		ldi r24,lo8(1)
+ 370 00fa 94E0      		ldi r25,lo8(4)
+ 371 00fc 0E94 0000 		call SPI_Transmit
+ 372 0100 00C0      		rjmp .L17
+ 373               	.L15:
+ 374 0102 0895      		ret
+ 376               	.Lscope6:
+ 377               		.section	.rodata.str1.1,"aMS",@progbits,1
+ 378               	.LC0:
+ 379 0000 2564 00   		.string	"%d"
+ 380               		.text
+ 382               	.global	send_alive
+ 384               	send_alive:
+  68:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****         create_UDP_socket();                    // Probeer opnieuw
+  69:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     }
+  70:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** }
+  71:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** 
+  72:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** // Methode om een alive message mee te broadcasten
+  73:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** void send_alive(void) {
+ 386               	.LM30:
+ 387               	.LFBB7:
+ 388 0104 EF92      		push r14
+ 389 0106 FF92      		push r15
+ 390 0108 0F93      		push r16
+ 391 010a 1F93      		push r17
+ 392 010c CF93      		push r28
+ 393 010e DF93      		push r29
+ 394 0110 CDB7      		in r28,__SP_L__
+ 395 0112 DEB7      		in r29,__SP_H__
+ 396 0114 6F97      		sbiw r28,31
+ 397 0116 0FB6      		in __tmp_reg__,__SREG__
+ 398 0118 F894      		cli
+ 399 011a DEBF      		out __SP_H__,r29
+ 400 011c 0FBE      		out __SREG__,__tmp_reg__
+ 401 011e CDBF      		out __SP_L__,r28
+ 402               	/* prologue: function */
+ 403               	/* frame size = 31 */
+ 404               	/* stack size = 37 */
+ 405               	.L__stack_usage = 37
+  74:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     // Vraag de vrije ruimte op voor het versturen van pakket
+  75:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     int size = SPI_Receive(S0TXFSRH);
+ 407               	.LM31:
+ 408 0120 80E2      		ldi r24,lo8(32)
+ 409 0122 94E0      		ldi r25,lo8(4)
+ 410 0124 0E94 0000 		call SPI_Receive
+ 411 0128 082F      		mov r16,r24
+ 412 012a 10E0      		ldi r17,0
+  76:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     size <<= 8;
+ 414               	.LM32:
+ 415 012c 102F      		mov r17,r16
+ 416 012e 0027      		clr r16
+  77:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     size |= SPI_Receive(S0TXFSRL);
+ 418               	.LM33:
+ 419 0130 81E2      		ldi r24,lo8(33)
+ 420 0132 94E0      		ldi r25,lo8(4)
+ 421 0134 0E94 0000 		call SPI_Receive
+ 422 0138 9801      		movw r18,r16
+ 423 013a 282B      		or r18,r24
+ 424 013c C901      		movw r24,r18
+  78:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     
+  79:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     // Print de vrije ruimte
+  80:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     char output1[15];
+  81:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     sprintf(output1, "%d", size);
+ 426               	.LM34:
+ 427 013e 9F93      		push r25
+ 428 0140 8F93      		push r24
+ 429 0142 00E0      		ldi r16,lo8(.LC0)
+ 430 0144 10E0      		ldi r17,hi8(.LC0)
+ 431 0146 1F93      		push r17
+ 432 0148 0F93      		push r16
+ 433 014a 7E01      		movw r14,r28
+ 434 014c 31E1      		ldi r19,17
+ 435 014e E30E      		add r14,r19
+ 436 0150 F11C      		adc r15,__zero_reg__
+ 437 0152 FF92      		push r15
+ 438 0154 EF92      		push r14
+ 439 0156 0E94 0000 		call sprintf
+  82:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     println(output1);
+ 441               	.LM35:
+ 442 015a C701      		movw r24,r14
+ 443 015c 0E94 0000 		call println
+  83:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     
+  84:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     // Zet het ipadres op broadcast
+  85:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     SPI_Transmit(S0DIPR + 0, 255);
+ 445               	.LM36:
+ 446 0160 6FEF      		ldi r22,lo8(-1)
+ 447 0162 8CE0      		ldi r24,lo8(12)
+ 448 0164 94E0      		ldi r25,lo8(4)
+ 449 0166 0E94 0000 		call SPI_Transmit
+  86:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     SPI_Transmit(S0DIPR + 1, 255);
+ 451               	.LM37:
+ 452 016a 6FEF      		ldi r22,lo8(-1)
+ 453 016c 8DE0      		ldi r24,lo8(13)
+ 454 016e 94E0      		ldi r25,lo8(4)
+ 455 0170 0E94 0000 		call SPI_Transmit
+  87:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     SPI_Transmit(S0DIPR + 2, 255);
+ 457               	.LM38:
+ 458 0174 6FEF      		ldi r22,lo8(-1)
+ 459 0176 8EE0      		ldi r24,lo8(14)
+ 460 0178 94E0      		ldi r25,lo8(4)
+ 461 017a 0E94 0000 		call SPI_Transmit
+  88:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     SPI_Transmit(S0DIPR + 3, 255);
+ 463               	.LM39:
+ 464 017e 6FEF      		ldi r22,lo8(-1)
+ 465 0180 8FE0      		ldi r24,lo8(15)
+ 466 0182 94E0      		ldi r25,lo8(4)
+ 467 0184 0E94 0000 		call SPI_Transmit
+  89:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     
+  90:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     // Zet de destination poort
+  91:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     SPI_Transmit(S0DPORTH, 30000 >> 8);
+ 469               	.LM40:
+ 470 0188 65E7      		ldi r22,lo8(117)
+ 471 018a 80E1      		ldi r24,lo8(16)
+ 472 018c 94E0      		ldi r25,lo8(4)
+ 473 018e 0E94 0000 		call SPI_Transmit
+  92:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     SPI_Transmit(S0DPORTL, 30000 & 0xFF);
+ 475               	.LM41:
+ 476 0192 60E3      		ldi r22,lo8(48)
+ 477 0194 81E1      		ldi r24,lo8(17)
+ 478 0196 94E0      		ldi r25,lo8(4)
+ 479 0198 0E94 0000 		call SPI_Transmit
+  93:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     
+  94:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     // Vraagt de pointer naar het socket geheugen
+  95:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     int pointer = SPI_Receive(S0TXWRH);
+ 481               	.LM42:
+ 482 019c 84E2      		ldi r24,lo8(36)
+ 483 019e 94E0      		ldi r25,lo8(4)
+ 484 01a0 0E94 0000 		call SPI_Receive
+ 485 01a4 E82E      		mov r14,r24
+ 486 01a6 F12C      		mov r15,__zero_reg__
+  96:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     pointer <<= 8;
+ 488               	.LM43:
+ 489 01a8 FE2C      		mov r15,r14
+ 490 01aa EE24      		clr r14
+  97:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     pointer |= SPI_Receive(S0TXWRL);
+ 492               	.LM44:
+ 493 01ac 85E2      		ldi r24,lo8(37)
+ 494 01ae 94E0      		ldi r25,lo8(4)
+ 495 01b0 0E94 0000 		call SPI_Receive
+ 496 01b4 9701      		movw r18,r14
+ 497 01b6 282B      		or r18,r24
+ 498 01b8 C901      		movw r24,r18
+  98:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     
+  99:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     // Berekent de offset, adresgrootte, met de pointer en het mask
+ 100:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     int mask = 0x7EE;                   // Socket size grootte: 0x7D0 (2000) - 1
+ 101:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     int offset = pointer & mask;
+ 500               	.LM45:
+ 501 01ba 8E7E      		andi r24,238
+ 502 01bc 9770      		andi r25,7
+ 102:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     
+ 103:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     // Berekent het begin adres door de offset bij het basisadres van de socket op te tellen
+ 104:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     int startaddress = S0TXBASE + offset;
+ 504               	.LM46:
+ 505 01be 905C      		subi r25,-64
+ 105:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     
+ 106:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     // Print het startadres
+ 107:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     char output2[16];
+ 108:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     sprintf(output2, "%d", startaddress);
+ 507               	.LM47:
+ 508 01c0 9F93      		push r25
+ 509 01c2 8F93      		push r24
+ 510 01c4 1F93      		push r17
+ 511 01c6 0F93      		push r16
+ 512 01c8 8E01      		movw r16,r28
+ 513 01ca 0F5F      		subi r16,-1
+ 514 01cc 1F4F      		sbci r17,-1
+ 515 01ce 1F93      		push r17
+ 516 01d0 0F93      		push r16
+ 517 01d2 0E94 0000 		call sprintf
+ 109:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     println(output2);
+ 519               	.LM48:
+ 520 01d6 C801      		movw r24,r16
+ 521 01d8 0E94 0000 		call println
+ 110:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     
+ 111:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     // Verstuurt het pakket
+ 112:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c ****     SPI_Transmit(S0CR, SEND);
+ 523               	.LM49:
+ 524 01dc 60E2      		ldi r22,lo8(32)
+ 525 01de 81E0      		ldi r24,lo8(1)
+ 526 01e0 94E0      		ldi r25,lo8(4)
+ 527 01e2 0E94 0000 		call SPI_Transmit
+ 528 01e6 0FB6      		in __tmp_reg__,__SREG__
+ 529 01e8 F894      		cli
+ 530 01ea DEBF      		out __SP_H__,r29
+ 531 01ec 0FBE      		out __SREG__,__tmp_reg__
+ 532 01ee CDBF      		out __SP_L__,r28
+ 533               	/* epilogue start */
+ 113:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** }
+ 535               	.LM50:
+ 536 01f0 6F96      		adiw r28,31
+ 537 01f2 0FB6      		in __tmp_reg__,__SREG__
+ 538 01f4 F894      		cli
+ 539 01f6 DEBF      		out __SP_H__,r29
+ 540 01f8 0FBE      		out __SREG__,__tmp_reg__
+ 541 01fa CDBF      		out __SP_L__,r28
+ 542 01fc DF91      		pop r29
+ 543 01fe CF91      		pop r28
+ 544 0200 1F91      		pop r17
+ 545 0202 0F91      		pop r16
+ 546 0204 FF90      		pop r15
+ 547 0206 EF90      		pop r14
+ 548 0208 0895      		ret
+ 554               	.Lscope7:
+ 556               	.global	create_TCP_socket
+ 558               	create_TCP_socket:
+ 114:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** 
+ 115:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/ethernet.c **** void create_TCP_socket(void) {
+ 560               	.LM51:
+ 561               	.LFBB8:
+ 562               	/* prologue: function */
+ 563               	/* frame size = 0 */
+ 564               	/* stack size = 0 */
+ 565               	.L__stack_usage = 0
+ 566 020a 0895      		ret
+ 568               	.Lscope8:
+ 569               	.global	ip_addr
+ 570               		.data
+ 573               	ip_addr:
+ 574 0000 0A        		.byte	10
+ 575 0001 00        		.byte	0
+ 576 0002 04        		.byte	4
+ 577 0003 00        		.byte	0
+ 578               	.global	mac_addr
+ 581               	mac_addr:
+ 582 0004 00        		.byte	0
+ 583 0005 16        		.byte	22
+ 584 0006 36        		.byte	54
+ 585 0007 DE        		.byte	-34
+ 586 0008 58        		.byte	88
+ 587 0009 F7        		.byte	-9
+ 588               	.global	sub_mask
+ 591               	sub_mask:
+ 592 000a FF        		.byte	-1
+ 593 000b FF        		.byte	-1
+ 594 000c 00        		.byte	0
+ 595 000d 00        		.byte	0
+ 596               	.global	gtw_addr
+ 599               	gtw_addr:
+ 600 000e 0A        		.byte	10
+ 601 000f 00        		.byte	0
+ 602 0010 00        		.byte	0
+ 603 0011 01        		.byte	1
+ 608               		.text
+ 610               	.Letext0:
+ 611               		.ident	"GCC: (GNU) 4.8.1"
+ 612               	.global __do_copy_data
+DEFINED SYMBOLS
+                            *ABS*:00000000 ethernet.c
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc342pm3.s:2      *ABS*:0000003e __SP_H__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc342pm3.s:3      *ABS*:0000003d __SP_L__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc342pm3.s:4      *ABS*:0000003f __SREG__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc342pm3.s:5      *ABS*:00000000 __tmp_reg__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc342pm3.s:6      *ABS*:00000001 __zero_reg__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc342pm3.s:114    .text:00000000 initWiznet
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc342pm3.s:145    .text:0000001e set_gateway
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc342pm3.s:599    .data:0000000e gtw_addr
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc342pm3.s:195    .text:0000004c set_submask
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc342pm3.s:591    .data:0000000a sub_mask
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc342pm3.s:242    .text:0000007a set_macaddress
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc342pm3.s:581    .data:00000004 mac_addr
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc342pm3.s:289    .text:000000a8 set_ipaddress
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc342pm3.s:573    .data:00000000 ip_addr
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc342pm3.s:336    .text:000000d6 create_UDP_socket
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc342pm3.s:384    .text:00000104 send_alive
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc342pm3.s:558    .text:0000020a create_TCP_socket
+
+UNDEFINED SYMBOLS
+SPI_Transmit
+SPI_Receive
+sprintf
+println
+__do_copy_data

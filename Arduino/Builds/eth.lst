@@ -1,0 +1,524 @@
+   1               		.file	"eth.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   8               		.text
+   9               	.Ltext0:
+ 118               	.global	initWiznet
+ 120               	initWiznet:
+   1:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** //
+   2:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** //  ethernet.c
+   3:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** //  Arduino
+   4:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** //
+   5:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** //  Created by Projectgroep TI2.4 on 10-12-14.
+   6:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** //  Copyright (c) 2014 Projectgroep TI2.4. All rights reserved.
+   7:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** //
+   8:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** 
+   9:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** #include <stdio.h>
+  10:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** #include <util/delay.h>
+  11:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** 
+  12:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** #include "eth.h"
+  13:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** #include "spi.h"
+  14:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** #include "uart.h"
+  15:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** 
+  16:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** #if 1
+  17:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** uint8_t gtw_addr[] = {10,0,0,1};
+  18:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** uint8_t sub_mask[] = {255,255,0,0};
+  19:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** uint8_t mac_addr[] = {0x00,0x16,0x36,0xDE,0x58,0xF6};
+  20:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** uint8_t ip_addr[]  = {10,0,4,1};
+  21:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** 
+  22:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** #else
+  23:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** uint8_t gtw_addr[] = {192,168,178,1};
+  24:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** uint8_t sub_mask[] = {255,255,255,0};
+  25:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** uint8_t mac_addr[] = {0x00,0x16,0x36,0xDE,0x58,0xF6};
+  26:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** uint8_t ip_addr[]  = {192,168,178,3};
+  27:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** 
+  28:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** #endif
+  29:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** 
+  30:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** // Methode om wiznet mee in te stellen
+  31:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** void initWiznet(void) {
+ 122               	.LM0:
+ 123               	.LFBB1:
+ 124               	/* prologue: function */
+ 125               	/* frame size = 0 */
+ 126               	/* stack size = 0 */
+ 127               	.L__stack_usage = 0
+  32:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c ****     spi_transmit(MR, (1 << RST));   // Initialiseer registers ethernet shield
+ 129               	.LM1:
+ 130 0000 60E8      		ldi r22,lo8(-128)
+ 131 0002 80E0      		ldi r24,0
+ 132 0004 90E0      		ldi r25,0
+ 133 0006 0E94 0000 		call spi_transmit
+  33:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c ****     spi_transmit(TMSR, ((1 << S0S0) | (1 << S1S0) | (1 << S2S0) | (1 << S3S0)));    // 2kb grootte
+ 135               	.LM2:
+ 136 000a 65E5      		ldi r22,lo8(85)
+ 137 000c 8BE1      		ldi r24,lo8(27)
+ 138 000e 90E0      		ldi r25,0
+ 139 0010 0E94 0000 		call spi_transmit
+  34:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c ****     spi_transmit(RMSR, ((1 << S0S0) | (1 << S1S0) | (1 << S2S0) | (1 << S3S0)));    // 2kb grootte
+ 141               	.LM3:
+ 142 0014 65E5      		ldi r22,lo8(85)
+ 143 0016 8AE1      		ldi r24,lo8(26)
+ 144 0018 90E0      		ldi r25,0
+ 145 001a 0C94 0000 		jmp spi_transmit
+ 147               	.Lscope1:
+ 149               	.global	set_gateway
+ 151               	set_gateway:
+  35:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** }
+  36:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** 
+  37:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** // Methode om de bytes uit het gateway array mee te versturen
+  38:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** void set_gateway(void) {
+ 153               	.LM4:
+ 154               	.LFBB2:
+ 155 001e 0F93      		push r16
+ 156 0020 1F93      		push r17
+ 157 0022 CF93      		push r28
+ 158 0024 DF93      		push r29
+ 159               	/* prologue: function */
+ 160               	/* frame size = 0 */
+ 161               	/* stack size = 4 */
+ 162               	.L__stack_usage = 4
+ 163 0026 00E0      		ldi r16,lo8(gtw_addr)
+ 164 0028 10E0      		ldi r17,hi8(gtw_addr)
+ 165               	.LBB2:
+  39:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c ****     for(int i = 0; i < (sizeof(gtw_addr) / sizeof(gtw_addr[0])); ++i) {
+ 167               	.LM5:
+ 168 002a C0E0      		ldi r28,0
+ 169 002c D0E0      		ldi r29,0
+ 170               	.L3:
+  40:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c ****         spi_transmit(GAR + i, gtw_addr[i]);
+ 172               	.LM6:
+ 173 002e F801      		movw r30,r16
+ 174 0030 6191      		ld r22,Z+
+ 175 0032 8F01      		movw r16,r30
+ 176 0034 2196      		adiw r28,1
+ 177 0036 CE01      		movw r24,r28
+ 178 0038 0E94 0000 		call spi_transmit
+  39:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c ****     for(int i = 0; i < (sizeof(gtw_addr) / sizeof(gtw_addr[0])); ++i) {
+ 180               	.LM7:
+ 181 003c C430      		cpi r28,4
+ 182 003e D105      		cpc r29,__zero_reg__
+ 183 0040 01F4      		brne .L3
+ 184               	/* epilogue start */
+ 185               	.LBE2:
+  41:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c ****     }
+  42:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** }
+ 187               	.LM8:
+ 188 0042 DF91      		pop r29
+ 189 0044 CF91      		pop r28
+ 190 0046 1F91      		pop r17
+ 191 0048 0F91      		pop r16
+ 192 004a 0895      		ret
+ 197               	.Lscope2:
+ 199               	.global	set_submask
+ 201               	set_submask:
+  43:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** 
+  44:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** // Methode om de bytes uit het subnet array mee te versturen
+  45:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** void set_submask(void) {
+ 203               	.LM9:
+ 204               	.LFBB3:
+ 205 004c 0F93      		push r16
+ 206 004e 1F93      		push r17
+ 207 0050 CF93      		push r28
+ 208 0052 DF93      		push r29
+ 209               	/* prologue: function */
+ 210               	/* frame size = 0 */
+ 211               	/* stack size = 4 */
+ 212               	.L__stack_usage = 4
+ 213 0054 00E0      		ldi r16,lo8(sub_mask)
+ 214 0056 10E0      		ldi r17,hi8(sub_mask)
+ 216               	.LM10:
+ 217 0058 C5E0      		ldi r28,lo8(5)
+ 218 005a D0E0      		ldi r29,0
+ 219               	.L7:
+ 220               	.LBB3:
+  46:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c ****     for(int i = 0; i < (sizeof(sub_mask) / sizeof(sub_mask[0])); ++i) {
+  47:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c ****         spi_transmit(SUBR + i, sub_mask[i]);
+ 222               	.LM11:
+ 223 005c F801      		movw r30,r16
+ 224 005e 6191      		ld r22,Z+
+ 225 0060 8F01      		movw r16,r30
+ 226 0062 CE01      		movw r24,r28
+ 227 0064 0E94 0000 		call spi_transmit
+ 228 0068 2196      		adiw r28,1
+  46:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c ****     for(int i = 0; i < (sizeof(sub_mask) / sizeof(sub_mask[0])); ++i) {
+ 230               	.LM12:
+ 231 006a C930      		cpi r28,9
+ 232 006c D105      		cpc r29,__zero_reg__
+ 233 006e 01F4      		brne .L7
+ 234               	/* epilogue start */
+ 235               	.LBE3:
+  48:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c ****     }
+  49:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** }
+ 237               	.LM13:
+ 238 0070 DF91      		pop r29
+ 239 0072 CF91      		pop r28
+ 240 0074 1F91      		pop r17
+ 241 0076 0F91      		pop r16
+ 242 0078 0895      		ret
+ 244               	.Lscope3:
+ 246               	.global	set_macaddress
+ 248               	set_macaddress:
+  50:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** 
+  51:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** // Methode om de bytes uit het macaddress array mee te versturen
+  52:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** void set_macaddress(void) {
+ 250               	.LM14:
+ 251               	.LFBB4:
+ 252 007a 0F93      		push r16
+ 253 007c 1F93      		push r17
+ 254 007e CF93      		push r28
+ 255 0080 DF93      		push r29
+ 256               	/* prologue: function */
+ 257               	/* frame size = 0 */
+ 258               	/* stack size = 4 */
+ 259               	.L__stack_usage = 4
+ 260 0082 00E0      		ldi r16,lo8(mac_addr)
+ 261 0084 10E0      		ldi r17,hi8(mac_addr)
+ 263               	.LM15:
+ 264 0086 C9E0      		ldi r28,lo8(9)
+ 265 0088 D0E0      		ldi r29,0
+ 266               	.L10:
+ 267               	.LBB4:
+  53:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c ****     for(int i = 0; i < (sizeof(mac_addr) / sizeof(mac_addr[0])); ++i) {
+  54:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c ****         spi_transmit(SHAR + i, mac_addr[i]);
+ 269               	.LM16:
+ 270 008a F801      		movw r30,r16
+ 271 008c 6191      		ld r22,Z+
+ 272 008e 8F01      		movw r16,r30
+ 273 0090 CE01      		movw r24,r28
+ 274 0092 0E94 0000 		call spi_transmit
+ 275 0096 2196      		adiw r28,1
+  53:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c ****     for(int i = 0; i < (sizeof(mac_addr) / sizeof(mac_addr[0])); ++i) {
+ 277               	.LM17:
+ 278 0098 CF30      		cpi r28,15
+ 279 009a D105      		cpc r29,__zero_reg__
+ 280 009c 01F4      		brne .L10
+ 281               	/* epilogue start */
+ 282               	.LBE4:
+  55:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c ****     }
+  56:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** }
+ 284               	.LM18:
+ 285 009e DF91      		pop r29
+ 286 00a0 CF91      		pop r28
+ 287 00a2 1F91      		pop r17
+ 288 00a4 0F91      		pop r16
+ 289 00a6 0895      		ret
+ 291               	.Lscope4:
+ 293               	.global	set_ipaddress
+ 295               	set_ipaddress:
+  57:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** 
+  58:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** // Methode om de bytes uit het ipadres array mee te versturen
+  59:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** void set_ipaddress(void) {
+ 297               	.LM19:
+ 298               	.LFBB5:
+ 299 00a8 0F93      		push r16
+ 300 00aa 1F93      		push r17
+ 301 00ac CF93      		push r28
+ 302 00ae DF93      		push r29
+ 303               	/* prologue: function */
+ 304               	/* frame size = 0 */
+ 305               	/* stack size = 4 */
+ 306               	.L__stack_usage = 4
+ 307 00b0 00E0      		ldi r16,lo8(ip_addr)
+ 308 00b2 10E0      		ldi r17,hi8(ip_addr)
+ 310               	.LM20:
+ 311 00b4 CFE0      		ldi r28,lo8(15)
+ 312 00b6 D0E0      		ldi r29,0
+ 313               	.L13:
+ 314               	.LBB5:
+  60:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c ****     for(int i = 0; i < (sizeof(ip_addr) / sizeof(ip_addr[0])); ++i) {
+  61:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c ****         spi_transmit(SIPR + i, ip_addr[i]);
+ 316               	.LM21:
+ 317 00b8 F801      		movw r30,r16
+ 318 00ba 6191      		ld r22,Z+
+ 319 00bc 8F01      		movw r16,r30
+ 320 00be CE01      		movw r24,r28
+ 321 00c0 0E94 0000 		call spi_transmit
+ 322 00c4 2196      		adiw r28,1
+  60:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c ****     for(int i = 0; i < (sizeof(ip_addr) / sizeof(ip_addr[0])); ++i) {
+ 324               	.LM22:
+ 325 00c6 C331      		cpi r28,19
+ 326 00c8 D105      		cpc r29,__zero_reg__
+ 327 00ca 01F4      		brne .L13
+ 328               	/* epilogue start */
+ 329               	.LBE5:
+  62:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c ****     }
+  63:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** }
+ 331               	.LM23:
+ 332 00cc DF91      		pop r29
+ 333 00ce CF91      		pop r28
+ 334 00d0 1F91      		pop r17
+ 335 00d2 0F91      		pop r16
+ 336 00d4 0895      		ret
+ 338               	.Lscope5:
+ 339               		.section	.rodata.str1.1,"aMS",@progbits,1
+ 340               	.LC0:
+ 341 0000 4761 7465 		.string	"Gateway adres: %d.%d.%d.%d\n\n"
+ 341      7761 7920 
+ 341      6164 7265 
+ 341      733A 2025 
+ 341      642E 2564 
+ 342               	.LC1:
+ 343 001d 536F 7572 		.string	"Source hardware adres: %.2x:%.2x:%.2x:%.2x:%.2x:%.2x\n\n"
+ 343      6365 2068 
+ 343      6172 6477 
+ 343      6172 6520 
+ 343      6164 7265 
+ 344               	.LC2:
+ 345 0054 5375 626E 		.string	"Subnet mask: %d.%d.%d.%d\n\n"
+ 345      6574 206D 
+ 345      6173 6B3A 
+ 345      2025 642E 
+ 345      2564 2E25 
+ 346               	.LC3:
+ 347 006f 4970 2D61 		.string	"Ip-adres: %d.%d.%d.%d\n\n"
+ 347      6472 6573 
+ 347      3A20 2564 
+ 347      2E25 642E 
+ 347      2564 2E25 
+ 348               		.text
+ 350               	.global	print_status
+ 352               	print_status:
+  64:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** 
+  65:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** // Methode om de instellingen mee te printen
+  66:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** void print_status(void) {
+ 354               	.LM24:
+ 355               	.LFBB6:
+ 356 00d6 FF92      		push r15
+ 357 00d8 0F93      		push r16
+ 358 00da 1F93      		push r17
+ 359 00dc CF93      		push r28
+ 360 00de DF93      		push r29
+ 361               	/* prologue: function */
+ 362               	/* frame size = 0 */
+ 363               	/* stack size = 5 */
+ 364               	.L__stack_usage = 5
+  67:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c ****     printf("Gateway adres: %d.%d.%d.%d\n\n",spi_receive(GAR + 0),spi_receive(GAR + 1),\
+  68:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c ****            spi_receive(GAR + 2),spi_receive(GAR + 3));
+ 366               	.LM25:
+ 367 00e0 84E0      		ldi r24,lo8(4)
+ 368 00e2 90E0      		ldi r25,0
+ 369 00e4 0E94 0000 		call spi_receive
+ 370 00e8 182F      		mov r17,r24
+ 371 00ea 83E0      		ldi r24,lo8(3)
+ 372 00ec 90E0      		ldi r25,0
+ 373 00ee 0E94 0000 		call spi_receive
+ 374 00f2 D82F      		mov r29,r24
+  67:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c ****     printf("Gateway adres: %d.%d.%d.%d\n\n",spi_receive(GAR + 0),spi_receive(GAR + 1),\
+ 376               	.LM26:
+ 377 00f4 82E0      		ldi r24,lo8(2)
+ 378 00f6 90E0      		ldi r25,0
+ 379 00f8 0E94 0000 		call spi_receive
+ 380 00fc C82F      		mov r28,r24
+ 381 00fe 81E0      		ldi r24,lo8(1)
+ 382 0100 90E0      		ldi r25,0
+ 383 0102 0E94 0000 		call spi_receive
+ 384 0106 1F92      		push __zero_reg__
+ 385 0108 1F93      		push r17
+ 386 010a 1F92      		push __zero_reg__
+ 387 010c DF93      		push r29
+ 388 010e 1F92      		push __zero_reg__
+ 389 0110 CF93      		push r28
+ 390 0112 1F92      		push __zero_reg__
+ 391 0114 8F93      		push r24
+ 392 0116 80E0      		ldi r24,lo8(.LC0)
+ 393 0118 90E0      		ldi r25,hi8(.LC0)
+ 394 011a 9F93      		push r25
+ 395 011c 8F93      		push r24
+ 396 011e 0E94 0000 		call printf
+  69:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c ****     
+  70:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c ****     printf("Source hardware adres: %.2x:%.2x:%.2x:%.2x:%.2x:%.2x\n\n",spi_receive(SHAR + 0),spi_rec
+  71:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c ****            spi_receive(SHAR + 2),spi_receive(SHAR + 3),spi_receive(SHAR + 4),spi_receive(SHAR + 5))
+ 398               	.LM27:
+ 399 0122 8EE0      		ldi r24,lo8(14)
+ 400 0124 90E0      		ldi r25,0
+ 401 0126 0E94 0000 		call spi_receive
+ 402 012a F82E      		mov r15,r24
+ 403 012c 8DE0      		ldi r24,lo8(13)
+ 404 012e 90E0      		ldi r25,0
+ 405 0130 0E94 0000 		call spi_receive
+ 406 0134 082F      		mov r16,r24
+ 407 0136 8CE0      		ldi r24,lo8(12)
+ 408 0138 90E0      		ldi r25,0
+ 409 013a 0E94 0000 		call spi_receive
+ 410 013e 182F      		mov r17,r24
+ 411 0140 8BE0      		ldi r24,lo8(11)
+ 412 0142 90E0      		ldi r25,0
+ 413 0144 0E94 0000 		call spi_receive
+ 414 0148 D82F      		mov r29,r24
+  70:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c ****     printf("Source hardware adres: %.2x:%.2x:%.2x:%.2x:%.2x:%.2x\n\n",spi_receive(SHAR + 0),spi_rec
+ 416               	.LM28:
+ 417 014a 8AE0      		ldi r24,lo8(10)
+ 418 014c 90E0      		ldi r25,0
+ 419 014e 0E94 0000 		call spi_receive
+ 420 0152 C82F      		mov r28,r24
+ 421 0154 89E0      		ldi r24,lo8(9)
+ 422 0156 90E0      		ldi r25,0
+ 423 0158 0E94 0000 		call spi_receive
+ 424 015c 1F92      		push __zero_reg__
+ 425 015e FF92      		push r15
+ 426 0160 1F92      		push __zero_reg__
+ 427 0162 0F93      		push r16
+ 428 0164 1F92      		push __zero_reg__
+ 429 0166 1F93      		push r17
+ 430 0168 1F92      		push __zero_reg__
+ 431 016a DF93      		push r29
+ 432 016c 1F92      		push __zero_reg__
+ 433 016e CF93      		push r28
+ 434 0170 1F92      		push __zero_reg__
+ 435 0172 8F93      		push r24
+ 436 0174 80E0      		ldi r24,lo8(.LC1)
+ 437 0176 90E0      		ldi r25,hi8(.LC1)
+ 438 0178 9F93      		push r25
+ 439 017a 8F93      		push r24
+ 440 017c 0E94 0000 		call printf
+  72:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c ****     
+  73:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c ****     printf("Subnet mask: %d.%d.%d.%d\n\n",spi_receive(SUBR + 0),spi_receive(SUBR + 1),\
+  74:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c ****            spi_receive(SUBR + 2),spi_receive(SUBR + 3));
+ 442               	.LM29:
+ 443 0180 88E0      		ldi r24,lo8(8)
+ 444 0182 90E0      		ldi r25,0
+ 445 0184 0E94 0000 		call spi_receive
+ 446 0188 182F      		mov r17,r24
+ 447 018a 87E0      		ldi r24,lo8(7)
+ 448 018c 90E0      		ldi r25,0
+ 449 018e 0E94 0000 		call spi_receive
+ 450 0192 D82F      		mov r29,r24
+  73:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c ****     printf("Subnet mask: %d.%d.%d.%d\n\n",spi_receive(SUBR + 0),spi_receive(SUBR + 1),\
+ 452               	.LM30:
+ 453 0194 86E0      		ldi r24,lo8(6)
+ 454 0196 90E0      		ldi r25,0
+ 455 0198 0E94 0000 		call spi_receive
+ 456 019c C82F      		mov r28,r24
+ 457 019e 85E0      		ldi r24,lo8(5)
+ 458 01a0 90E0      		ldi r25,0
+ 459 01a2 0E94 0000 		call spi_receive
+ 460 01a6 1F92      		push __zero_reg__
+ 461 01a8 1F93      		push r17
+ 462 01aa 1F92      		push __zero_reg__
+ 463 01ac DF93      		push r29
+ 464 01ae 1F92      		push __zero_reg__
+ 465 01b0 CF93      		push r28
+ 466 01b2 1F92      		push __zero_reg__
+ 467 01b4 8F93      		push r24
+ 468 01b6 80E0      		ldi r24,lo8(.LC2)
+ 469 01b8 90E0      		ldi r25,hi8(.LC2)
+ 470 01ba 9F93      		push r25
+ 471 01bc 8F93      		push r24
+ 472 01be 0E94 0000 		call printf
+  75:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c ****     
+  76:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c ****     printf("Ip-adres: %d.%d.%d.%d\n\n",spi_receive(SIPR + 0),spi_receive(SIPR + 1),\
+  77:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c ****            spi_receive(SIPR + 2),spi_receive(SIPR + 3));
+ 474               	.LM31:
+ 475 01c2 8DB7      		in r24,__SP_L__
+ 476 01c4 9EB7      		in r25,__SP_H__
+ 477 01c6 8296      		adiw r24,34
+ 478 01c8 0FB6      		in __tmp_reg__,__SREG__
+ 479 01ca F894      		cli
+ 480 01cc 9EBF      		out __SP_H__,r25
+ 481 01ce 0FBE      		out __SREG__,__tmp_reg__
+ 482 01d0 8DBF      		out __SP_L__,r24
+ 483 01d2 82E1      		ldi r24,lo8(18)
+ 484 01d4 90E0      		ldi r25,0
+ 485 01d6 0E94 0000 		call spi_receive
+ 486 01da 182F      		mov r17,r24
+ 487 01dc 81E1      		ldi r24,lo8(17)
+ 488 01de 90E0      		ldi r25,0
+ 489 01e0 0E94 0000 		call spi_receive
+ 490 01e4 D82F      		mov r29,r24
+  76:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c ****     printf("Ip-adres: %d.%d.%d.%d\n\n",spi_receive(SIPR + 0),spi_receive(SIPR + 1),\
+ 492               	.LM32:
+ 493 01e6 80E1      		ldi r24,lo8(16)
+ 494 01e8 90E0      		ldi r25,0
+ 495 01ea 0E94 0000 		call spi_receive
+ 496 01ee C82F      		mov r28,r24
+ 497 01f0 8FE0      		ldi r24,lo8(15)
+ 498 01f2 90E0      		ldi r25,0
+ 499 01f4 0E94 0000 		call spi_receive
+ 500 01f8 1F92      		push __zero_reg__
+ 501 01fa 1F93      		push r17
+ 502 01fc 1F92      		push __zero_reg__
+ 503 01fe DF93      		push r29
+ 504 0200 1F92      		push __zero_reg__
+ 505 0202 CF93      		push r28
+ 506 0204 1F92      		push __zero_reg__
+ 507 0206 8F93      		push r24
+ 508 0208 80E0      		ldi r24,lo8(.LC3)
+ 509 020a 90E0      		ldi r25,hi8(.LC3)
+ 510 020c 9F93      		push r25
+ 511 020e 8F93      		push r24
+ 512 0210 0E94 0000 		call printf
+ 513 0214 8DB7      		in r24,__SP_L__
+ 514 0216 9EB7      		in r25,__SP_H__
+ 515 0218 0A96      		adiw r24,10
+ 516 021a 0FB6      		in __tmp_reg__,__SREG__
+ 517 021c F894      		cli
+ 518 021e 9EBF      		out __SP_H__,r25
+ 519 0220 0FBE      		out __SREG__,__tmp_reg__
+ 520 0222 8DBF      		out __SP_L__,r24
+ 521               	/* epilogue start */
+  78:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/eth.c **** }...
+ 523               	.LM33:
+ 524 0224 DF91      		pop r29
+ 525 0226 CF91      		pop r28
+ 526 0228 1F91      		pop r17
+ 527 022a 0F91      		pop r16
+ 528 022c FF90      		pop r15
+ 529 022e 0895      		ret
+ 531               	.Lscope6:
+ 532               	.global	ip_addr
+ 533               		.data
+ 536               	ip_addr:
+ 537 0000 0A        		.byte	10
+ 538 0001 00        		.byte	0
+ 539 0002 04        		.byte	4
+ 540 0003 01        		.byte	1
+ 541               	.global	mac_addr
+ 544               	mac_addr:
+ 545 0004 00        		.byte	0
+ 546 0005 16        		.byte	22
+ 547 0006 36        		.byte	54
+ 548 0007 DE        		.byte	-34
+ 549 0008 58        		.byte	88
+ 550 0009 F6        		.byte	-10
+ 551               	.global	sub_mask
+ 554               	sub_mask:
+ 555 000a FF        		.byte	-1
+ 556 000b FF        		.byte	-1
+ 557 000c 00        		.byte	0
+ 558 000d 00        		.byte	0
+ 559               	.global	gtw_addr
+ 562               	gtw_addr:
+ 563 000e 0A        		.byte	10
+ 564 000f 00        		.byte	0
+ 565 0010 00        		.byte	0
+ 566 0011 01        		.byte	1
+ 571               		.text
+ 573               	.Letext0:
+ 574               		.ident	"GCC: (GNU) 4.8.1"
+ 575               	.global __do_copy_data
+DEFINED SYMBOLS
+                            *ABS*:00000000 eth.c
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccxylOyE.s:2      *ABS*:0000003e __SP_H__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccxylOyE.s:3      *ABS*:0000003d __SP_L__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccxylOyE.s:4      *ABS*:0000003f __SREG__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccxylOyE.s:5      *ABS*:00000000 __tmp_reg__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccxylOyE.s:6      *ABS*:00000001 __zero_reg__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccxylOyE.s:120    .text:00000000 initWiznet
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccxylOyE.s:151    .text:0000001e set_gateway
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccxylOyE.s:562    .data:0000000e gtw_addr
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccxylOyE.s:201    .text:0000004c set_submask
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccxylOyE.s:554    .data:0000000a sub_mask
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccxylOyE.s:248    .text:0000007a set_macaddress
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccxylOyE.s:544    .data:00000004 mac_addr
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccxylOyE.s:295    .text:000000a8 set_ipaddress
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccxylOyE.s:536    .data:00000000 ip_addr
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccxylOyE.s:352    .text:000000d6 print_status
+
+UNDEFINED SYMBOLS
+spi_transmit
+spi_receive
+printf
+__do_copy_data

@@ -1,0 +1,811 @@
+   1               		.file	"tcp.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   8               		.text
+   9               	.Ltext0:
+ 118               	.global	tcp_create_socket
+ 120               	tcp_create_socket:
+   1:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c **** //
+   2:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c **** //  tcp.c
+   3:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c **** //  Arduino
+   4:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c **** //
+   5:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c **** //  Created by Projectgroep TI2.4 on 05-01-15.
+   6:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c **** //  Copyright (c) 2015 Projectgroep TI2.4. All rights reserved.
+   7:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c **** //
+   8:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c **** 
+   9:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c **** #include <stdio.h>
+  10:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c **** #include <util/delay.h>
+  11:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c **** 
+  12:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c **** #include "spi.h"
+  13:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c **** #include "eth.h"
+  14:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c **** #include "udp.h"
+  15:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c **** #include "uart.h"
+  16:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c **** 
+  17:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c **** // Counter voor het bijhouden van het messagenummer
+  18:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c **** static int message_number = 0;
+  19:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c **** 
+  20:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c **** // Methode om een TCP socket mee te creeren
+  21:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c **** void tcp_create_socket(void) {
+ 122               	.LM0:
+ 123               	.LFBB1:
+ 124               	/* prologue: function */
+ 125               	/* frame size = 0 */
+ 126               	/* stack size = 0 */
+ 127               	.L__stack_usage = 0
+ 128               	.L3:
+  22:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     spi_transmit(S1MR, (1 << P0));              // Maakt van socket 1 een TCP socket
+ 130               	.LM1:
+ 131 0000 61E0      		ldi r22,lo8(1)
+ 132 0002 80E0      		ldi r24,0
+ 133 0004 95E0      		ldi r25,lo8(5)
+ 134 0006 0E94 0000 		call spi_transmit
+  23:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     
+  24:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     uint16_t port = 30000;                      // Luistert naar data op poort 3000
+  25:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     spi_transmit(S1PORTH, port >> 8);           // Zet hoogste byte
+ 136               	.LM2:
+ 137 000a 65E7      		ldi r22,lo8(117)
+ 138 000c 84E0      		ldi r24,lo8(4)
+ 139 000e 95E0      		ldi r25,lo8(5)
+ 140 0010 0E94 0000 		call spi_transmit
+  26:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     spi_transmit(S1PORTL, port);                // Zet laagste byte
+ 142               	.LM3:
+ 143 0014 60E3      		ldi r22,lo8(48)
+ 144 0016 85E0      		ldi r24,lo8(5)
+ 145 0018 95E0      		ldi r25,lo8(5)
+ 146 001a 0E94 0000 		call spi_transmit
+  27:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     
+  28:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     spi_transmit(S1CR, OPEN);                   // Initialiseert de socket met de instellingen
+ 148               	.LM4:
+ 149 001e 61E0      		ldi r22,lo8(1)
+ 150 0020 81E0      		ldi r24,lo8(1)
+ 151 0022 95E0      		ldi r25,lo8(5)
+ 152 0024 0E94 0000 		call spi_transmit
+  29:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     uint8_t status = spi_receive(S1SR);         // Haalt de status op
+ 154               	.LM5:
+ 155 0028 83E0      		ldi r24,lo8(3)
+ 156 002a 95E0      		ldi r25,lo8(5)
+ 157 002c 0E94 0000 		call spi_receive
+  30:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     
+  31:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     if(status != SOCK_INIT) {                   // Check of de status (SOCK_INIT) klopt met de inst
+ 159               	.LM6:
+ 160 0030 8331      		cpi r24,lo8(19)
+ 161 0032 01F0      		breq .L1
+  32:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****         spi_transmit(S1CR, CLOSE);              // Anders sluit de verbinding
+ 163               	.LM7:
+ 164 0034 60E1      		ldi r22,lo8(16)
+ 165 0036 81E0      		ldi r24,lo8(1)
+ 166 0038 95E0      		ldi r25,lo8(5)
+ 167 003a 0E94 0000 		call spi_transmit
+ 168 003e 00C0      		rjmp .L3
+ 169               	.L1:
+ 170 0040 0895      		ret
+ 172               	.Lscope1:
+ 174               	.global	tcp_disconnect
+ 176               	tcp_disconnect:
+  33:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****         tcp_create_socket();                    // Probeer opnieuw
+  34:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     }
+  35:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c **** }
+  36:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c **** 
+  37:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c **** // Methode om een disconnect request te versturen
+  38:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c **** void tcp_disconnect(void) {
+ 178               	.LM8:
+ 179               	.LFBB2:
+ 180               	/* prologue: function */
+ 181               	/* frame size = 0 */
+ 182               	/* stack size = 0 */
+ 183               	.L__stack_usage = 0
+  39:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     spi_transmit(S1CR, DISCON);
+ 185               	.LM9:
+ 186 0042 68E0      		ldi r22,lo8(8)
+ 187 0044 81E0      		ldi r24,lo8(1)
+ 188 0046 95E0      		ldi r25,lo8(5)
+ 189 0048 0C94 0000 		jmp spi_transmit
+ 191               	.Lscope2:
+ 193               	.global	tcp_close_socket
+ 195               	tcp_close_socket:
+  40:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c **** }
+  41:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c **** 
+  42:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c **** // Methode om de TCP socket mee te sluiten
+  43:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c **** void tcp_close_socket(void) {
+ 197               	.LM10:
+ 198               	.LFBB3:
+ 199               	/* prologue: function */
+ 200               	/* frame size = 0 */
+ 201               	/* stack size = 0 */
+ 202               	.L__stack_usage = 0
+  44:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     spi_transmit(S1CR, CLOSE);                  // Sluit de verbinding
+ 204               	.LM11:
+ 205 004c 60E1      		ldi r22,lo8(16)
+ 206 004e 81E0      		ldi r24,lo8(1)
+ 207 0050 95E0      		ldi r25,lo8(5)
+ 208 0052 0C94 0000 		jmp spi_transmit
+ 210               	.Lscope3:
+ 212               	.global	tcp_listen
+ 214               	tcp_listen:
+  45:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c **** }
+  46:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c **** 
+  47:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c **** // Methode naar een TCP request te luisteren
+  48:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c **** void tcp_listen(void) {
+ 216               	.LM12:
+ 217               	.LFBB4:
+ 218               	/* prologue: function */
+ 219               	/* frame size = 0 */
+ 220               	/* stack size = 0 */
+ 221               	.L__stack_usage = 0
+ 222               	.L9:
+  49:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     // Reset het message nummer voor een volgende verbinding
+  50:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     message_number = 0;
+ 224               	.LM13:
+ 225 0056 1092 0000 		sts message_number+1,__zero_reg__
+ 226 005a 1092 0000 		sts message_number,__zero_reg__
+  51:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     
+  52:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     // Laat de socket naar luister naar requests
+  53:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     spi_transmit(S1CR, LISTEN);
+ 228               	.LM14:
+ 229 005e 62E0      		ldi r22,lo8(2)
+ 230 0060 81E0      		ldi r24,lo8(1)
+ 231 0062 95E0      		ldi r25,lo8(5)
+ 232 0064 0E94 0000 		call spi_transmit
+  54:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****         
+  55:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     // Haal de status op
+  56:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     uint8_t status = spi_receive(S1SR);
+ 234               	.LM15:
+ 235 0068 83E0      		ldi r24,lo8(3)
+ 236 006a 95E0      		ldi r25,lo8(5)
+ 237 006c 0E94 0000 		call spi_receive
+  57:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****         
+  58:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     // Check of de socket goed is ingesteld, verbind anders opnieuw
+  59:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     if (status != SOCK_LISTEN) {
+ 239               	.LM16:
+ 240 0070 8431      		cpi r24,lo8(20)
+ 241 0072 01F0      		breq .L7
+  60:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****         spi_transmit(S1CR, CLOSE);
+ 243               	.LM17:
+ 244 0074 60E1      		ldi r22,lo8(16)
+ 245 0076 81E0      		ldi r24,lo8(1)
+ 246 0078 95E0      		ldi r25,lo8(5)
+ 247 007a 0E94 0000 		call spi_transmit
+ 248 007e 00C0      		rjmp .L9
+ 249               	.L7:
+ 250 0080 0895      		ret
+ 252               	.Lscope4:
+ 257               	.global	tcp_to_monitor
+ 259               	tcp_to_monitor:
+  61:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****         tcp_listen();
+  62:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     }
+  63:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c **** }
+  64:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c **** 
+  65:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c **** // Methode om data te sturen naar de monitor
+  66:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c **** void tcp_to_monitor(tcpflag flag, uint8_t data[], int length) {
+ 261               	.LM18:
+ 262               	.LFBB5:
+ 263 0082 AF92      		push r10
+ 264 0084 BF92      		push r11
+ 265 0086 CF92      		push r12
+ 266 0088 DF92      		push r13
+ 267 008a EF92      		push r14
+ 268 008c FF92      		push r15
+ 269 008e 0F93      		push r16
+ 270 0090 1F93      		push r17
+ 271 0092 CF93      		push r28
+ 272 0094 DF93      		push r29
+ 273               	/* prologue: function */
+ 274               	/* frame size = 0 */
+ 275               	/* stack size = 10 */
+ 276               	.L__stack_usage = 10
+ 277 0096 D82E      		mov r13,r24
+ 278 0098 7B01      		movw r14,r22
+ 279 009a 8A01      		movw r16,r20
+  67:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     
+  68:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     // Verhoogt het messagenummer met 1
+  69:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     ++message_number;
+ 281               	.LM19:
+ 282 009c 2091 0000 		lds r18,message_number
+ 283 00a0 3091 0000 		lds r19,message_number+1
+ 284 00a4 2F5F      		subi r18,-1
+ 285 00a6 3F4F      		sbci r19,-1
+ 286 00a8 3093 0000 		sts message_number+1,r19
+ 287 00ac 2093 0000 		sts message_number,r18
+ 288               	.L12:
+  70:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     
+  71:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     // Vraag de vrije ruimte op voor het versturen van pakket
+  72:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     // Als deze niet groot genoeg wacht op beschikbare ruimte
+  73:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     uint16_t size = 0;
+  74:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     do {
+  75:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****         size = spi_receive(S1TXFSRH);
+ 290               	.LM20:
+ 291 00b0 80E2      		ldi r24,lo8(32)
+ 292 00b2 95E0      		ldi r25,lo8(5)
+ 293 00b4 0E94 0000 		call spi_receive
+ 294 00b8 C82F      		mov r28,r24
+ 295 00ba D0E0      		ldi r29,0
+  76:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****         size <<= 8;
+ 297               	.LM21:
+ 298 00bc DC2F      		mov r29,r28
+ 299 00be CC27      		clr r28
+  77:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****         size |= spi_receive(S1TXFSRL);
+ 301               	.LM22:
+ 302 00c0 81E2      		ldi r24,lo8(33)
+ 303 00c2 95E0      		ldi r25,lo8(5)
+ 304 00c4 0E94 0000 		call spi_receive
+ 305               	.LBB5:
+ 306               	.LBB6:
+ 308               	.Ltext1:
+   1:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** /* Copyright (c) 2002, Marek Michalkiewicz
+   2:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Copyright (c) 2004,2005,2007 Joerg Wunsch
+   3:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Copyright (c) 2007  Florin-Viorel Petrov
+   4:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    All rights reserved.
+   5:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+   6:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Redistribution and use in source and binary forms, with or without
+   7:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    modification, are permitted provided that the following conditions are met:
+   8:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+   9:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    * Redistributions of source code must retain the above copyright
+  10:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****      notice, this list of conditions and the following disclaimer.
+  11:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  12:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    * Redistributions in binary form must reproduce the above copyright
+  13:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****      notice, this list of conditions and the following disclaimer in
+  14:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****      the documentation and/or other materials provided with the
+  15:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****      distribution.
+  16:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  17:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    * Neither the name of the copyright holders nor the names of
+  18:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****      contributors may be used to endorse or promote products derived
+  19:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****      from this software without specific prior written permission.
+  20:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  21:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  22:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  23:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+  24:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+  25:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+  26:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+  27:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+  28:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+  29:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+  30:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+  31:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   POSSIBILITY OF SUCH DAMAGE. */
+  32:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  33:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** /* $Id$ */
+  34:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  35:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #ifndef _UTIL_DELAY_H_
+  36:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #define _UTIL_DELAY_H_ 1
+  37:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  38:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #ifndef __HAS_DELAY_CYCLES
+  39:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #define __HAS_DELAY_CYCLES 1
+  40:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #endif
+  41:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  42:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #include <inttypes.h>
+  43:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #include <util/delay_basic.h>
+  44:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #include <math.h>
+  45:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  46:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** /** \file */
+  47:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** /** \defgroup util_delay <util/delay.h>: Convenience functions for busy-wait delay loops
+  48:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     \code
+  49:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     #define F_CPU 1000000UL  // 1 MHz
+  50:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     //#define F_CPU 14.7456E6
+  51:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     #include <util/delay.h>
+  52:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     \endcode
+  53:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  54:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     \note As an alternative method, it is possible to pass the
+  55:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     F_CPU macro down to the compiler from the Makefile.
+  56:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     Obviously, in that case, no \c \#define statement should be
+  57:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     used.
+  58:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  59:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     The functions in this header file are wrappers around the basic
+  60:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     busy-wait functions from <util/delay_basic.h>.  They are meant as
+  61:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     convenience functions where actual time values can be specified
+  62:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     rather than a number of cycles to wait for.  The idea behind is
+  63:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     that compile-time constant expressions will be eliminated by
+  64:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     compiler optimization so floating-point expressions can be used
+  65:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     to calculate the number of delay cycles needed based on the CPU
+  66:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     frequency passed by the macro F_CPU.
+  67:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  68:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     \note In order for these functions to work as intended, compiler
+  69:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     optimizations <em>must</em> be enabled, and the delay time
+  70:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     <em>must</em> be an expression that is a known constant at
+  71:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     compile-time.  If these requirements are not met, the resulting
+  72:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     delay will be much longer (and basically unpredictable), and
+  73:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     applications that otherwise do not use floating-point calculations
+  74:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     will experience severe code bloat by the floating-point library
+  75:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     routines linked into the application.
+  76:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  77:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     The functions available allow the specification of microsecond, and
+  78:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     millisecond delays directly, using the application-supplied macro
+  79:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     F_CPU as the CPU clock frequency (in Hertz).
+  80:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  81:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** */
+  82:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  83:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #if !defined(__DOXYGEN__)
+  84:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** static inline void _delay_us(double __us) __attribute__((always_inline));
+  85:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** static inline void _delay_ms(double __ms) __attribute__((always_inline));
+  86:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #endif
+  87:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  88:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #ifndef F_CPU
+  89:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** /* prevent compiler error by supplying a default */
+  90:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** # warning "F_CPU not defined for <util/delay.h>"
+  91:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** # define F_CPU 1000000UL
+  92:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #endif
+  93:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  94:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #ifndef __OPTIMIZE__
+  95:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** # warning "Compiler optimizations disabled; functions from <util/delay.h> won't work as designed"
+  96:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #endif
+  97:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  98:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #if __HAS_DELAY_CYCLES && defined(__OPTIMIZE__) && \
+  99:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   !defined(__DELAY_BACKWARD_COMPATIBLE__) &&	   \
+ 100:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   __STDC_HOSTED__
+ 101:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #  include <math.h>
+ 102:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #endif
+ 103:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 104:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** /**
+ 105:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    \ingroup util_delay
+ 106:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 107:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Perform a delay of \c __ms milliseconds, using _delay_loop_2().
+ 108:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 109:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    The macro F_CPU is supposed to be defined to a
+ 110:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    constant defining the CPU clock frequency (in Hertz).
+ 111:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 112:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    The maximal possible delay is 262.14 ms / F_CPU in MHz.
+ 113:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 114:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    When the user request delay which exceed the maximum possible one,
+ 115:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    _delay_ms() provides a decreased resolution functionality. In this
+ 116:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    mode _delay_ms() will work with a resolution of 1/10 ms, providing
+ 117:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    delays up to 6.5535 seconds (independent from CPU frequency).  The
+ 118:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    user will not be informed about decreased resolution.
+ 119:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 120:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    If the avr-gcc toolchain has __builtin_avr_delay_cycles(unsigned long)
+ 121:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    support, maximal possible delay is 4294967.295 ms/ F_CPU in MHz. For
+ 122:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    values greater than the maximal possible delay, overflows results in
+ 123:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    no delay i.e., 0ms.
+ 124:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 125:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Conversion of __us into clock cycles may not always result in integer.
+ 126:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    By default, the clock cycles rounded up to next integer. This ensures that
+ 127:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    the user gets atleast __us microseconds of delay.
+ 128:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 129:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Alternatively, user can define __DELAY_ROUND_DOWN__ and __DELAY_ROUND_CLOSEST__
+ 130:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    to round down and round to closest integer.
+ 131:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 132:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Note: The new implementation of _delay_ms(double __ms) with 
+ 133:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     __builtin_avr_delay_cycles(unsigned long) support is not backward compatible. 
+ 134:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    User can define __DELAY_BACKWARD_COMPATIBLE__ to get a backward compatible delay.
+ 135:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Also, the backward compatible
+ 136:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    algorithm will be chosen if the code is compiled in a <em>freestanding
+ 137:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    environment</em> (GCC option \c -ffreestanding), as the math functions
+ 138:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    required for rounding are not available to the compiler then.
+ 139:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 140:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****  */
+ 141:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** void
+ 142:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** _delay_ms(double __ms)
+ 143:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** {
+ 144:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	double __tmp ; 
+ 145:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #if __HAS_DELAY_CYCLES && defined(__OPTIMIZE__) && \
+ 146:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   !defined(__DELAY_BACKWARD_COMPATIBLE__) &&	   \
+ 147:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   __STDC_HOSTED__
+ 148:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	uint32_t __ticks_dc;
+ 149:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	extern void __builtin_avr_delay_cycles(unsigned long);
+ 150:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	__tmp = ((F_CPU) / 1e3) * __ms;
+ 151:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 152:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	#if defined(__DELAY_ROUND_DOWN__)
+ 153:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 		__ticks_dc = (uint32_t)fabs(__tmp);
+ 154:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 155:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	#elif defined(__DELAY_ROUND_CLOSEST__)
+ 156:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 		__ticks_dc = (uint32_t)(fabs(__tmp)+0.5);
+ 157:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 158:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	#else
+ 159:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 		//round up by default
+ 160:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
+ 161:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	#endif
+ 162:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 163:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	__builtin_avr_delay_cycles(__ticks_dc);
+ 310               	.LM23:
+ 311 00c8 EFE9      		ldi r30,lo8(3999)
+ 312 00ca FFE0      		ldi r31,hi8(3999)
+ 313 00cc 3197      		1: sbiw r30,1
+ 314 00ce 01F4      		brne 1b
+ 315 00d0 00C0      		rjmp .
+ 316 00d2 0000      		nop
+ 317               	.LBE6:
+ 318               	.LBE5:
+ 320               	.Ltext2:
+ 322               	.LM24:
+ 323 00d4 C82B      		or r28,r24
+  78:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****         _delay_ms(1);
+  79:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     }
+  80:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     while(length > size);
+ 325               	.LM25:
+ 326 00d6 C017      		cp r28,r16
+ 327 00d8 D107      		cpc r29,r17
+ 328 00da 00F0      		brlo .L12
+  81:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     
+  82:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     // Zet het ipadres in het socket geheugen
+  83:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     spi_transmit(S1DIPR + 0, 10);
+ 330               	.LM26:
+ 331 00dc 6AE0      		ldi r22,lo8(10)
+ 332 00de 8CE0      		ldi r24,lo8(12)
+ 333 00e0 95E0      		ldi r25,lo8(5)
+ 334 00e2 0E94 0000 		call spi_transmit
+  84:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     spi_transmit(S1DIPR + 1, 0);
+ 336               	.LM27:
+ 337 00e6 60E0      		ldi r22,0
+ 338 00e8 8DE0      		ldi r24,lo8(13)
+ 339 00ea 95E0      		ldi r25,lo8(5)
+ 340 00ec 0E94 0000 		call spi_transmit
+  85:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     spi_transmit(S1DIPR + 2, 4);
+ 342               	.LM28:
+ 343 00f0 64E0      		ldi r22,lo8(4)
+ 344 00f2 8EE0      		ldi r24,lo8(14)
+ 345 00f4 95E0      		ldi r25,lo8(5)
+ 346 00f6 0E94 0000 		call spi_transmit
+  86:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     spi_transmit(S1DIPR + 3, 0);
+ 348               	.LM29:
+ 349 00fa 60E0      		ldi r22,0
+ 350 00fc 8FE0      		ldi r24,lo8(15)
+ 351 00fe 95E0      		ldi r25,lo8(5)
+ 352 0100 0E94 0000 		call spi_transmit
+  87:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     
+  88:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     // Zet de destination poort
+  89:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     spi_transmit(S1DPORTH, 30000 >> 8);
+ 354               	.LM30:
+ 355 0104 65E7      		ldi r22,lo8(117)
+ 356 0106 80E1      		ldi r24,lo8(16)
+ 357 0108 95E0      		ldi r25,lo8(5)
+ 358 010a 0E94 0000 		call spi_transmit
+  90:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     spi_transmit(S1DPORTL, 30000 & 0xFF);
+ 360               	.LM31:
+ 361 010e 60E3      		ldi r22,lo8(48)
+ 362 0110 81E1      		ldi r24,lo8(17)
+ 363 0112 95E0      		ldi r25,lo8(5)
+ 364 0114 0E94 0000 		call spi_transmit
+  91:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     
+  92:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     // Vraagt de pointer naar het socket geheugen
+  93:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     uint16_t pointer = spi_receive(S1TXWRH) << 8;
+ 366               	.LM32:
+ 367 0118 84E2      		ldi r24,lo8(36)
+ 368 011a 95E0      		ldi r25,lo8(5)
+ 369 011c 0E94 0000 		call spi_receive
+ 370 0120 C82F      		mov r28,r24
+ 371 0122 D0E0      		ldi r29,0
+ 372 0124 DC2F      		mov r29,r28
+ 373 0126 CC27      		clr r28
+  94:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     pointer |= spi_receive(S1TXWRL);
+ 375               	.LM33:
+ 376 0128 85E2      		ldi r24,lo8(37)
+ 377 012a 95E0      		ldi r25,lo8(5)
+ 378 012c 0E94 0000 		call spi_receive
+ 379 0130 C82B      		or r28,r24
+  95:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     
+  96:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     // Bereken het start adres
+  97:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     uint16_t address = S1TXBASE + (pointer & 0x07FF);
+ 381               	.LM34:
+ 382 0132 CE01      		movw r24,r28
+ 383 0134 9770      		andi r25,7
+  98:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     
+  99:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     // Schrijft de flag weg in het socketgeheugen
+ 100:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     spi_transmit(address, flag);
+ 385               	.LM35:
+ 386 0136 6D2D      		mov r22,r13
+ 387 0138 985B      		subi r25,-72
+ 388 013a 0E94 0000 		call spi_transmit
+ 101:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     ++pointer;
+ 102:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     
+ 103:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     // Schrijf de high byte van het message nummer weg
+ 104:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     address = S1TXBASE + (pointer & 0x07FF);
+ 105:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     spi_transmit(address, message_number >> 8);
+ 390               	.LM36:
+ 391 013e 6091 0000 		lds r22,message_number+1
+ 101:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     ++pointer;
+ 393               	.LM37:
+ 394 0142 CE01      		movw r24,r28
+ 395 0144 0196      		adiw r24,1
+ 104:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     address = S1TXBASE + (pointer & 0x07FF);
+ 397               	.LM38:
+ 398 0146 9770      		andi r25,7
+ 400               	.LM39:
+ 401 0148 985B      		subi r25,-72
+ 402 014a 0E94 0000 		call spi_transmit
+ 106:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     ++pointer;
+ 404               	.LM40:
+ 405 014e CE01      		movw r24,r28
+ 406 0150 0296      		adiw r24,2
+ 107:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     
+ 108:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     // Schrijf de low byte van het message nummer weg
+ 109:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     address = S1TXBASE + (pointer & 0x07FF);
+ 408               	.LM41:
+ 409 0152 9770      		andi r25,7
+ 110:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     spi_transmit(address, message_number);
+ 411               	.LM42:
+ 412 0154 6091 0000 		lds r22,message_number
+ 413 0158 985B      		subi r25,-72
+ 414 015a 0E94 0000 		call spi_transmit
+ 111:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     ++pointer;
+ 416               	.LM43:
+ 417 015e 6E01      		movw r12,r28
+ 418 0160 F3E0      		ldi r31,3
+ 419 0162 CF0E      		add r12,r31
+ 420 0164 D11C      		adc r13,__zero_reg__
+ 421               	.LBB7:
+ 112:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     
+ 113:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     // Schrijft de data weg in het geheugen
+ 114:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     for (int i = 0; i < length; ++i) {
+ 423               	.LM44:
+ 424 0166 E701      		movw r28,r14
+ 425               	.LBE7:
+ 111:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     ++pointer;
+ 427               	.LM45:
+ 428 0168 C601      		movw r24,r12
+ 429               	.L13:
+ 430 016a 9E01      		movw r18,r28
+ 431 016c 2E19      		sub r18,r14
+ 432 016e 3F09      		sbc r19,r15
+ 433               	.LBB8:
+ 435               	.LM46:
+ 436 0170 2017      		cp r18,r16
+ 437 0172 3107      		cpc r19,r17
+ 438 0174 04F4      		brge .L18
+ 115:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****         address = S1TXBASE + ((pointer++) & 0x07FF);
+ 440               	.LM47:
+ 441 0176 5C01      		movw r10,r24
+ 442 0178 2FEF      		ldi r18,-1
+ 443 017a A21A      		sub r10,r18
+ 444 017c B20A      		sbc r11,r18
+ 116:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****         spi_transmit(address, data[i]);
+ 446               	.LM48:
+ 447 017e 6991      		ld r22,Y+
+ 115:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****         address = S1TXBASE + ((pointer++) & 0x07FF);
+ 449               	.LM49:
+ 450 0180 9770      		andi r25,7
+ 452               	.LM50:
+ 453 0182 985B      		subi r25,-72
+ 454 0184 0E94 0000 		call spi_transmit
+ 115:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****         address = S1TXBASE + ((pointer++) & 0x07FF);
+ 456               	.LM51:
+ 457 0188 C501      		movw r24,r10
+ 458 018a 00C0      		rjmp .L13
+ 459               	.L18:
+ 460 018c 17FF      		sbrs r17,7
+ 461 018e 00C0      		rjmp .L15
+ 462 0190 00E0      		ldi r16,0
+ 463 0192 10E0      		ldi r17,0
+ 464               	.L15:
+ 465 0194 0C0D      		add r16,r12
+ 466 0196 1D1D      		adc r17,r13
+ 467               	.LBE8:
+ 117:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     }
+ 118:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     
+ 119:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     // Berg de pointer weer op
+ 120:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     spi_transmit(S1TXWRH, pointer >> 8);
+ 469               	.LM52:
+ 470 0198 612F      		mov r22,r17
+ 471 019a 84E2      		ldi r24,lo8(36)
+ 472 019c 95E0      		ldi r25,lo8(5)
+ 473 019e 0E94 0000 		call spi_transmit
+ 121:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     spi_transmit(S1TXWRL, pointer);
+ 475               	.LM53:
+ 476 01a2 602F      		mov r22,r16
+ 477 01a4 85E2      		ldi r24,lo8(37)
+ 478 01a6 95E0      		ldi r25,lo8(5)
+ 479 01a8 0E94 0000 		call spi_transmit
+ 122:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     
+ 123:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     // Verstuurt het pakket
+ 124:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     spi_transmit(S1CR, SEND);
+ 481               	.LM54:
+ 482 01ac 60E2      		ldi r22,lo8(32)
+ 483 01ae 81E0      		ldi r24,lo8(1)
+ 484 01b0 95E0      		ldi r25,lo8(5)
+ 485 01b2 0E94 0000 		call spi_transmit
+ 486               	.L17:
+ 125:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     
+ 126:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     // Wacht op het versturen (0x00 = verstuurd)
+ 127:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     while(spi_receive(S1CR));
+ 488               	.LM55:
+ 489 01b6 81E0      		ldi r24,lo8(1)
+ 490 01b8 95E0      		ldi r25,lo8(5)
+ 491 01ba 0E94 0000 		call spi_receive
+ 492 01be 8111      		cpse r24,__zero_reg__
+ 493 01c0 00C0      		rjmp .L17
+ 494               	/* epilogue start */
+ 128:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c **** }
+ 496               	.LM56:
+ 497 01c2 DF91      		pop r29
+ 498 01c4 CF91      		pop r28
+ 499 01c6 1F91      		pop r17
+ 500 01c8 0F91      		pop r16
+ 501 01ca FF90      		pop r15
+ 502 01cc EF90      		pop r14
+ 503 01ce DF90      		pop r13
+ 504 01d0 CF90      		pop r12
+ 505 01d2 BF90      		pop r11
+ 506 01d4 AF90      		pop r10
+ 507 01d6 0895      		ret
+ 509               	.Lscope5:
+ 512               	.global	tcp_from_monitor
+ 514               	tcp_from_monitor:
+ 129:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c **** 
+ 130:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c **** // Methode om data mee te ontvangen
+ 131:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c **** void tcp_from_monitor(uint8_t buffer[]) {
+ 516               	.LM57:
+ 517               	.LFBB6:
+ 518 01d8 AF92      		push r10
+ 519 01da BF92      		push r11
+ 520 01dc CF92      		push r12
+ 521 01de DF92      		push r13
+ 522 01e0 EF92      		push r14
+ 523 01e2 FF92      		push r15
+ 524 01e4 0F93      		push r16
+ 525 01e6 1F93      		push r17
+ 526 01e8 CF93      		push r28
+ 527 01ea DF93      		push r29
+ 528               	/* prologue: function */
+ 529               	/* frame size = 0 */
+ 530               	/* stack size = 10 */
+ 531               	.L__stack_usage = 10
+ 532 01ec EC01      		movw r28,r24
+ 132:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     // Vraag de grootte van de binnenkomende data op
+ 133:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     uint16_t size = spi_receive(S1RXRSRH) << 8;
+ 534               	.LM58:
+ 535 01ee 86E2      		ldi r24,lo8(38)
+ 536 01f0 95E0      		ldi r25,lo8(5)
+ 537 01f2 0E94 0000 		call spi_receive
+ 538 01f6 082F      		mov r16,r24
+ 539 01f8 10E0      		ldi r17,0
+ 540 01fa 102F      		mov r17,r16
+ 541 01fc 0027      		clr r16
+ 134:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     size |= spi_receive(S1RXRSRL);
+ 543               	.LM59:
+ 544 01fe 87E2      		ldi r24,lo8(39)
+ 545 0200 95E0      		ldi r25,lo8(5)
+ 546 0202 0E94 0000 		call spi_receive
+ 547 0206 082B      		or r16,r24
+ 135:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     
+ 136:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     // Vraagt de pointer naar het socket geheugen
+ 137:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     uint16_t pointer = spi_receive(S1RXRRH) << 8;
+ 549               	.LM60:
+ 550 0208 88E2      		ldi r24,lo8(40)
+ 551 020a 95E0      		ldi r25,lo8(5)
+ 552 020c 0E94 0000 		call spi_receive
+ 553 0210 E82E      		mov r14,r24
+ 554 0212 F12C      		mov r15,__zero_reg__
+ 555 0214 FE2C      		mov r15,r14
+ 556 0216 EE24      		clr r14
+ 138:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     pointer |= spi_receive(S1RXRRL);
+ 558               	.LM61:
+ 559 0218 89E2      		ldi r24,lo8(41)
+ 560 021a 95E0      		ldi r25,lo8(5)
+ 561 021c 0E94 0000 		call spi_receive
+ 562 0220 E82A      		or r14,r24
+ 139:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     
+ 140:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     // Bereken de offset
+ 141:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     uint16_t offset = pointer & 0x07FF;
+ 564               	.LM62:
+ 565 0222 9701      		movw r18,r14
+ 566 0224 3770      		andi r19,7
+ 142:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     
+ 143:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     // Overflow van de databuffer
+ 144:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     if (offset + size > 2000) {
+ 568               	.LM63:
+ 569 0226 200F      		add r18,r16
+ 570 0228 311F      		adc r19,r17
+ 571 022a 213D      		cpi r18,-47
+ 572 022c 3740      		sbci r19,7
+ 573 022e 00F4      		brsh .L19
+ 574 0230 6801      		movw r12,r16
+ 575 0232 CC0E      		add r12,r28
+ 576 0234 DD1E      		adc r13,r29
+ 577 0236 5701      		movw r10,r14
+ 578 0238 AC1A      		sub r10,r28
+ 579 023a BD0A      		sbc r11,r29
+ 580               	.L21:
+ 581 023c C501      		movw r24,r10
+ 582 023e 8C0F      		add r24,r28
+ 583 0240 9D1F      		adc r25,r29
+ 584               	.LBB9:
+ 585               	.LBB10:
+ 145:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****         // Doe niets
+ 146:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     } else {
+ 147:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****         // Berekent het adres met de pointer en mask
+ 148:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****         // Haalt de data op uit het geheugen minus de eerste 8 header bytes
+ 149:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****         uint16_t address;
+ 150:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****         for (int i = 0; i < size; ++i) {
+ 587               	.LM64:
+ 588 0242 CC15      		cp r28,r12
+ 589 0244 DD05      		cpc r29,r13
+ 590 0246 01F0      		breq .L23
+ 151:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****             address = S1RXBASE + ((pointer++) & 0x07FF);
+ 592               	.LM65:
+ 593 0248 9770      		andi r25,7
+ 152:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****             buffer[i] = spi_receive(address);
+ 595               	.LM66:
+ 596 024a 9859      		subi r25,-104
+ 597 024c 0E94 0000 		call spi_receive
+ 598 0250 8993      		st Y+,r24
+ 599 0252 00C0      		rjmp .L21
+ 600               	.L23:
+ 601 0254 0E0D      		add r16,r14
+ 602 0256 1F1D      		adc r17,r15
+ 603               	.LBE10:
+ 153:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****         }
+ 154:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****         
+ 155:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****         // Harde nul voor string
+ 156:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****         buffer[size] = '\0';
+ 605               	.LM67:
+ 606 0258 1882      		st Y,__zero_reg__
+ 157:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****         
+ 158:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****         // Berg de pointer weer op
+ 159:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****         spi_transmit(S1RXRRH, pointer >> 8);
+ 608               	.LM68:
+ 609 025a 612F      		mov r22,r17
+ 610 025c 88E2      		ldi r24,lo8(40)
+ 611 025e 95E0      		ldi r25,lo8(5)
+ 612 0260 0E94 0000 		call spi_transmit
+ 160:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****         spi_transmit(S1RXRRL, pointer);
+ 614               	.LM69:
+ 615 0264 602F      		mov r22,r16
+ 616 0266 89E2      		ldi r24,lo8(41)
+ 617 0268 95E0      		ldi r25,lo8(5)
+ 618 026a 0E94 0000 		call spi_transmit
+ 161:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****         
+ 162:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****         // Registreer dat het pakket is opgehaald
+ 163:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****         spi_transmit(S1CR, RECV);
+ 620               	.LM70:
+ 621 026e 60E4      		ldi r22,lo8(64)
+ 622 0270 81E0      		ldi r24,lo8(1)
+ 623 0272 95E0      		ldi r25,lo8(5)
+ 624               	/* epilogue start */
+ 625               	.LBE9:
+ 164:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****     }
+ 165:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c **** }...
+ 627               	.LM71:
+ 628 0274 DF91      		pop r29
+ 629 0276 CF91      		pop r28
+ 630 0278 1F91      		pop r17
+ 631 027a 0F91      		pop r16
+ 632 027c FF90      		pop r15
+ 633 027e EF90      		pop r14
+ 634 0280 DF90      		pop r13
+ 635 0282 CF90      		pop r12
+ 636 0284 BF90      		pop r11
+ 637 0286 AF90      		pop r10
+ 638               	.LBB11:
+ 163:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tcp.c ****         spi_transmit(S1CR, RECV);
+ 640               	.LM72:
+ 641 0288 0C94 0000 		jmp spi_transmit
+ 642               	.L19:
+ 643               	/* epilogue start */
+ 644               	.LBE11:
+ 646               	.LM73:
+ 647 028c DF91      		pop r29
+ 648 028e CF91      		pop r28
+ 649 0290 1F91      		pop r17
+ 650 0292 0F91      		pop r16
+ 651 0294 FF90      		pop r15
+ 652 0296 EF90      		pop r14
+ 653 0298 DF90      		pop r13
+ 654 029a CF90      		pop r12
+ 655 029c BF90      		pop r11
+ 656 029e AF90      		pop r10
+ 657 02a0 0895      		ret
+ 659               	.Lscope6:
+ 660               		.local	message_number
+ 661               		.comm	message_number,2,1
+ 664               	.Letext0:
+ 665               		.ident	"GCC: (GNU) 4.8.1"
+ 666               	.global __do_clear_bss
+DEFINED SYMBOLS
+                            *ABS*:00000000 tcp.c
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccYntQgt.s:2      *ABS*:0000003e __SP_H__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccYntQgt.s:3      *ABS*:0000003d __SP_L__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccYntQgt.s:4      *ABS*:0000003f __SREG__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccYntQgt.s:5      *ABS*:00000000 __tmp_reg__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccYntQgt.s:6      *ABS*:00000001 __zero_reg__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccYntQgt.s:120    .text:00000000 tcp_create_socket
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccYntQgt.s:176    .text:00000042 tcp_disconnect
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccYntQgt.s:195    .text:0000004c tcp_close_socket
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccYntQgt.s:214    .text:00000056 tcp_listen
+                             .bss:00000000 message_number
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccYntQgt.s:259    .text:00000082 tcp_to_monitor
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccYntQgt.s:514    .text:000001d8 tcp_from_monitor
+
+UNDEFINED SYMBOLS
+spi_transmit
+spi_receive
+__do_clear_bss

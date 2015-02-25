@@ -1,0 +1,850 @@
+   1               		.file	"lcd.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   8               		.text
+   9               	.Ltext0:
+ 116               	.global	lcd_4bit_mode
+ 118               	lcd_4bit_mode:
+   1:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** //
+   2:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** //  lcd.c
+   3:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** //  Arduino
+   4:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** //
+   5:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** //  Created by Projectgroep TI2.4 on 07-01-15.
+   6:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** //  Copyright (c) 2015 Projectgroep TI2.4. All rights reserved.
+   7:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** //
+   8:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** 
+   9:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** #include <avr/io.h>
+  10:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** #include <util/delay.h>
+  11:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** 
+  12:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** #include "lcd.h"
+  13:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** 
+  14:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** // LCD number bytes array
+  15:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** uint8_t lcd_number_characters[] = {
+  16:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     // Characters 1 tot en met 10
+  17:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39
+  18:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** };
+  19:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** 
+  20:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** // LCD character bytes array
+  21:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** uint8_t lcd_letter_characters[] = {
+  22:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     // Letters: a, b, c, d, e, f, g, h, i,
+  23:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69,
+  24:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     
+  25:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     // Letters: j, k, l, m, n, o,
+  26:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     0x6A, 0x6B, 0x6C, 0x6D, 0x6E, 0x6F,
+  27:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     
+  28:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     // Letters: p, q, r, s, t, u,
+  29:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     0x70, 0x71, 0x72, 0x73, 0x74, 0x75,
+  30:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     
+  31:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     // Letters: v, w, x, y, z
+  32:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     0x76, 0x77, 0x78, 0x79, 0x7A
+  33:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** };
+  34:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** 
+  35:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** // Control struct voor het versturen van commando's
+  36:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** control lcd_commandos;
+  37:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** 
+  38:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** // Methode om de lcd en commando's mee te initialiseren
+  39:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** void lcd_init(void)
+  40:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** {
+  41:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     // Wacht op juiste voltage
+  42:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     _delay_ms(15);
+  43:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     
+  44:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     // Zet de poorten op output
+  45:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     DDRD |= (1 << DB4) | (1 << DB5) | (1 << DB6) | (1 << DB7) | (1 << E) | (1 << RS);
+  46:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     
+  47:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     // Zet de commando's in de struct
+  48:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     lcd_commandos.clear              = 0b0001;
+  49:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     lcd_commandos.cursor_home        = 0b0010;
+  50:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     lcd_commandos.cursor_forward     = 0b0110;     // bit[0] = not shifted
+  51:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     lcd_commandos.cursor_backwards   = 0b0100;     // bit[0] = not shifted
+  52:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     lcd_commandos.display_on         = 0b1100;     // bit[1] = cursor off | bit[0] = blink off
+  53:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     lcd_commandos.display_off        = 0b1000;     // bit[1] = cursor off | bit[0] = blink off
+  54:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     lcd_commandos.bit4               = 0b0010;     // bit[1] = 4 bits mode
+  55:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** 
+  56:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     // Stel de lcd in met de juiste functies
+  57:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     lcd_4bit_mode();
+  58:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     _delay_us(50);
+  59:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     
+  60:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     // Zet het lcd aan
+  61:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     lcd_write_command(lcd_commandos.display_on);
+  62:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     _delay_us(50);
+  63:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     
+  64:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     // Clear het display
+  65:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     lcd_write_command(lcd_commandos.clear);
+  66:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     _delay_ms(2);
+  67:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** }
+  68:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** 
+  69:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** void lcd_4bit_mode(void)
+  70:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** {
+ 120               	.LM0:
+ 121               	.LFBB1:
+ 122               	/* prologue: function */
+ 123               	/* frame size = 0 */
+ 124               	/* stack size = 0 */
+ 125               	.L__stack_usage = 0
+  71:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     // Zet RS laag voor het versturen van een commando
+  72:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     PORTD &= ~(1 << RS);
+ 127               	.LM1:
+ 128 0000 5A98      		cbi 0xb,2
+  73:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     
+  74:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     // Pull de enable pin omhoog
+  75:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     PORTD |= (1 << E);
+ 130               	.LM2:
+ 131 0002 5B9A      		sbi 0xb,3
+  76:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     
+  77:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     // Zet het lcd in 4 bit mode, (low nibble = 0 = niet aangesloten)
+  78:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     PORTD &= ~((1 << DB4) | (1 << DB5) | (1 << DB6) | (1 << DB7));
+ 133               	.LM3:
+ 134 0004 8BB1      		in r24,0xb
+ 135 0006 8F70      		andi r24,lo8(15)
+ 136 0008 8BB9      		out 0xb,r24
+  79:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     PORTD |= (lcd_commandos.bit4 << 4);
+ 138               	.LM4:
+ 139 000a 9BB1      		in r25,0xb
+ 140 000c 8091 0000 		lds r24,lcd_commandos+3
+ 141 0010 8295      		swap r24
+ 142 0012 807F      		andi r24,lo8(-16)
+ 143 0014 892B      		or r24,r25
+ 144 0016 8BB9      		out 0xb,r24
+  80:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     
+  81:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     // Pull de enable pin omlaag, bij falling edge wordt de data weggeschreven
+  82:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     PORTD &= ~(1 << E);
+ 146               	.LM5:
+ 147 0018 5B98      		cbi 0xb,3
+ 148 001a 0895      		ret
+ 150               	.Lscope1:
+ 153               	.global	lcd_write_command
+ 155               	lcd_write_command:
+  83:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** }
+  84:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** 
+  85:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** // Methode om de lcd in 4 bit mode te zetten
+  86:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** void lcd_write_command(uint8_t value)
+  87:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** {
+ 157               	.LM6:
+ 158               	.LFBB2:
+ 159               	/* prologue: function */
+ 160               	/* frame size = 0 */
+ 161               	/* stack size = 0 */
+ 162               	.L__stack_usage = 0
+  88:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     // Zet RS laag voor het versturen van een commando
+  89:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     PORTD &= ~(1 << RS);
+ 164               	.LM7:
+ 165 001c 5A98      		cbi 0xb,2
+  90:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     
+  91:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     // Low nibble
+  92:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     
+  93:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     // Pull de enable pin omhoog
+  94:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     PORTD |= (1 << E);
+ 167               	.LM8:
+ 168 001e 5B9A      		sbi 0xb,3
+  95:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     
+  96:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     // Schrijft high nibble weg (standaard 0), clear operatie
+  97:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     PORTD &= ~((1 << DB4) | (1 << DB5) | (1 << DB6) | (1 << DB7));
+ 170               	.LM9:
+ 171 0020 9BB1      		in r25,0xb
+ 172 0022 9F70      		andi r25,lo8(15)
+ 173 0024 9BB9      		out 0xb,r25
+  98:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     
+  99:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     // Pull de enable pin omlaag, bij falling edge wordt de data weggeschreven
+ 100:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     PORTD &= ~(1 << E);
+ 175               	.LM10:
+ 176 0026 5B98      		cbi 0xb,3
+ 101:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     
+ 102:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     // High nibble
+ 103:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     
+ 104:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     // Pull de enable pin omhoog
+ 105:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     PORTD |= (1 << E);
+ 178               	.LM11:
+ 179 0028 5B9A      		sbi 0xb,3
+ 106:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     
+ 107:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     // Schrijf de low nibble weg, clear oude data eerst
+ 108:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     PORTD &= ~((1 << DB4) | (1 << DB5) | (1 << DB6) | (1 << DB7));
+ 181               	.LM12:
+ 182 002a 9BB1      		in r25,0xb
+ 183 002c 9F70      		andi r25,lo8(15)
+ 184 002e 9BB9      		out 0xb,r25
+ 109:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     PORTD |= value << 4;
+ 186               	.LM13:
+ 187 0030 2BB1      		in r18,0xb
+ 188 0032 30E1      		ldi r19,lo8(16)
+ 189 0034 839F      		mul r24,r19
+ 190 0036 C001      		movw r24,r0
+ 191 0038 1124      		clr __zero_reg__
+ 192 003a 282B      		or r18,r24
+ 193 003c 2BB9      		out 0xb,r18
+ 110:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     
+ 111:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     // Pull de enable pin omlaag, bij falling edge wordt de data weggeschreven
+ 112:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     PORTD &= ~(1 << E);
+ 195               	.LM14:
+ 196 003e 5B98      		cbi 0xb,3
+ 197 0040 0895      		ret
+ 199               	.Lscope2:
+ 201               	.global	lcd_init
+ 203               	lcd_init:
+  40:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** {
+ 205               	.LM15:
+ 206               	.LFBB3:
+ 207               	/* prologue: function */
+ 208               	/* frame size = 0 */
+ 209               	/* stack size = 0 */
+ 210               	.L__stack_usage = 0
+ 211               	.LBB15:
+ 212               	.LBB16:
+ 214               	.Ltext1:
+   1:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** /* Copyright (c) 2002, Marek Michalkiewicz
+   2:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Copyright (c) 2004,2005,2007 Joerg Wunsch
+   3:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Copyright (c) 2007  Florin-Viorel Petrov
+   4:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    All rights reserved.
+   5:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+   6:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Redistribution and use in source and binary forms, with or without
+   7:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    modification, are permitted provided that the following conditions are met:
+   8:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+   9:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    * Redistributions of source code must retain the above copyright
+  10:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****      notice, this list of conditions and the following disclaimer.
+  11:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  12:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    * Redistributions in binary form must reproduce the above copyright
+  13:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****      notice, this list of conditions and the following disclaimer in
+  14:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****      the documentation and/or other materials provided with the
+  15:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****      distribution.
+  16:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  17:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    * Neither the name of the copyright holders nor the names of
+  18:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****      contributors may be used to endorse or promote products derived
+  19:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****      from this software without specific prior written permission.
+  20:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  21:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  22:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  23:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+  24:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+  25:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+  26:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+  27:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+  28:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+  29:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+  30:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+  31:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   POSSIBILITY OF SUCH DAMAGE. */
+  32:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  33:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** /* $Id$ */
+  34:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  35:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #ifndef _UTIL_DELAY_H_
+  36:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #define _UTIL_DELAY_H_ 1
+  37:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  38:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #ifndef __HAS_DELAY_CYCLES
+  39:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #define __HAS_DELAY_CYCLES 1
+  40:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #endif
+  41:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  42:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #include <inttypes.h>
+  43:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #include <util/delay_basic.h>
+  44:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #include <math.h>
+  45:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  46:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** /** \file */
+  47:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** /** \defgroup util_delay <util/delay.h>: Convenience functions for busy-wait delay loops
+  48:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     \code
+  49:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     #define F_CPU 1000000UL  // 1 MHz
+  50:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     //#define F_CPU 14.7456E6
+  51:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     #include <util/delay.h>
+  52:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     \endcode
+  53:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  54:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     \note As an alternative method, it is possible to pass the
+  55:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     F_CPU macro down to the compiler from the Makefile.
+  56:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     Obviously, in that case, no \c \#define statement should be
+  57:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     used.
+  58:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  59:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     The functions in this header file are wrappers around the basic
+  60:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     busy-wait functions from <util/delay_basic.h>.  They are meant as
+  61:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     convenience functions where actual time values can be specified
+  62:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     rather than a number of cycles to wait for.  The idea behind is
+  63:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     that compile-time constant expressions will be eliminated by
+  64:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     compiler optimization so floating-point expressions can be used
+  65:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     to calculate the number of delay cycles needed based on the CPU
+  66:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     frequency passed by the macro F_CPU.
+  67:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  68:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     \note In order for these functions to work as intended, compiler
+  69:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     optimizations <em>must</em> be enabled, and the delay time
+  70:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     <em>must</em> be an expression that is a known constant at
+  71:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     compile-time.  If these requirements are not met, the resulting
+  72:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     delay will be much longer (and basically unpredictable), and
+  73:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     applications that otherwise do not use floating-point calculations
+  74:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     will experience severe code bloat by the floating-point library
+  75:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     routines linked into the application.
+  76:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  77:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     The functions available allow the specification of microsecond, and
+  78:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     millisecond delays directly, using the application-supplied macro
+  79:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     F_CPU as the CPU clock frequency (in Hertz).
+  80:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  81:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** */
+  82:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  83:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #if !defined(__DOXYGEN__)
+  84:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** static inline void _delay_us(double __us) __attribute__((always_inline));
+  85:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** static inline void _delay_ms(double __ms) __attribute__((always_inline));
+  86:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #endif
+  87:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  88:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #ifndef F_CPU
+  89:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** /* prevent compiler error by supplying a default */
+  90:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** # warning "F_CPU not defined for <util/delay.h>"
+  91:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** # define F_CPU 1000000UL
+  92:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #endif
+  93:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  94:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #ifndef __OPTIMIZE__
+  95:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** # warning "Compiler optimizations disabled; functions from <util/delay.h> won't work as designed"
+  96:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #endif
+  97:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  98:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #if __HAS_DELAY_CYCLES && defined(__OPTIMIZE__) && \
+  99:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   !defined(__DELAY_BACKWARD_COMPATIBLE__) &&	   \
+ 100:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   __STDC_HOSTED__
+ 101:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #  include <math.h>
+ 102:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #endif
+ 103:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 104:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** /**
+ 105:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    \ingroup util_delay
+ 106:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 107:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Perform a delay of \c __ms milliseconds, using _delay_loop_2().
+ 108:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 109:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    The macro F_CPU is supposed to be defined to a
+ 110:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    constant defining the CPU clock frequency (in Hertz).
+ 111:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 112:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    The maximal possible delay is 262.14 ms / F_CPU in MHz.
+ 113:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 114:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    When the user request delay which exceed the maximum possible one,
+ 115:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    _delay_ms() provides a decreased resolution functionality. In this
+ 116:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    mode _delay_ms() will work with a resolution of 1/10 ms, providing
+ 117:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    delays up to 6.5535 seconds (independent from CPU frequency).  The
+ 118:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    user will not be informed about decreased resolution.
+ 119:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 120:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    If the avr-gcc toolchain has __builtin_avr_delay_cycles(unsigned long)
+ 121:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    support, maximal possible delay is 4294967.295 ms/ F_CPU in MHz. For
+ 122:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    values greater than the maximal possible delay, overflows results in
+ 123:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    no delay i.e., 0ms.
+ 124:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 125:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Conversion of __us into clock cycles may not always result in integer.
+ 126:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    By default, the clock cycles rounded up to next integer. This ensures that
+ 127:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    the user gets atleast __us microseconds of delay.
+ 128:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 129:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Alternatively, user can define __DELAY_ROUND_DOWN__ and __DELAY_ROUND_CLOSEST__
+ 130:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    to round down and round to closest integer.
+ 131:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 132:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Note: The new implementation of _delay_ms(double __ms) with 
+ 133:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     __builtin_avr_delay_cycles(unsigned long) support is not backward compatible. 
+ 134:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    User can define __DELAY_BACKWARD_COMPATIBLE__ to get a backward compatible delay.
+ 135:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Also, the backward compatible
+ 136:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    algorithm will be chosen if the code is compiled in a <em>freestanding
+ 137:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    environment</em> (GCC option \c -ffreestanding), as the math functions
+ 138:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    required for rounding are not available to the compiler then.
+ 139:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 140:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****  */
+ 141:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** void
+ 142:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** _delay_ms(double __ms)
+ 143:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** {
+ 144:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	double __tmp ; 
+ 145:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #if __HAS_DELAY_CYCLES && defined(__OPTIMIZE__) && \
+ 146:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   !defined(__DELAY_BACKWARD_COMPATIBLE__) &&	   \
+ 147:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   __STDC_HOSTED__
+ 148:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	uint32_t __ticks_dc;
+ 149:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	extern void __builtin_avr_delay_cycles(unsigned long);
+ 150:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	__tmp = ((F_CPU) / 1e3) * __ms;
+ 151:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 152:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	#if defined(__DELAY_ROUND_DOWN__)
+ 153:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 		__ticks_dc = (uint32_t)fabs(__tmp);
+ 154:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 155:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	#elif defined(__DELAY_ROUND_CLOSEST__)
+ 156:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 		__ticks_dc = (uint32_t)(fabs(__tmp)+0.5);
+ 157:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 158:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	#else
+ 159:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 		//round up by default
+ 160:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
+ 161:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	#endif
+ 162:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 163:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	__builtin_avr_delay_cycles(__ticks_dc);
+ 216               	.LM16:
+ 217 0042 8FE5      		ldi r24,lo8(-5537)
+ 218 0044 9AEE      		ldi r25,hi8(-5537)
+ 219 0046 0197      		1: sbiw r24,1
+ 220 0048 01F4      		brne 1b
+ 221 004a 00C0      		rjmp .
+ 222 004c 0000      		nop
+ 223               	.LBE16:
+ 224               	.LBE15:
+ 226               	.Ltext2:
+  45:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     DDRD |= (1 << DB4) | (1 << DB5) | (1 << DB6) | (1 << DB7) | (1 << E) | (1 << RS);
+ 228               	.LM17:
+ 229 004e 8AB1      		in r24,0xa
+ 230 0050 8C6F      		ori r24,lo8(-4)
+ 231 0052 8AB9      		out 0xa,r24
+  49:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     lcd_commandos.cursor_home        = 0b0010;
+ 233               	.LM18:
+ 234 0054 81E2      		ldi r24,lo8(33)
+ 235 0056 8093 0000 		sts lcd_commandos,r24
+  51:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     lcd_commandos.cursor_backwards   = 0b0100;     // bit[0] = not shifted
+ 237               	.LM19:
+ 238 005a 86E4      		ldi r24,lo8(70)
+ 239 005c 8093 0000 		sts lcd_commandos+1,r24
+  53:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     lcd_commandos.display_off        = 0b1000;     // bit[1] = cursor off | bit[0] = blink off
+ 241               	.LM20:
+ 242 0060 8CE8      		ldi r24,lo8(-116)
+ 243 0062 8093 0000 		sts lcd_commandos+2,r24
+  54:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     lcd_commandos.bit4               = 0b0010;     // bit[1] = 4 bits mode
+ 245               	.LM21:
+ 246 0066 E0E0      		ldi r30,lo8(lcd_commandos+3)
+ 247 0068 F0E0      		ldi r31,hi8(lcd_commandos+3)
+ 248 006a 8081      		ld r24,Z
+ 249 006c 807F      		andi r24,lo8(-16)
+ 250 006e 8260      		ori r24,lo8(2)
+ 251 0070 8083      		st Z,r24
+  57:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     lcd_4bit_mode();
+ 253               	.LM22:
+ 254 0072 0E94 0000 		call lcd_4bit_mode
+ 255               	.LBB17:
+ 256               	.LBB18:
+ 258               	.Ltext3:
+ 164:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 165:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #else
+ 166:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	uint16_t __ticks;
+ 167:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	__tmp = ((F_CPU) / 4e3) * __ms;
+ 168:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	if (__tmp < 1.0)
+ 169:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 		__ticks = 1;
+ 170:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	else if (__tmp > 65535)
+ 171:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	{
+ 172:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 		//	__ticks = requested delay in 1/10 ms
+ 173:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 		__ticks = (uint16_t) (__ms * 10.0);
+ 174:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 		while(__ticks)
+ 175:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 		{
+ 176:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 			// wait 1/10 ms
+ 177:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 			_delay_loop_2(((F_CPU) / 4e3) / 10);
+ 178:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 			__ticks --;
+ 179:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 		}
+ 180:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 		return;
+ 181:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	}
+ 182:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	else
+ 183:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 		__ticks = (uint16_t)__tmp;
+ 184:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	_delay_loop_2(__ticks);
+ 185:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #endif
+ 186:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** }
+ 187:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 188:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** /**
+ 189:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    \ingroup util_delay
+ 190:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 191:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Perform a delay of \c __us microseconds, using _delay_loop_1().
+ 192:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 193:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    The macro F_CPU is supposed to be defined to a
+ 194:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    constant defining the CPU clock frequency (in Hertz).
+ 195:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 196:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    The maximal possible delay is 768 us / F_CPU in MHz.
+ 197:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 198:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    If the user requests a delay greater than the maximal possible one,
+ 199:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    _delay_us() will automatically call _delay_ms() instead.  The user
+ 200:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    will not be informed about this case.
+ 201:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 202:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    If the avr-gcc toolchain has __builtin_avr_delay_cycles(unsigned long)
+ 203:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    support, maximal possible delay is 4294967.295 us/ F_CPU in MHz. For
+ 204:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    values greater than the maximal possible delay, overflow results in
+ 205:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    no delay i.e., 0us.
+ 206:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   
+ 207:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Conversion of __us into clock cycles may not always result in integer.
+ 208:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    By default, the clock cycles rounded up to next integer. This ensures that
+ 209:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    the user gets atleast __us microseconds of delay.
+ 210:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 211:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Alternatively, user can define __DELAY_ROUND_DOWN__ and __DELAY_ROUND_CLOSEST__
+ 212:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    to round down and round to closest integer.
+ 213:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****  
+ 214:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Note: The new implementation of _delay_us(double __us) with 
+ 215:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     __builtin_avr_delay_cycles(unsigned long) support is not backward compatible.
+ 216:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    User can define __DELAY_BACKWARD_COMPATIBLE__ to get a backward compatible delay.
+ 217:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Also, the backward compatible
+ 218:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    algorithm will be chosen if the code is compiled in a <em>freestanding
+ 219:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    environment</em> (GCC option \c -ffreestanding), as the math functions
+ 220:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    required for rounding are not available to the compiler then.
+ 221:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 222:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****  */
+ 223:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** void
+ 224:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** _delay_us(double __us)
+ 225:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** {
+ 226:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	double __tmp ; 
+ 227:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #if __HAS_DELAY_CYCLES && defined(__OPTIMIZE__) && \
+ 228:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   !defined(__DELAY_BACKWARD_COMPATIBLE__) &&	   \
+ 229:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   __STDC_HOSTED__
+ 230:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	uint32_t __ticks_dc;
+ 231:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	extern void __builtin_avr_delay_cycles(unsigned long);
+ 232:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	__tmp = ((F_CPU) / 1e6) * __us;
+ 233:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 234:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	#if defined(__DELAY_ROUND_DOWN__)
+ 235:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 		__ticks_dc = (uint32_t)fabs(__tmp);
+ 236:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 237:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	#elif defined(__DELAY_ROUND_CLOSEST__)
+ 238:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 		__ticks_dc = (uint32_t)(fabs(__tmp)+0.5);
+ 239:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 240:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	#else
+ 241:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 		//round up by default
+ 242:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
+ 243:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	#endif
+ 244:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 245:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	__builtin_avr_delay_cycles(__ticks_dc);
+ 260               	.LM23:
+ 261 0076 87EC      		ldi r24,lo8(199)
+ 262 0078 90E0      		ldi r25,hi8(199)
+ 263 007a 0197      		1: sbiw r24,1
+ 264 007c 01F4      		brne 1b
+ 265 007e 00C0      		rjmp .
+ 266 0080 0000      		nop
+ 267               	.LBE18:
+ 268               	.LBE17:
+ 270               	.Ltext4:
+  61:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     lcd_write_command(lcd_commandos.display_on);
+ 272               	.LM24:
+ 273 0082 8091 0000 		lds r24,lcd_commandos+2
+ 274 0086 8F70      		andi r24,lo8(15)
+ 275 0088 0E94 0000 		call lcd_write_command
+ 276               	.LBB19:
+ 277               	.LBB20:
+ 279               	.Ltext5:
+ 281               	.LM25:
+ 282 008c 87EC      		ldi r24,lo8(199)
+ 283 008e 90E0      		ldi r25,hi8(199)
+ 284 0090 0197      		1: sbiw r24,1
+ 285 0092 01F4      		brne 1b
+ 286 0094 00C0      		rjmp .
+ 287 0096 0000      		nop
+ 288               	.LBE20:
+ 289               	.LBE19:
+ 291               	.Ltext6:
+  65:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     lcd_write_command(lcd_commandos.clear);
+ 293               	.LM26:
+ 294 0098 8091 0000 		lds r24,lcd_commandos
+ 295 009c 8F70      		andi r24,lo8(15)
+ 296 009e 0E94 0000 		call lcd_write_command
+ 297               	.LBB21:
+ 298               	.LBB22:
+ 300               	.Ltext7:
+ 163:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	__builtin_avr_delay_cycles(__ticks_dc);
+ 302               	.LM27:
+ 303 00a2 8FE3      		ldi r24,lo8(7999)
+ 304 00a4 9FE1      		ldi r25,hi8(7999)
+ 305 00a6 0197      		1: sbiw r24,1
+ 306 00a8 01F4      		brne 1b
+ 307 00aa 00C0      		rjmp .
+ 308 00ac 0000      		nop
+ 309 00ae 0895      		ret
+ 310               	.LBE22:
+ 311               	.LBE21:
+ 313               	.Lscope3:
+ 316               	.global	lcd_write_character
+ 318               	lcd_write_character:
+ 320               	.Ltext8:
+ 113:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** }
+ 114:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** 
+ 115:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** // Methode om een string op het display te zetten
+ 116:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** void lcd_print(char *string)
+ 117:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** {
+ 118:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     // Cleart het lcd scherm voor een nieuwe string
+ 119:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     lcd_write_command(lcd_commandos.clear);
+ 120:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     _delay_ms(2);
+ 121:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     
+ 122:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     // Print de characters uit de string op het lcd
+ 123:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     for (int i = 0; string[i] != '\0'; ++i) {
+ 124:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****         _delay_us(100);
+ 125:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****         lcd_send_character(string[i]);
+ 126:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     }
+ 127:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** }
+ 128:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** 
+ 129:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** // Methode om een character op het display te zetten
+ 130:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** void lcd_send_character(char character)
+ 131:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** {
+ 132:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     // Int voor het versturen van het character
+ 133:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     uint8_t data;
+ 134:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     
+ 135:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     // Character A is gelijk aan het getal 97 (ASCII)
+ 136:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     data = lcd_letter_characters[character - 97];
+ 137:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     
+ 138:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     // Schrijft de write command weg op de output poorten
+ 139:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     lcd_write_character(data);
+ 140:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     
+ 141:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     // Schuift de cursor een plaats op
+ 142:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     lcd_write_command(lcd_commandos.cursor_forward);
+ 143:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** }
+ 144:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** 
+ 145:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** // Methode om een nummer op het display te zetten
+ 146:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** void lcd_send_number(char number)
+ 147:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** {
+ 148:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     // Int voor het versturen van het character
+ 149:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     uint8_t data;
+ 150:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     
+ 151:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     // Character 0 is gelijk aan het getal 48 (ASCII)
+ 152:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     data = lcd_number_characters[number - 48];
+ 153:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     
+ 154:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     // Schrijft de write command weg op de output poorten
+ 155:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     lcd_write_character(data);
+ 156:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     
+ 157:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     // Schuift de cursor een plaats op
+ 158:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     lcd_write_command(lcd_commandos.cursor_forward);
+ 159:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** }
+ 160:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** 
+ 161:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** // Methode om de juiste waardes op de poorten te zetten
+ 162:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** void lcd_write_character(uint8_t value)
+ 163:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** {
+ 322               	.LM28:
+ 323               	.LFBB4:
+ 324               	/* prologue: function */
+ 325               	/* frame size = 0 */
+ 326               	/* stack size = 0 */
+ 327               	.L__stack_usage = 0
+ 164:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     // Zet RS hoog voor het versturen van characters
+ 165:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     PORTD |= (1 << RS);
+ 329               	.LM29:
+ 330 00b0 5A9A      		sbi 0xb,2
+ 166:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     
+ 167:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     // High nibble
+ 168:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     
+ 169:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     // Pull de enable pin omhoog
+ 170:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     PORTD |= (1 << E);
+ 332               	.LM30:
+ 333 00b2 5B9A      		sbi 0xb,3
+ 171:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     
+ 172:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     // Schrijf eerst de high nibble weg
+ 173:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     PORTD &= 0x0F;
+ 335               	.LM31:
+ 336 00b4 9BB1      		in r25,0xb
+ 337 00b6 9F70      		andi r25,lo8(15)
+ 338 00b8 9BB9      		out 0xb,r25
+ 174:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     PORTD |= value & 0xF0;
+ 340               	.LM32:
+ 341 00ba 2BB1      		in r18,0xb
+ 342 00bc 982F      		mov r25,r24
+ 343 00be 907F      		andi r25,lo8(-16)
+ 344 00c0 922B      		or r25,r18
+ 345 00c2 9BB9      		out 0xb,r25
+ 175:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     
+ 176:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     // Pull de enable pin omlaag, bij falling edge wordt de data weggeschreven
+ 177:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     PORTD &= ~(1 << E);
+ 347               	.LM33:
+ 348 00c4 5B98      		cbi 0xb,3
+ 178:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     
+ 179:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     // Low nibble
+ 180:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     
+ 181:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     // Pull de enable pin omhoog
+ 182:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     PORTD |= (1 << E);
+ 350               	.LM34:
+ 351 00c6 5B9A      		sbi 0xb,3
+ 183:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     
+ 184:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     // Schrijf daarna de low nibble weg
+ 185:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     PORTD &= 0x0F;
+ 353               	.LM35:
+ 354 00c8 9BB1      		in r25,0xb
+ 355 00ca 9F70      		andi r25,lo8(15)
+ 356 00cc 9BB9      		out 0xb,r25
+ 186:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     PORTD |= value << 4;
+ 358               	.LM36:
+ 359 00ce 2BB1      		in r18,0xb
+ 360 00d0 30E1      		ldi r19,lo8(16)
+ 361 00d2 839F      		mul r24,r19
+ 362 00d4 C001      		movw r24,r0
+ 363 00d6 1124      		clr __zero_reg__
+ 364 00d8 282B      		or r18,r24
+ 365 00da 2BB9      		out 0xb,r18
+ 187:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     
+ 188:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     // Pull de enable pin omlaag, bij falling edge wordt de data weggeschreven
+ 189:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     PORTD &= ~(1 << E);
+ 367               	.LM37:
+ 368 00dc 5B98      		cbi 0xb,3
+ 369 00de 0895      		ret
+ 371               	.Lscope4:
+ 374               	.global	lcd_send_character
+ 376               	lcd_send_character:
+ 131:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** {
+ 378               	.LM38:
+ 379               	.LFBB5:
+ 380               	/* prologue: function */
+ 381               	/* frame size = 0 */
+ 382               	/* stack size = 0 */
+ 383               	.L__stack_usage = 0
+ 136:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     data = lcd_letter_characters[character - 97];
+ 385               	.LM39:
+ 386 00e0 E82F      		mov r30,r24
+ 387 00e2 F0E0      		ldi r31,0
+ 388 00e4 E050      		subi r30,lo8(-(lcd_letter_characters-97))
+ 389 00e6 F040      		sbci r31,hi8(-(lcd_letter_characters-97))
+ 139:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     lcd_write_character(data);
+ 391               	.LM40:
+ 392 00e8 8081      		ld r24,Z
+ 393 00ea 0E94 0000 		call lcd_write_character
+ 142:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     lcd_write_command(lcd_commandos.cursor_forward);
+ 395               	.LM41:
+ 396 00ee 8091 0000 		lds r24,lcd_commandos+1
+ 397 00f2 8F70      		andi r24,lo8(15)
+ 398 00f4 0C94 0000 		jmp lcd_write_command
+ 400               	.Lscope5:
+ 402               	.global	lcd_print
+ 404               	lcd_print:
+ 117:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** {
+ 406               	.LM42:
+ 407               	.LFBB6:
+ 408 00f8 EF92      		push r14
+ 409 00fa FF92      		push r15
+ 410 00fc 1F93      		push r17
+ 411 00fe CF93      		push r28
+ 412 0100 DF93      		push r29
+ 413 0102 1F92      		push __zero_reg__
+ 414 0104 CDB7      		in r28,__SP_L__
+ 415 0106 DEB7      		in r29,__SP_H__
+ 416               	/* prologue: function */
+ 417               	/* frame size = 1 */
+ 418               	/* stack size = 6 */
+ 419               	.L__stack_usage = 6
+ 420 0108 182F      		mov r17,r24
+ 119:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     lcd_write_command(lcd_commandos.clear);
+ 422               	.LM43:
+ 423 010a 8091 0000 		lds r24,lcd_commandos
+ 424 010e 8F70      		andi r24,lo8(15)
+ 425 0110 9983      		std Y+1,r25
+ 426 0112 0E94 0000 		call lcd_write_command
+ 427               	.LBB23:
+ 428               	.LBB24:
+ 430               	.Ltext9:
+ 163:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	__builtin_avr_delay_cycles(__ticks_dc);
+ 432               	.LM44:
+ 433 0116 AFE3      		ldi r26,lo8(7999)
+ 434 0118 BFE1      		ldi r27,hi8(7999)
+ 435 011a 1197      		1: sbiw r26,1
+ 436 011c 01F4      		brne 1b
+ 437 011e 00C0      		rjmp .
+ 438 0120 0000      		nop
+ 439 0122 E12E      		mov r14,r17
+ 440 0124 9981      		ldd r25,Y+1
+ 441 0126 F92E      		mov r15,r25
+ 442               	.L7:
+ 443 0128 F701      		movw r30,r14
+ 444               	.LBE24:
+ 445               	.LBE23:
+ 446               	.LBB25:
+ 448               	.Ltext10:
+ 123:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     for (int i = 0; string[i] != '\0'; ++i) {
+ 450               	.LM45:
+ 451 012a 8081      		ld r24,Z
+ 452 012c 8823      		tst r24
+ 453 012e 01F0      		breq .L10
+ 454               	.LBB26:
+ 455               	.LBB27:
+ 457               	.Ltext11:
+ 459               	.LM46:
+ 460 0130 8FE8      		ldi r24,lo8(399)
+ 461 0132 91E0      		ldi r25,hi8(399)
+ 462 0134 0197      		1: sbiw r24,1
+ 463 0136 01F4      		brne 1b
+ 464 0138 00C0      		rjmp .
+ 465 013a 0000      		nop
+ 466 013c 9FEF      		ldi r25,-1
+ 467 013e E91A      		sub r14,r25
+ 468 0140 F90A      		sbc r15,r25
+ 469               	.LBE27:
+ 470               	.LBE26:
+ 472               	.Ltext12:
+ 125:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****         lcd_send_character(string[i]);
+ 474               	.LM47:
+ 475 0142 8081      		ld r24,Z
+ 476 0144 0E94 0000 		call lcd_send_character
+ 477 0148 00C0      		rjmp .L7
+ 478               	.L10:
+ 479               	/* epilogue start */
+ 480               	.LBE25:
+ 127:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** }
+ 482               	.LM48:
+ 483 014a 0F90      		pop __tmp_reg__
+ 484 014c DF91      		pop r29
+ 485 014e CF91      		pop r28
+ 486 0150 1F91      		pop r17
+ 487 0152 FF90      		pop r15
+ 488 0154 EF90      		pop r14
+ 489 0156 0895      		ret
+ 491               	.Lscope6:
+ 494               	.global	lcd_send_number
+ 496               	lcd_send_number:
+ 147:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c **** {
+ 498               	.LM49:
+ 499               	.LFBB7:
+ 500               	/* prologue: function */
+ 501               	/* frame size = 0 */
+ 502               	/* stack size = 0 */
+ 503               	.L__stack_usage = 0
+ 152:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     data = lcd_number_characters[number - 48];
+ 505               	.LM50:
+ 506 0158 E82F      		mov r30,r24
+ 507 015a F0E0      		ldi r31,0
+ 508 015c E050      		subi r30,lo8(-(lcd_number_characters-48))
+ 509 015e F040      		sbci r31,hi8(-(lcd_number_characters-48))
+ 155:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     lcd_write_character(data);
+ 511               	.LM51:
+ 512 0160 8081      		ld r24,Z
+ 513 0162 0E94 0000 		call lcd_write_character
+ 158:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/lcd.c ****     lcd_write_command(lcd_commandos.cursor_forward);
+ 515               	.LM52:
+ 516 0166 8091 0000 		lds r24,lcd_commandos+1
+ 517 016a 8F70      		andi r24,lo8(15)
+ 518 016c 0C94 0000 		jmp lcd_write_command
+ 520               	.Lscope7:
+ 521               		.comm	lcd_commandos,4,1
+ 522               	.global	lcd_letter_characters
+ 523               		.data
+ 526               	lcd_letter_characters:
+ 527 0000 61        		.byte	97
+ 528 0001 62        		.byte	98
+ 529 0002 63        		.byte	99
+ 530 0003 64        		.byte	100
+ 531 0004 65        		.byte	101
+ 532 0005 66        		.byte	102
+ 533 0006 67        		.byte	103
+ 534 0007 68        		.byte	104
+ 535 0008 69        		.byte	105
+ 536 0009 6A        		.byte	106
+ 537 000a 6B        		.byte	107
+ 538 000b 6C        		.byte	108
+ 539 000c 6D        		.byte	109
+ 540 000d 6E        		.byte	110
+ 541 000e 6F        		.byte	111
+ 542 000f 70        		.byte	112
+ 543 0010 71        		.byte	113
+ 544 0011 72        		.byte	114
+ 545 0012 73        		.byte	115
+ 546 0013 74        		.byte	116
+ 547 0014 75        		.byte	117
+ 548 0015 76        		.byte	118
+ 549 0016 77        		.byte	119
+ 550 0017 78        		.byte	120
+ 551 0018 79        		.byte	121
+ 552 0019 7A        		.byte	122
+ 553               	.global	lcd_number_characters
+ 556               	lcd_number_characters:
+ 557 001a 30        		.byte	48
+ 558 001b 31        		.byte	49
+ 559 001c 32        		.byte	50
+ 560 001d 33        		.byte	51
+ 561 001e 34        		.byte	52
+ 562 001f 35        		.byte	53
+ 563 0020 36        		.byte	54
+ 564 0021 37        		.byte	55
+ 565 0022 38        		.byte	56
+ 566 0023 39        		.byte	57
+ 570               		.text
+ 572               	.Letext0:
+ 573               		.ident	"GCC: (GNU) 4.8.1"
+ 574               	.global __do_copy_data
+ 575               	.global __do_clear_bss
+DEFINED SYMBOLS
+                            *ABS*:00000000 lcd.c
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cciUlbPc.s:2      *ABS*:0000003e __SP_H__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cciUlbPc.s:3      *ABS*:0000003d __SP_L__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cciUlbPc.s:4      *ABS*:0000003f __SREG__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cciUlbPc.s:5      *ABS*:00000000 __tmp_reg__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cciUlbPc.s:6      *ABS*:00000001 __zero_reg__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cciUlbPc.s:118    .text:00000000 lcd_4bit_mode
+                            *COM*:00000004 lcd_commandos
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cciUlbPc.s:155    .text:0000001c lcd_write_command
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cciUlbPc.s:203    .text:00000042 lcd_init
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cciUlbPc.s:318    .text:000000b0 lcd_write_character
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cciUlbPc.s:376    .text:000000e0 lcd_send_character
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cciUlbPc.s:526    .data:00000000 lcd_letter_characters
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cciUlbPc.s:404    .text:000000f8 lcd_print
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cciUlbPc.s:496    .text:00000158 lcd_send_number
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cciUlbPc.s:556    .data:0000001a lcd_number_characters
+
+UNDEFINED SYMBOLS
+__do_copy_data
+__do_clear_bss

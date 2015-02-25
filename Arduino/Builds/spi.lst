@@ -1,0 +1,178 @@
+   1               		.file	"spi.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   8               		.text
+   9               	.Ltext0:
+ 112               	.global	spi_init
+ 114               	spi_init:
+   1:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c **** //
+   2:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c **** //  spi.c
+   3:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c **** //  Arduino
+   4:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c **** //
+   5:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c **** //  Created by Projectgroep TI2.4 on 10-12-14.
+   6:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c **** //  Copyright (c) 2014 Projectgroep TI2.4. All rights reserved.
+   7:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c **** //
+   8:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c **** 
+   9:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c **** #include <stdio.h>
+  10:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c **** #include "spi.h"
+  11:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c **** 
+  12:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c **** // Methode voor het opzetten van de SPI verbinding
+  13:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c **** void spi_init(void) {
+ 116               	.LM0:
+ 117               	.LFBB1:
+ 118               	/* prologue: function */
+ 119               	/* frame size = 0 */
+ 120               	/* stack size = 0 */
+ 121               	.L__stack_usage = 0
+  14:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c ****     // Zet de mosi, sck en ss lijnen op output voor het aansturen van de SPI verbinding
+  15:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c ****     DDR_SPI = ((1 << DD_MOSI) | (1 << DD_SCK) | (1 << DD_SS));
+ 123               	.LM1:
+ 124 0000 8CE2      		ldi r24,lo8(44)
+ 125 0002 84B9      		out 0x4,r24
+  16:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c ****     
+  17:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c ****     // Schrijft naar SPI control register
+  18:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c ****     // SPE bit voor SPI enable
+  19:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c ****     // MSTR bit voor het setten als master
+  20:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c ****     SPCR = ((1 << SPE) | (1 << MSTR));
+ 127               	.LM2:
+ 128 0004 80E5      		ldi r24,lo8(80)
+ 129 0006 8CBD      		out 0x2c,r24
+ 130 0008 0895      		ret
+ 132               	.Lscope1:
+ 135               	.global	spi_transmit
+ 137               	spi_transmit:
+  21:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c **** }
+  22:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c **** 
+  23:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c **** // Methode om met behulp van SPI naar het ethernet shield te transmitten
+  24:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c **** void spi_transmit(uint16_t address, uint8_t data) {
+ 139               	.LM3:
+ 140               	.LFBB2:
+ 141               	/* prologue: function */
+ 142               	/* frame size = 0 */
+ 143               	/* stack size = 0 */
+ 144               	.L__stack_usage = 0
+  25:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c ****     SPI_PORT &= ~(1 << SPI_CS);         // Activeert de slave en synchroniseerd
+ 146               	.LM4:
+ 147 000a 2A98      		cbi 0x5,2
+  26:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c ****     SPDR = 0xF0;                        // Verstuurt write commando voor transmitten
+ 149               	.LM5:
+ 150 000c 20EF      		ldi r18,lo8(-16)
+ 151 000e 2EBD      		out 0x2e,r18
+ 152               	.L4:
+  27:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c ****     while(!(SPSR & (1 << SPIF)));       // Checkt op SPI interrupt flag zolang data wordt verstuurd
+ 154               	.LM6:
+ 155 0010 0DB4      		in __tmp_reg__,0x2d
+ 156 0012 07FE      		sbrs __tmp_reg__,7
+ 157 0014 00C0      		rjmp .L4
+  28:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c ****     SPDR = address >> 8;                // Neemt de hoogste byte van het adres en stuurt deze
+ 159               	.LM7:
+ 160 0016 9EBD      		out 0x2e,r25
+ 161               	.L6:
+  29:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c ****     while(!(SPSR & (1 << SPIF)));       // Checkt op SPI interrupt flag zolang data wordt verstuurd
+ 163               	.LM8:
+ 164 0018 0DB4      		in __tmp_reg__,0x2d
+ 165 001a 07FE      		sbrs __tmp_reg__,7
+ 166 001c 00C0      		rjmp .L6
+  30:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c ****     SPDR = address;                     // Neemt de laagste byte van het adres en stuurt deze
+ 168               	.LM9:
+ 169 001e 8EBD      		out 0x2e,r24
+ 170               	.L8:
+  31:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c ****     while(!(SPSR & (1 << SPIF)));       // Checkt op SPI interrupt flag zolang data wordt verstuurd
+ 172               	.LM10:
+ 173 0020 0DB4      		in __tmp_reg__,0x2d
+ 174 0022 07FE      		sbrs __tmp_reg__,7
+ 175 0024 00C0      		rjmp .L8
+  32:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c ****     SPDR = data;                        // Verstuurt de data naar het adres
+ 177               	.LM11:
+ 178 0026 6EBD      		out 0x2e,r22
+ 179               	.L10:
+  33:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c ****     while(!(SPSR & (1 << SPIF)));       // Checkt op SPI interrupt flag zolang data wordt verstuurd
+ 181               	.LM12:
+ 182 0028 0DB4      		in __tmp_reg__,0x2d
+ 183 002a 07FE      		sbrs __tmp_reg__,7
+ 184 002c 00C0      		rjmp .L10
+  34:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c ****     SPI_PORT |= (1<<SPI_CS);            // Deactiveerd de slave
+ 186               	.LM13:
+ 187 002e 2A9A      		sbi 0x5,2
+ 188 0030 0895      		ret
+ 190               	.Lscope2:
+ 192               	.global	spi_receive
+ 194               	spi_receive:
+  35:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c **** }
+  36:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c **** 
+  37:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c **** // Methode om met behulp van SPI data van het ethernet shield te ontvangen
+  38:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c **** unsigned char spi_receive(uint16_t address) {
+ 196               	.LM14:
+ 197               	.LFBB3:
+ 198               	/* prologue: function */
+ 199               	/* frame size = 0 */
+ 200               	/* stack size = 0 */
+ 201               	.L__stack_usage = 0
+  39:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c ****     SPI_PORT &= ~(1<<SPI_CS);           // Activeert de slave en synchroniseerd
+ 203               	.LM15:
+ 204 0032 2A98      		cbi 0x5,2
+  40:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c ****     SPDR = 0x0F;                        // Verstuurt read commando voor receiven
+ 206               	.LM16:
+ 207 0034 2FE0      		ldi r18,lo8(15)
+ 208 0036 2EBD      		out 0x2e,r18
+ 209               	.L14:
+  41:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c ****     while(!(SPSR & (1 << SPIF)));       // Checkt op SPI interrupt flag zolang data wordt verstuurd
+ 211               	.LM17:
+ 212 0038 0DB4      		in __tmp_reg__,0x2d
+ 213 003a 07FE      		sbrs __tmp_reg__,7
+ 214 003c 00C0      		rjmp .L14
+  42:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c ****     SPDR = address >> 8;                // Neemt de hoogste byte van het adres en stuurt deze
+ 216               	.LM18:
+ 217 003e 9EBD      		out 0x2e,r25
+ 218               	.L16:
+  43:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c ****     while(!(SPSR & (1 << SPIF)));       // Checkt op SPI interrupt flag zolang data wordt verstuurd
+ 220               	.LM19:
+ 221 0040 0DB4      		in __tmp_reg__,0x2d
+ 222 0042 07FE      		sbrs __tmp_reg__,7
+ 223 0044 00C0      		rjmp .L16
+  44:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c ****     SPDR = address;                     // Neemt de laagste byte van het adres en stuurt deze
+ 225               	.LM20:
+ 226 0046 8EBD      		out 0x2e,r24
+ 227               	.L18:
+  45:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c ****     while(!(SPSR & (1 << SPIF)));       // Checkt op SPI interrupt flag zolang data wordt verstuurd
+ 229               	.LM21:
+ 230 0048 0DB4      		in __tmp_reg__,0x2d
+ 231 004a 07FE      		sbrs __tmp_reg__,7
+ 232 004c 00C0      		rjmp .L18
+  46:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c ****     SPDR = 0x00;                        // Dummy data
+ 234               	.LM22:
+ 235 004e 1EBC      		out 0x2e,__zero_reg__
+ 236               	.L20:
+  47:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c ****     while(!(SPSR & (1 << SPIF)));       // Checkt op SPI interrupt flag zolang data wordt verstuurd
+ 238               	.LM23:
+ 239 0050 0DB4      		in __tmp_reg__,0x2d
+ 240 0052 07FE      		sbrs __tmp_reg__,7
+ 241 0054 00C0      		rjmp .L20
+  48:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c ****     SPI_PORT |= (1<<SPI_CS);            // Deactiveerd de slave
+ 243               	.LM24:
+ 244 0056 2A9A      		sbi 0x5,2
+  49:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c ****     
+  50:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c ****     return SPDR;                        // Returnt de verstuurde data uit het SPI data register
+ 246               	.LM25:
+ 247 0058 8EB5      		in r24,0x2e
+  51:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/spi.c **** }
+ 249               	.LM26:
+ 250 005a 0895      		ret
+ 252               	.Lscope3:
+ 254               	.Letext0:
+ 255               		.ident	"GCC: (GNU) 4.8.1"
+DEFINED SYMBOLS
+                            *ABS*:00000000 spi.c
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccSRFWEZ.s:2      *ABS*:0000003e __SP_H__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccSRFWEZ.s:3      *ABS*:0000003d __SP_L__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccSRFWEZ.s:4      *ABS*:0000003f __SREG__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccSRFWEZ.s:5      *ABS*:00000000 __tmp_reg__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccSRFWEZ.s:6      *ABS*:00000001 __zero_reg__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccSRFWEZ.s:114    .text:00000000 spi_init
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccSRFWEZ.s:137    .text:0000000a spi_transmit
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccSRFWEZ.s:194    .text:00000032 spi_receive
+
+NO UNDEFINED SYMBOLS

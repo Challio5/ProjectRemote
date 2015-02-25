@@ -1,0 +1,725 @@
+   1               		.file	"wiring_digital.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   8               		.text
+   9               	.Ltext0:
+ 130               	turnOffPWM:
+   1:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** /*
+   2:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c ****   wiring_digital.c - digital input and output functions
+   3:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c ****   Part of Arduino - http://www.arduino.cc/
+   4:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 
+   5:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c ****   Copyright (c) 2005-2006 David A. Mellis
+   6:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 
+   7:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c ****   This library is free software; you can redistribute it and/or
+   8:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c ****   modify it under the terms of the GNU Lesser General Public
+   9:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c ****   License as published by the Free Software Foundation; either
+  10:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c ****   version 2.1 of the License, or (at your option) any later version.
+  11:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 
+  12:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c ****   This library is distributed in the hope that it will be useful,
+  13:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c ****   but WITHOUT ANY WARRANTY; without even the implied warranty of
+  14:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c ****   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  15:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c ****   Lesser General Public License for more details.
+  16:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 
+  17:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c ****   You should have received a copy of the GNU Lesser General
+  18:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c ****   Public License along with this library; if not, write to the
+  19:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c ****   Free Software Foundation, Inc., 59 Temple Place, Suite 330,
+  20:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c ****   Boston, MA  02111-1307  USA
+  21:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 
+  22:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c ****   Modified 28 September 2010 by Mark Sproul
+  23:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 
+  24:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c ****   $Id: wiring.c 248 2007-02-03 15:36:30Z mellis $
+  25:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** */
+  26:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 
+  27:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** #define ARDUINO_MAIN
+  28:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** #include "wiring_private.h"
+  29:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** #include "pins_arduino.h"
+  30:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 
+  31:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** void pinMode(uint8_t pin, uint8_t mode)
+  32:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** {
+  33:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 	uint8_t bit = digitalPinToBitMask(pin);
+  34:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 	uint8_t port = digitalPinToPort(pin);
+  35:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 	volatile uint8_t *reg, *out;
+  36:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 
+  37:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 	if (port == NOT_A_PIN) return;
+  38:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 
+  39:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 	// JWS: can I let the optimizer do this?
+  40:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 	reg = portModeRegister(port);
+  41:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 	out = portOutputRegister(port);
+  42:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 
+  43:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 	if (mode == INPUT) { 
+  44:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		uint8_t oldSREG = SREG;
+  45:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c ****                 cli();
+  46:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		*reg &= ~bit;
+  47:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		*out &= ~bit;
+  48:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		SREG = oldSREG;
+  49:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 	} else if (mode == INPUT_PULLUP) {
+  50:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		uint8_t oldSREG = SREG;
+  51:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c ****                 cli();
+  52:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		*reg &= ~bit;
+  53:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		*out |= bit;
+  54:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		SREG = oldSREG;
+  55:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 	} else {
+  56:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		uint8_t oldSREG = SREG;
+  57:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c ****                 cli();
+  58:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		*reg |= bit;
+  59:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		SREG = oldSREG;
+  60:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 	}
+  61:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** }
+  62:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 
+  63:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** // Forcing this inline keeps the callers from having to push their own stuff
+  64:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** // on the stack. It is a good performance win and only takes 1 more byte per
+  65:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** // user than calling. (It will take more bytes on the 168.)
+  66:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** //
+  67:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** // But shouldn't this be moved into pinMode? Seems silly to check and do on
+  68:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** // each digitalread or write.
+  69:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** //
+  70:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** // Mark Sproul:
+  71:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** // - Removed inline. Save 170 bytes on atmega1280
+  72:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** // - changed to a switch statment; added 32 bytes but much easier to read and maintain.
+  73:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** // - Added more #ifdefs, now compiles for atmega645
+  74:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** //
+  75:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** //static inline void turnOffPWM(uint8_t timer) __attribute__ ((always_inline));
+  76:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** //static inline void turnOffPWM(uint8_t timer)
+  77:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** static void turnOffPWM(uint8_t timer)
+  78:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** {
+ 132               	.LM0:
+ 133               	.LFBB1:
+ 134               	/* prologue: function */
+ 135               	/* frame size = 0 */
+ 136               	/* stack size = 0 */
+ 137               	.L__stack_usage = 0
+  79:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 	switch (timer)
+ 139               	.LM1:
+ 140 0000 8330      		cpi r24,lo8(3)
+ 141 0002 01F0      		breq .L3
+ 142 0004 00F4      		brsh .L4
+ 143 0006 8130      		cpi r24,lo8(1)
+ 144 0008 01F0      		breq .L5
+ 145 000a 8230      		cpi r24,lo8(2)
+ 146 000c 01F0      		breq .L6
+ 147 000e 0895      		ret
+ 148               	.L4:
+ 149 0010 8630      		cpi r24,lo8(6)
+ 150 0012 01F0      		breq .L7
+ 151 0014 8730      		cpi r24,lo8(7)
+ 152 0016 01F0      		breq .L8
+ 153 0018 8430      		cpi r24,lo8(4)
+ 154 001a 01F4      		brne .L1
+  80:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 	{
+  81:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		#if defined(TCCR1A) && defined(COM1A1)
+  82:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		case TIMER1A:   cbi(TCCR1A, COM1A1);    break;
+  83:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		#endif
+  84:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		#if defined(TCCR1A) && defined(COM1B1)
+  85:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		case TIMER1B:   cbi(TCCR1A, COM1B1);    break;
+ 156               	.LM2:
+ 157 001c 8091 8000 		lds r24,128
+ 158 0020 8F7D      		andi r24,lo8(-33)
+ 159 0022 00C0      		rjmp .L10
+ 160               	.L3:
+  82:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		case TIMER1A:   cbi(TCCR1A, COM1A1);    break;
+ 162               	.LM3:
+ 163 0024 8091 8000 		lds r24,128
+ 164 0028 8F77      		andi r24,lo8(127)
+ 165               	.L10:
+ 167               	.LM4:
+ 168 002a 8093 8000 		sts 128,r24
+ 169 002e 0895      		ret
+ 170               	.L5:
+ 171               	.LBB4:
+ 172               	.LBB5:
+  86:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		#endif
+  87:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		
+  88:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		#if defined(TCCR2) && defined(COM21)
+  89:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		case  TIMER2:   cbi(TCCR2, COM21);      break;
+  90:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		#endif
+  91:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		
+  92:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		#if defined(TCCR0A) && defined(COM0A1)
+  93:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		case  TIMER0A:  cbi(TCCR0A, COM0A1);    break;
+ 174               	.LM5:
+ 175 0030 84B5      		in r24,0x24
+ 176 0032 8F77      		andi r24,lo8(127)
+ 177 0034 00C0      		rjmp .L12
+ 178               	.L6:
+ 179               	.LBE5:
+ 180               	.LBE4:
+  94:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		#endif
+  95:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		
+  96:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		#if defined(TIMER0B) && defined(COM0B1)
+  97:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		case  TIMER0B:  cbi(TCCR0A, COM0B1);    break;
+ 182               	.LM6:
+ 183 0036 84B5      		in r24,0x24
+ 184 0038 8F7D      		andi r24,lo8(-33)
+ 185               	.L12:
+ 186 003a 84BD      		out 0x24,r24
+ 187 003c 0895      		ret
+ 188               	.L7:
+  98:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		#endif
+  99:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		#if defined(TCCR2A) && defined(COM2A1)
+ 100:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		case  TIMER2A:  cbi(TCCR2A, COM2A1);    break;
+ 190               	.LM7:
+ 191 003e 8091 B000 		lds r24,176
+ 192 0042 8F77      		andi r24,lo8(127)
+ 193 0044 00C0      		rjmp .L11
+ 194               	.L8:
+ 101:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		#endif
+ 102:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		#if defined(TCCR2A) && defined(COM2B1)
+ 103:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		case  TIMER2B:  cbi(TCCR2A, COM2B1);    break;
+ 196               	.LM8:
+ 197 0046 8091 B000 		lds r24,176
+ 198 004a 8F7D      		andi r24,lo8(-33)
+ 199               	.L11:
+ 200 004c 8093 B000 		sts 176,r24
+ 201               	.L1:
+ 202 0050 0895      		ret
+ 204               	.Lscope1:
+ 208               	.global	pinMode
+ 210               	pinMode:
+  32:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** {
+ 212               	.LM9:
+ 213               	.LFBB2:
+ 214 0052 CF93      		push r28
+ 215 0054 DF93      		push r29
+ 216               	/* prologue: function */
+ 217               	/* frame size = 0 */
+ 218               	/* stack size = 2 */
+ 219               	.L__stack_usage = 2
+ 220               	.LBB6:
+  33:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 	uint8_t bit = digitalPinToBitMask(pin);
+ 222               	.LM10:
+ 223 0056 90E0      		ldi r25,0
+ 224 0058 FC01      		movw r30,r24
+ 225 005a E050      		subi r30,lo8(-(digital_pin_to_bit_mask_PGM))
+ 226 005c F040      		sbci r31,hi8(-(digital_pin_to_bit_mask_PGM))
+ 227               	/* #APP */
+ 228               	 ;  33 "/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wirin
+ 229 005e 2491      		lpm r18, Z
+ 230               		
+ 231               	 ;  0 "" 2
+ 232               	/* #NOAPP */
+ 233               	.LBE6:
+ 234               	.LBB7:
+  34:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 	uint8_t port = digitalPinToPort(pin);
+ 236               	.LM11:
+ 237 0060 FC01      		movw r30,r24
+ 238 0062 E050      		subi r30,lo8(-(digital_pin_to_port_PGM))
+ 239 0064 F040      		sbci r31,hi8(-(digital_pin_to_port_PGM))
+ 240               	/* #APP */
+ 241               	 ;  34 "/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wirin
+ 242 0066 8491      		lpm r24, Z
+ 243               		
+ 244               	 ;  0 "" 2
+ 245               	/* #NOAPP */
+ 246               	.LBE7:
+  37:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 	if (port == NOT_A_PIN) return;
+ 248               	.LM12:
+ 249 0068 8823      		tst r24
+ 250 006a 01F0      		breq .L14
+ 251               	.LBB8:
+  40:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 	reg = portModeRegister(port);
+ 253               	.LM13:
+ 254 006c 90E0      		ldi r25,0
+ 255 006e 880F      		lsl r24
+ 256 0070 991F      		rol r25
+ 257 0072 FC01      		movw r30,r24
+ 258 0074 E050      		subi r30,lo8(-(port_to_mode_PGM))
+ 259 0076 F040      		sbci r31,hi8(-(port_to_mode_PGM))
+ 260               	/* #APP */
+ 261               	 ;  40 "/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wirin
+ 262 0078 A591      		lpm r26, Z+
+ 263 007a B491      		lpm r27, Z
+ 264               		
+ 265               	 ;  0 "" 2
+ 266               	/* #NOAPP */
+ 267               	.LBE8:
+ 268               	.LBB9:
+  41:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 	out = portOutputRegister(port);
+ 270               	.LM14:
+ 271 007c 8050      		subi r24,lo8(-(port_to_output_PGM))
+ 272 007e 9040      		sbci r25,hi8(-(port_to_output_PGM))
+ 273 0080 FC01      		movw r30,r24
+ 274               	/* #APP */
+ 275               	 ;  41 "/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wirin
+ 276 0082 C591      		lpm r28, Z+
+ 277 0084 D491      		lpm r29, Z
+ 278               		
+ 279               	 ;  0 "" 2
+ 280               	/* #NOAPP */
+ 281               	.LBE9:
+ 282               	.LBB10:
+  44:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		uint8_t oldSREG = SREG;
+ 284               	.LM15:
+ 285 0086 9FB7      		in r25,__SREG__
+ 286               	.LBE10:
+  43:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 	if (mode == INPUT) { 
+ 288               	.LM16:
+ 289 0088 6111      		cpse r22,__zero_reg__
+ 290 008a 00C0      		rjmp .L16
+ 291               	.LBB11:
+  45:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c ****                 cli();
+ 293               	.LM17:
+ 294               	/* #APP */
+ 295               	 ;  45 "/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wirin
+ 296 008c F894      		cli
+ 297               	 ;  0 "" 2
+  46:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		*reg &= ~bit;
+ 299               	.LM18:
+ 300               	/* #NOAPP */
+ 301 008e 8C91      		ld r24,X
+ 302 0090 2095      		com r18
+ 303 0092 8223      		and r24,r18
+ 304 0094 8C93      		st X,r24
+  47:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		*out &= ~bit;
+ 306               	.LM19:
+ 307 0096 8881      		ld r24,Y
+ 308 0098 8223      		and r24,r18
+ 309 009a 00C0      		rjmp .L22
+ 310               	.L16:
+ 311               	.LBE11:
+  49:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 	} else if (mode == INPUT_PULLUP) {
+ 313               	.LM20:
+ 314 009c 6230      		cpi r22,lo8(2)
+ 315 009e 01F4      		brne .L17
+ 316               	.LBB12:
+  51:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c ****                 cli();
+ 318               	.LM21:
+ 319               	/* #APP */
+ 320               	 ;  51 "/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wirin
+ 321 00a0 F894      		cli
+ 322               	 ;  0 "" 2
+  52:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		*reg &= ~bit;
+ 324               	.LM22:
+ 325               	/* #NOAPP */
+ 326 00a2 8C91      		ld r24,X
+ 327 00a4 322F      		mov r19,r18
+ 328 00a6 3095      		com r19
+ 329 00a8 8323      		and r24,r19
+ 330 00aa 8C93      		st X,r24
+  53:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		*out |= bit;
+ 332               	.LM23:
+ 333 00ac 8881      		ld r24,Y
+ 334 00ae 822B      		or r24,r18
+ 335               	.L22:
+ 336 00b0 8883      		st Y,r24
+ 337 00b2 00C0      		rjmp .L21
+ 338               	.L17:
+ 339               	.LBE12:
+ 340               	.LBB13:
+  57:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c ****                 cli();
+ 342               	.LM24:
+ 343               	/* #APP */
+ 344               	 ;  57 "/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wirin
+ 345 00b4 F894      		cli
+ 346               	 ;  0 "" 2
+  58:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		*reg |= bit;
+ 348               	.LM25:
+ 349               	/* #NOAPP */
+ 350 00b6 8C91      		ld r24,X
+ 351 00b8 822B      		or r24,r18
+ 352 00ba 8C93      		st X,r24
+ 353               	.L21:
+  59:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		SREG = oldSREG;
+ 355               	.LM26:
+ 356 00bc 9FBF      		out __SREG__,r25
+ 357               	.L14:
+ 358               	/* epilogue start */
+ 359               	.LBE13:
+  61:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** }
+ 361               	.LM27:
+ 362 00be DF91      		pop r29
+ 363 00c0 CF91      		pop r28
+ 364 00c2 0895      		ret
+ 384               	.Lscope2:
+ 388               	.global	digitalWrite
+ 390               	digitalWrite:
+ 104:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		#endif
+ 105:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		
+ 106:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		#if defined(TCCR3A) && defined(COM3A1)
+ 107:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		case  TIMER3A:  cbi(TCCR3A, COM3A1);    break;
+ 108:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		#endif
+ 109:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		#if defined(TCCR3A) && defined(COM3B1)
+ 110:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		case  TIMER3B:  cbi(TCCR3A, COM3B1);    break;
+ 111:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		#endif
+ 112:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		#if defined(TCCR3A) && defined(COM3C1)
+ 113:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		case  TIMER3C:  cbi(TCCR3A, COM3C1);    break;
+ 114:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		#endif
+ 115:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 
+ 116:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		#if defined(TCCR4A) && defined(COM4A1)
+ 117:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		case  TIMER4A:  cbi(TCCR4A, COM4A1);    break;
+ 118:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		#endif					
+ 119:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		#if defined(TCCR4A) && defined(COM4B1)
+ 120:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		case  TIMER4B:  cbi(TCCR4A, COM4B1);    break;
+ 121:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		#endif
+ 122:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		#if defined(TCCR4A) && defined(COM4C1)
+ 123:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		case  TIMER4C:  cbi(TCCR4A, COM4C1);    break;
+ 124:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		#endif			
+ 125:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		#if defined(TCCR4C) && defined(COM4D1)
+ 126:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		case TIMER4D:	cbi(TCCR4C, COM4D1);	break;
+ 127:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		#endif			
+ 128:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 			
+ 129:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		#if defined(TCCR5A)
+ 130:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		case  TIMER5A:  cbi(TCCR5A, COM5A1);    break;
+ 131:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		case  TIMER5B:  cbi(TCCR5A, COM5B1);    break;
+ 132:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		case  TIMER5C:  cbi(TCCR5A, COM5C1);    break;
+ 133:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		#endif
+ 134:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 	}
+ 135:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** }
+ 136:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 
+ 137:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** void digitalWrite(uint8_t pin, uint8_t val)
+ 138:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** {
+ 392               	.LM28:
+ 393               	.LFBB3:
+ 394 00c4 0F93      		push r16
+ 395 00c6 1F93      		push r17
+ 396 00c8 CF93      		push r28
+ 397 00ca DF93      		push r29
+ 398 00cc 1F92      		push __zero_reg__
+ 399 00ce CDB7      		in r28,__SP_L__
+ 400 00d0 DEB7      		in r29,__SP_H__
+ 401               	/* prologue: function */
+ 402               	/* frame size = 1 */
+ 403               	/* stack size = 5 */
+ 404               	.L__stack_usage = 5
+ 405               	.LBB14:
+ 139:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 	uint8_t timer = digitalPinToTimer(pin);
+ 407               	.LM29:
+ 408 00d2 282F      		mov r18,r24
+ 409 00d4 30E0      		ldi r19,0
+ 410 00d6 F901      		movw r30,r18
+ 411 00d8 E050      		subi r30,lo8(-(digital_pin_to_timer_PGM))
+ 412 00da F040      		sbci r31,hi8(-(digital_pin_to_timer_PGM))
+ 413               	/* #APP */
+ 414               	 ;  139 "/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiri
+ 415 00dc 8491      		lpm r24, Z
+ 416               		
+ 417               	 ;  0 "" 2
+ 418               	/* #NOAPP */
+ 419               	.LBE14:
+ 420               	.LBB15:
+ 140:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 	uint8_t bit = digitalPinToBitMask(pin);
+ 422               	.LM30:
+ 423 00de F901      		movw r30,r18
+ 424 00e0 E050      		subi r30,lo8(-(digital_pin_to_bit_mask_PGM))
+ 425 00e2 F040      		sbci r31,hi8(-(digital_pin_to_bit_mask_PGM))
+ 426               	/* #APP */
+ 427               	 ;  140 "/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiri
+ 428 00e4 1491      		lpm r17, Z
+ 429               		
+ 430               	 ;  0 "" 2
+ 431               	/* #NOAPP */
+ 432               	.LBE15:
+ 433               	.LBB16:
+ 141:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 	uint8_t port = digitalPinToPort(pin);
+ 435               	.LM31:
+ 436 00e6 F901      		movw r30,r18
+ 437 00e8 E050      		subi r30,lo8(-(digital_pin_to_port_PGM))
+ 438 00ea F040      		sbci r31,hi8(-(digital_pin_to_port_PGM))
+ 439               	/* #APP */
+ 440               	 ;  141 "/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiri
+ 441 00ec 0491      		lpm r16, Z
+ 442               		
+ 443               	 ;  0 "" 2
+ 444               	/* #NOAPP */
+ 445               	.LBE16:
+ 142:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 	volatile uint8_t *out;
+ 143:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 
+ 144:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 	if (port == NOT_A_PIN) return;
+ 447               	.LM32:
+ 448 00ee 0023      		tst r16
+ 449 00f0 01F0      		breq .L23
+ 145:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 
+ 146:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 	// If the pin that support PWM output, we need to turn it off
+ 147:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 	// before doing a digital write.
+ 148:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 	if (timer != NOT_ON_TIMER) turnOffPWM(timer);
+ 451               	.LM33:
+ 452 00f2 8823      		tst r24
+ 453 00f4 01F0      		breq .L25
+ 455               	.LM34:
+ 456 00f6 6983      		std Y+1,r22
+ 457 00f8 0E94 0000 		call turnOffPWM
+ 458 00fc 6981      		ldd r22,Y+1
+ 459               	.L25:
+ 460               	.LBB17:
+ 149:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 
+ 150:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 	out = portOutputRegister(port);
+ 462               	.LM35:
+ 463 00fe E02F      		mov r30,r16
+ 464 0100 F0E0      		ldi r31,0
+ 465 0102 EE0F      		lsl r30
+ 466 0104 FF1F      		rol r31
+ 467 0106 E050      		subi r30,lo8(-(port_to_output_PGM))
+ 468 0108 F040      		sbci r31,hi8(-(port_to_output_PGM))
+ 469               	/* #APP */
+ 470               	 ;  150 "/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiri
+ 471 010a A591      		lpm r26, Z+
+ 472 010c B491      		lpm r27, Z
+ 473               		
+ 474               	 ;  0 "" 2
+ 475               	/* #NOAPP */
+ 476               	.LBE17:
+ 151:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 
+ 152:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 	uint8_t oldSREG = SREG;
+ 478               	.LM36:
+ 479 010e 9FB7      		in r25,__SREG__
+ 153:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 	cli();
+ 481               	.LM37:
+ 482               	/* #APP */
+ 483               	 ;  153 "/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiri
+ 484 0110 F894      		cli
+ 485               	 ;  0 "" 2
+ 154:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 
+ 155:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 	if (val == LOW) {
+ 156:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		*out &= ~bit;
+ 487               	.LM38:
+ 488               	/* #NOAPP */
+ 489 0112 8C91      		ld r24,X
+ 155:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 	if (val == LOW) {
+ 491               	.LM39:
+ 492 0114 6111      		cpse r22,__zero_reg__
+ 493 0116 00C0      		rjmp .L26
+ 495               	.LM40:
+ 496 0118 1095      		com r17
+ 497 011a 8123      		and r24,r17
+ 498 011c 00C0      		rjmp .L34
+ 499               	.L26:
+ 157:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 	} else {
+ 158:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 		*out |= bit;
+ 501               	.LM41:
+ 502 011e 812B      		or r24,r17
+ 503               	.L34:
+ 504 0120 8C93      		st X,r24
+ 159:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 	}
+ 160:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 
+ 161:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 	SREG = oldSREG;
+ 506               	.LM42:
+ 507 0122 9FBF      		out __SREG__,r25
+ 508               	.L23:
+ 509               	/* epilogue start */
+ 162:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** }
+ 511               	.LM43:
+ 512 0124 0F90      		pop __tmp_reg__
+ 513 0126 DF91      		pop r29
+ 514 0128 CF91      		pop r28
+ 515 012a 1F91      		pop r17
+ 516 012c 0F91      		pop r16
+ 517 012e 0895      		ret
+ 527               	.Lscope3:
+ 530               	.global	digitalRead
+ 532               	digitalRead:
+ 163:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 
+ 164:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** int digitalRead(uint8_t pin)
+ 165:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** {
+ 534               	.LM44:
+ 535               	.LFBB4:
+ 536 0130 CF93      		push r28
+ 537 0132 DF93      		push r29
+ 538               	/* prologue: function */
+ 539               	/* frame size = 0 */
+ 540               	/* stack size = 2 */
+ 541               	.L__stack_usage = 2
+ 542               	.LBB18:
+ 166:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 	uint8_t timer = digitalPinToTimer(pin);
+ 544               	.LM45:
+ 545 0134 282F      		mov r18,r24
+ 546 0136 30E0      		ldi r19,0
+ 547 0138 F901      		movw r30,r18
+ 548 013a E050      		subi r30,lo8(-(digital_pin_to_timer_PGM))
+ 549 013c F040      		sbci r31,hi8(-(digital_pin_to_timer_PGM))
+ 550               	/* #APP */
+ 551               	 ;  166 "/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiri
+ 552 013e 8491      		lpm r24, Z
+ 553               		
+ 554               	 ;  0 "" 2
+ 555               	/* #NOAPP */
+ 556               	.LBE18:
+ 557               	.LBB19:
+ 167:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 	uint8_t bit = digitalPinToBitMask(pin);
+ 559               	.LM46:
+ 560 0140 F901      		movw r30,r18
+ 561 0142 E050      		subi r30,lo8(-(digital_pin_to_bit_mask_PGM))
+ 562 0144 F040      		sbci r31,hi8(-(digital_pin_to_bit_mask_PGM))
+ 563               	/* #APP */
+ 564               	 ;  167 "/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiri
+ 565 0146 D491      		lpm r29, Z
+ 566               		
+ 567               	 ;  0 "" 2
+ 568               	/* #NOAPP */
+ 569               	.LBE19:
+ 570               	.LBB20:
+ 168:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 	uint8_t port = digitalPinToPort(pin);
+ 572               	.LM47:
+ 573 0148 F901      		movw r30,r18
+ 574 014a E050      		subi r30,lo8(-(digital_pin_to_port_PGM))
+ 575 014c F040      		sbci r31,hi8(-(digital_pin_to_port_PGM))
+ 576               	/* #APP */
+ 577               	 ;  168 "/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiri
+ 578 014e C491      		lpm r28, Z
+ 579               		
+ 580               	 ;  0 "" 2
+ 581               	/* #NOAPP */
+ 582               	.LBE20:
+ 169:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 
+ 170:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 	if (port == NOT_A_PIN) return LOW;
+ 584               	.LM48:
+ 585 0150 CC23      		tst r28
+ 586 0152 01F0      		breq .L39
+ 171:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 
+ 172:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 	// If the pin that support PWM output, we need to turn it off
+ 173:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 	// before getting a digital reading.
+ 174:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 	if (timer != NOT_ON_TIMER) turnOffPWM(timer);
+ 588               	.LM49:
+ 589 0154 8111      		cpse r24,__zero_reg__
+ 591               	.LM50:
+ 592 0156 0E94 0000 		call turnOffPWM
+ 593               	.L37:
+ 594               	.LBB21:
+ 175:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 
+ 176:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 	if (*portInputRegister(port) & bit) return HIGH;
+ 596               	.LM51:
+ 597 015a EC2F      		mov r30,r28
+ 598 015c F0E0      		ldi r31,0
+ 599 015e EE0F      		lsl r30
+ 600 0160 FF1F      		rol r31
+ 601 0162 E050      		subi r30,lo8(-(port_to_input_PGM))
+ 602 0164 F040      		sbci r31,hi8(-(port_to_input_PGM))
+ 603               	/* #APP */
+ 604               	 ;  176 "/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiri
+ 605 0166 A591      		lpm r26, Z+
+ 606 0168 B491      		lpm r27, Z
+ 607               		
+ 608               	 ;  0 "" 2
+ 609               	/* #NOAPP */
+ 610               	.LBE21:
+ 611 016a 2C91      		ld r18,X
+ 612 016c 2D23      		and r18,r29
+ 613 016e 81E0      		ldi r24,lo8(1)
+ 614 0170 90E0      		ldi r25,0
+ 615 0172 01F4      		brne .L36
+ 616 0174 80E0      		ldi r24,0
+ 617 0176 00C0      		rjmp .L36
+ 618               	.L39:
+ 170:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 	if (port == NOT_A_PIN) return LOW;
+ 620               	.LM52:
+ 621 0178 80E0      		ldi r24,0
+ 622 017a 90E0      		ldi r25,0
+ 623               	.L36:
+ 624               	/* epilogue start */
+ 177:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** 	return LOW;
+ 178:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_digital.c **** }
+ 626               	.LM53:
+ 627 017c DF91      		pop r29
+ 628 017e CF91      		pop r28
+ 629 0180 0895      		ret
+ 638               	.Lscope4:
+ 639               	.global	digital_pin_to_timer_PGM
+ 640               		.section	.progmem.data,"a",@progbits
+ 643               	digital_pin_to_timer_PGM:
+ 644 0000 00        		.byte	0
+ 645 0001 00        		.byte	0
+ 646 0002 00        		.byte	0
+ 647 0003 07        		.byte	7
+ 648 0004 00        		.byte	0
+ 649 0005 02        		.byte	2
+ 650 0006 01        		.byte	1
+ 651 0007 00        		.byte	0
+ 652 0008 00        		.byte	0
+ 653 0009 03        		.byte	3
+ 654 000a 04        		.byte	4
+ 655 000b 06        		.byte	6
+ 656 000c 00        		.byte	0
+ 657 000d 00        		.byte	0
+ 658 000e 00        		.byte	0
+ 659 000f 00        		.byte	0
+ 660 0010 00        		.byte	0
+ 661 0011 00        		.byte	0
+ 662 0012 00        		.byte	0
+ 663 0013 00        		.byte	0
+ 664               	.global	digital_pin_to_bit_mask_PGM
+ 667               	digital_pin_to_bit_mask_PGM:
+ 668 0014 01        		.byte	1
+ 669 0015 02        		.byte	2
+ 670 0016 04        		.byte	4
+ 671 0017 08        		.byte	8
+ 672 0018 10        		.byte	16
+ 673 0019 20        		.byte	32
+ 674 001a 40        		.byte	64
+ 675 001b 80        		.byte	-128
+ 676 001c 01        		.byte	1
+ 677 001d 02        		.byte	2
+ 678 001e 04        		.byte	4
+ 679 001f 08        		.byte	8
+ 680 0020 10        		.byte	16
+ 681 0021 20        		.byte	32
+ 682 0022 01        		.byte	1
+ 683 0023 02        		.byte	2
+ 684 0024 04        		.byte	4
+ 685 0025 08        		.byte	8
+ 686 0026 10        		.byte	16
+ 687 0027 20        		.byte	32
+ 688               	.global	digital_pin_to_port_PGM
+ 691               	digital_pin_to_port_PGM:
+ 692 0028 04        		.byte	4
+ 693 0029 04        		.byte	4
+ 694 002a 04        		.byte	4
+ 695 002b 04        		.byte	4
+ 696 002c 04        		.byte	4
+ 697 002d 04        		.byte	4
+ 698 002e 04        		.byte	4
+ 699 002f 04        		.byte	4
+ 700 0030 02        		.byte	2
+ 701 0031 02        		.byte	2
+ 702 0032 02        		.byte	2
+ 703 0033 02        		.byte	2
+ 704 0034 02        		.byte	2
+ 705 0035 02        		.byte	2
+ 706 0036 03        		.byte	3
+ 707 0037 03        		.byte	3
+ 708 0038 03        		.byte	3
+ 709 0039 03        		.byte	3
+ 710 003a 03        		.byte	3
+ 711 003b 03        		.byte	3
+ 712               	.global	port_to_input_PGM
+ 715               	port_to_input_PGM:
+ 716 003c 0000      		.word	0
+ 717 003e 0000      		.word	0
+ 718 0040 2300      		.word	35
+ 719 0042 2600      		.word	38
+ 720 0044 2900      		.word	41
+ 721               	.global	port_to_output_PGM
+ 724               	port_to_output_PGM:
+ 725 0046 0000      		.word	0
+ 726 0048 0000      		.word	0
+ 727 004a 2500      		.word	37
+ 728 004c 2800      		.word	40
+ 729 004e 2B00      		.word	43
+ 730               	.global	port_to_mode_PGM
+ 733               	port_to_mode_PGM:
+ 734 0050 0000      		.word	0
+ 735 0052 0000      		.word	0
+ 736 0054 2400      		.word	36
+ 737 0056 2700      		.word	39
+ 738 0058 2A00      		.word	42
+ 759               		.text
+ 761               	.Letext0:
+ 762               		.ident	"GCC: (GNU) 4.8.1"
+DEFINED SYMBOLS
+                            *ABS*:00000000 wiring_digital.c
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc5SpX9d.s:2      *ABS*:0000003e __SP_H__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc5SpX9d.s:3      *ABS*:0000003d __SP_L__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc5SpX9d.s:4      *ABS*:0000003f __SREG__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc5SpX9d.s:5      *ABS*:00000000 __tmp_reg__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc5SpX9d.s:6      *ABS*:00000001 __zero_reg__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc5SpX9d.s:130    .text:00000000 turnOffPWM
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc5SpX9d.s:210    .text:00000052 pinMode
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc5SpX9d.s:667    .progmem.data:00000014 digital_pin_to_bit_mask_PGM
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc5SpX9d.s:691    .progmem.data:00000028 digital_pin_to_port_PGM
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc5SpX9d.s:733    .progmem.data:00000050 port_to_mode_PGM
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc5SpX9d.s:724    .progmem.data:00000046 port_to_output_PGM
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc5SpX9d.s:390    .text:000000c4 digitalWrite
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc5SpX9d.s:643    .progmem.data:00000000 digital_pin_to_timer_PGM
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc5SpX9d.s:532    .text:00000130 digitalRead
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc5SpX9d.s:715    .progmem.data:0000003c port_to_input_PGM
+
+NO UNDEFINED SYMBOLS

@@ -1,0 +1,695 @@
+   1               		.file	"wiring.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   8               		.text
+   9               	.Ltext0:
+ 128               	.global	__vector_16
+ 130               	__vector_16:
+   1:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** /*
+   2:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c ****   wiring.c - Partial implementation of the Wiring API for the ATmega8.
+   3:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c ****   Part of Arduino - http://www.arduino.cc/
+   4:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 
+   5:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c ****   Copyright (c) 2005-2006 David A. Mellis
+   6:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 
+   7:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c ****   This library is free software; you can redistribute it and/or
+   8:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c ****   modify it under the terms of the GNU Lesser General Public
+   9:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c ****   License as published by the Free Software Foundation; either
+  10:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c ****   version 2.1 of the License, or (at your option) any later version.
+  11:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 
+  12:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c ****   This library is distributed in the hope that it will be useful,
+  13:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c ****   but WITHOUT ANY WARRANTY; without even the implied warranty of
+  14:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c ****   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  15:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c ****   Lesser General Public License for more details.
+  16:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 
+  17:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c ****   You should have received a copy of the GNU Lesser General
+  18:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c ****   Public License along with this library; if not, write to the
+  19:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c ****   Free Software Foundation, Inc., 59 Temple Place, Suite 330,
+  20:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c ****   Boston, MA  02111-1307  USA
+  21:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 
+  22:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c ****   $Id$
+  23:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** */
+  24:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 
+  25:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #include "wiring_private.h"
+  26:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 
+  27:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** // the prescaler is set so that timer0 ticks every 64 clock cycles, and the
+  28:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** // the overflow handler is called every 256 ticks.
+  29:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #define MICROSECONDS_PER_TIMER0_OVERFLOW (clockCyclesToMicroseconds(64 * 256))
+  30:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 
+  31:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** // the whole number of milliseconds per timer0 overflow
+  32:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #define MILLIS_INC (MICROSECONDS_PER_TIMER0_OVERFLOW / 1000)
+  33:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 
+  34:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** // the fractional number of milliseconds per timer0 overflow. we shift right
+  35:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** // by three to fit these numbers into a byte. (for the clock speeds we care
+  36:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** // about - 8 and 16 MHz - this doesn't lose precision.)
+  37:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #define FRACT_INC ((MICROSECONDS_PER_TIMER0_OVERFLOW % 1000) >> 3)
+  38:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #define FRACT_MAX (1000 >> 3)
+  39:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 
+  40:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** volatile unsigned long timer0_overflow_count = 0;
+  41:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** volatile unsigned long timer0_millis = 0;
+  42:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** static unsigned char timer0_fract = 0;
+  43:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 
+  44:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #if defined(__AVR_ATtiny24__) || defined(__AVR_ATtiny44__) || defined(__AVR_ATtiny84__)
+  45:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** ISR(TIM0_OVF_vect)
+  46:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #else
+  47:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** ISR(TIMER0_OVF_vect)
+  48:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #endif
+  49:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** {
+ 132               	.LM0:
+ 133               	.LFBB1:
+ 134 0000 1F92      		push r1
+ 135 0002 0F92      		push r0
+ 136 0004 0FB6      		in r0,__SREG__
+ 137 0006 0F92      		push r0
+ 138 0008 1124      		clr __zero_reg__
+ 139 000a 2F93      		push r18
+ 140 000c 3F93      		push r19
+ 141 000e 8F93      		push r24
+ 142 0010 9F93      		push r25
+ 143 0012 AF93      		push r26
+ 144 0014 BF93      		push r27
+ 145               	/* prologue: Signal */
+ 146               	/* frame size = 0 */
+ 147               	/* stack size = 9 */
+ 148               	.L__stack_usage = 9
+  50:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// copy these to local variables so they can be stored in registers
+  51:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// (volatile variables must be read from memory on every access)
+  52:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	unsigned long m = timer0_millis;
+ 150               	.LM1:
+ 151 0016 8091 0000 		lds r24,timer0_millis
+ 152 001a 9091 0000 		lds r25,timer0_millis+1
+ 153 001e A091 0000 		lds r26,timer0_millis+2
+ 154 0022 B091 0000 		lds r27,timer0_millis+3
+  53:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	unsigned char f = timer0_fract;
+ 156               	.LM2:
+ 157 0026 3091 0000 		lds r19,timer0_fract
+  54:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 
+  55:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	m += MILLIS_INC;
+  56:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	f += FRACT_INC;
+ 159               	.LM3:
+ 160 002a 23E0      		ldi r18,lo8(3)
+ 161 002c 230F      		add r18,r19
+  57:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	if (f >= FRACT_MAX) {
+ 163               	.LM4:
+ 164 002e 2D37      		cpi r18,lo8(125)
+ 165 0030 00F4      		brsh .L2
+  55:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	m += MILLIS_INC;
+ 167               	.LM5:
+ 168 0032 0196      		adiw r24,1
+ 169 0034 A11D      		adc r26,__zero_reg__
+ 170 0036 B11D      		adc r27,__zero_reg__
+ 171 0038 00C0      		rjmp .L3
+ 172               	.L2:
+  58:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 		f -= FRACT_MAX;
+ 174               	.LM6:
+ 175 003a 26E8      		ldi r18,lo8(-122)
+ 176 003c 230F      		add r18,r19
+  59:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 		m += 1;
+ 178               	.LM7:
+ 179 003e 0296      		adiw r24,2
+ 180 0040 A11D      		adc r26,__zero_reg__
+ 181 0042 B11D      		adc r27,__zero_reg__
+ 182               	.L3:
+  60:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	}
+  61:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 
+  62:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	timer0_fract = f;
+ 184               	.LM8:
+ 185 0044 2093 0000 		sts timer0_fract,r18
+  63:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	timer0_millis = m;
+ 187               	.LM9:
+ 188 0048 8093 0000 		sts timer0_millis,r24
+ 189 004c 9093 0000 		sts timer0_millis+1,r25
+ 190 0050 A093 0000 		sts timer0_millis+2,r26
+ 191 0054 B093 0000 		sts timer0_millis+3,r27
+  64:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	timer0_overflow_count++;
+ 193               	.LM10:
+ 194 0058 8091 0000 		lds r24,timer0_overflow_count
+ 195 005c 9091 0000 		lds r25,timer0_overflow_count+1
+ 196 0060 A091 0000 		lds r26,timer0_overflow_count+2
+ 197 0064 B091 0000 		lds r27,timer0_overflow_count+3
+ 198 0068 0196      		adiw r24,1
+ 199 006a A11D      		adc r26,__zero_reg__
+ 200 006c B11D      		adc r27,__zero_reg__
+ 201 006e 8093 0000 		sts timer0_overflow_count,r24
+ 202 0072 9093 0000 		sts timer0_overflow_count+1,r25
+ 203 0076 A093 0000 		sts timer0_overflow_count+2,r26
+ 204 007a B093 0000 		sts timer0_overflow_count+3,r27
+ 205               	/* epilogue start */
+  65:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** }
+ 207               	.LM11:
+ 208 007e BF91      		pop r27
+ 209 0080 AF91      		pop r26
+ 210 0082 9F91      		pop r25
+ 211 0084 8F91      		pop r24
+ 212 0086 3F91      		pop r19
+ 213 0088 2F91      		pop r18
+ 214 008a 0F90      		pop r0
+ 215 008c 0FBE      		out __SREG__,r0
+ 216 008e 0F90      		pop r0
+ 217 0090 1F90      		pop r1
+ 218 0092 1895      		reti
+ 220               	.Lscope1:
+ 222               	.global	millis
+ 224               	millis:
+  66:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 
+  67:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** unsigned long millis()
+  68:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** {
+ 226               	.LM12:
+ 227               	.LFBB2:
+ 228               	/* prologue: function */
+ 229               	/* frame size = 0 */
+ 230               	/* stack size = 0 */
+ 231               	.L__stack_usage = 0
+  69:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	unsigned long m;
+  70:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	uint8_t oldSREG = SREG;
+ 233               	.LM13:
+ 234 0094 2FB7      		in r18,__SREG__
+  71:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 
+  72:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// disable interrupts while we read timer0_millis or we might get an
+  73:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// inconsistent value (e.g. in the middle of a write to timer0_millis)
+  74:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	cli();
+ 236               	.LM14:
+ 237               	/* #APP */
+ 238               	 ;  74 "/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wirin
+ 239 0096 F894      		cli
+ 240               	 ;  0 "" 2
+  75:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	m = timer0_millis;
+ 242               	.LM15:
+ 243               	/* #NOAPP */
+ 244 0098 6091 0000 		lds r22,timer0_millis
+ 245 009c 7091 0000 		lds r23,timer0_millis+1
+ 246 00a0 8091 0000 		lds r24,timer0_millis+2
+ 247 00a4 9091 0000 		lds r25,timer0_millis+3
+  76:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	SREG = oldSREG;
+ 249               	.LM16:
+ 250 00a8 2FBF      		out __SREG__,r18
+  77:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 
+  78:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	return m;
+  79:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** }
+ 252               	.LM17:
+ 253 00aa 0895      		ret
+ 259               	.Lscope2:
+ 261               	.global	micros
+ 263               	micros:
+  80:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 
+  81:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** unsigned long micros() {
+ 265               	.LM18:
+ 266               	.LFBB3:
+ 267               	/* prologue: function */
+ 268               	/* frame size = 0 */
+ 269               	/* stack size = 0 */
+ 270               	.L__stack_usage = 0
+  82:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	unsigned long m;
+  83:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	uint8_t oldSREG = SREG, t;
+ 272               	.LM19:
+ 273 00ac 3FB7      		in r19,__SREG__
+  84:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	
+  85:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	cli();
+ 275               	.LM20:
+ 276               	/* #APP */
+ 277               	 ;  85 "/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wirin
+ 278 00ae F894      		cli
+ 279               	 ;  0 "" 2
+  86:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	m = timer0_overflow_count;
+ 281               	.LM21:
+ 282               	/* #NOAPP */
+ 283 00b0 8091 0000 		lds r24,timer0_overflow_count
+ 284 00b4 9091 0000 		lds r25,timer0_overflow_count+1
+ 285 00b8 A091 0000 		lds r26,timer0_overflow_count+2
+ 286 00bc B091 0000 		lds r27,timer0_overflow_count+3
+  87:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #if defined(TCNT0)
+  88:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	t = TCNT0;
+ 288               	.LM22:
+ 289 00c0 26B5      		in r18,0x26
+  89:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #elif defined(TCNT0L)
+  90:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	t = TCNT0L;
+  91:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #else
+  92:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	#error TIMER 0 not defined
+  93:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #endif
+  94:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 
+  95:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c ****   
+  96:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #ifdef TIFR0
+  97:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	if ((TIFR0 & _BV(TOV0)) && (t < 255))
+ 291               	.LM23:
+ 292 00c2 A89B      		sbis 0x15,0
+ 293 00c4 00C0      		rjmp .L7
+ 295               	.LM24:
+ 296 00c6 2F3F      		cpi r18,lo8(-1)
+ 297 00c8 01F0      		breq .L7
+  98:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 		m++;
+ 299               	.LM25:
+ 300 00ca 0196      		adiw r24,1
+ 301 00cc A11D      		adc r26,__zero_reg__
+ 302 00ce B11D      		adc r27,__zero_reg__
+ 303               	.L7:
+  99:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #else
+ 100:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	if ((TIFR & _BV(TOV0)) && (t < 255))
+ 101:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 		m++;
+ 102:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #endif
+ 103:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 
+ 104:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	SREG = oldSREG;
+ 305               	.LM26:
+ 306 00d0 3FBF      		out __SREG__,r19
+ 105:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	
+ 106:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	return ((m << 8) + t) * (64 / clockCyclesPerMicrosecond());
+ 308               	.LM27:
+ 309 00d2 6627      		clr r22
+ 310 00d4 782F      		mov r23,r24
+ 311 00d6 892F      		mov r24,r25
+ 312 00d8 9A2F      		mov r25,r26
+ 313 00da 620F      		add r22,r18
+ 314 00dc 711D      		adc r23,__zero_reg__
+ 315 00de 811D      		adc r24,__zero_reg__
+ 316 00e0 911D      		adc r25,__zero_reg__
+ 317 00e2 42E0      		ldi r20,2
+ 318               		1:
+ 319 00e4 660F      		lsl r22
+ 320 00e6 771F      		rol r23
+ 321 00e8 881F      		rol r24
+ 322 00ea 991F      		rol r25
+ 323 00ec 4A95      		dec r20
+ 324 00ee 01F4      		brne 1b
+ 107:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** }
+ 326               	.LM28:
+ 327 00f0 0895      		ret
+ 334               	.Lscope3:
+ 337               	.global	delay
+ 339               	delay:
+ 108:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 
+ 109:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** void delay(unsigned long ms)
+ 110:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** {
+ 341               	.LM29:
+ 342               	.LFBB4:
+ 343 00f2 CF92      		push r12
+ 344 00f4 DF92      		push r13
+ 345 00f6 EF92      		push r14
+ 346 00f8 FF92      		push r15
+ 347 00fa CF93      		push r28
+ 348 00fc DF93      		push r29
+ 349               	/* prologue: function */
+ 350               	/* frame size = 0 */
+ 351               	/* stack size = 6 */
+ 352               	.L__stack_usage = 6
+ 353 00fe 6B01      		movw r12,r22
+ 354 0100 7C01      		movw r14,r24
+ 111:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	uint16_t start = (uint16_t)micros();
+ 356               	.LM30:
+ 357 0102 0E94 0000 		call micros
+ 358 0106 EB01      		movw r28,r22
+ 359               	.L15:
+ 112:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 
+ 113:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	while (ms > 0) {
+ 361               	.LM31:
+ 362 0108 C114      		cp r12,__zero_reg__
+ 363 010a D104      		cpc r13,__zero_reg__
+ 364 010c E104      		cpc r14,__zero_reg__
+ 365 010e F104      		cpc r15,__zero_reg__
+ 366 0110 01F0      		breq .L18
+ 114:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 		if (((uint16_t)micros() - start) >= 1000) {
+ 368               	.LM32:
+ 369 0112 0E94 0000 		call micros
+ 370 0116 6C1B      		sub r22,r28
+ 371 0118 7D0B      		sbc r23,r29
+ 372 011a 683E      		cpi r22,-24
+ 373 011c 7340      		sbci r23,3
+ 374 011e 00F0      		brlo .L15
+ 115:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 			ms--;
+ 376               	.LM33:
+ 377 0120 81E0      		ldi r24,1
+ 378 0122 C81A      		sub r12,r24
+ 379 0124 D108      		sbc r13,__zero_reg__
+ 380 0126 E108      		sbc r14,__zero_reg__
+ 381 0128 F108      		sbc r15,__zero_reg__
+ 116:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 			start += 1000;
+ 383               	.LM34:
+ 384 012a C851      		subi r28,24
+ 385 012c DC4F      		sbci r29,-4
+ 386 012e 00C0      		rjmp .L15
+ 387               	.L18:
+ 388               	/* epilogue start */
+ 117:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 		}
+ 118:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	}
+ 119:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** }
+ 390               	.LM35:
+ 391 0130 DF91      		pop r29
+ 392 0132 CF91      		pop r28
+ 393 0134 FF90      		pop r15
+ 394 0136 EF90      		pop r14
+ 395 0138 DF90      		pop r13
+ 396 013a CF90      		pop r12
+ 397 013c 0895      		ret
+ 402               	.Lscope4:
+ 405               	.global	delayMicroseconds
+ 407               	delayMicroseconds:
+ 120:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 
+ 121:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** /* Delay for the given number of microseconds.  Assumes a 8 or 16 MHz clock. */
+ 122:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** void delayMicroseconds(unsigned int us)
+ 123:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** {
+ 409               	.LM36:
+ 410               	.LFBB5:
+ 411               	/* prologue: function */
+ 412               	/* frame size = 0 */
+ 413               	/* stack size = 0 */
+ 414               	.L__stack_usage = 0
+ 124:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// calling avrlib's delay_us() function with low values (e.g. 1 or
+ 125:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// 2 microseconds) gives delays longer than desired.
+ 126:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	//delay_us(us);
+ 127:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #if F_CPU >= 20000000L
+ 128:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// for the 20 MHz clock on rare Arduino boards
+ 129:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 
+ 130:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// for a one-microsecond delay, simply wait 2 cycle and return. The overhead
+ 131:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// of the function call yields a delay of exactly a one microsecond.
+ 132:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	__asm__ __volatile__ (
+ 133:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 		"nop" "\n\t"
+ 134:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 		"nop"); //just waiting 2 cycle
+ 135:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	if (--us == 0)
+ 136:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 		return;
+ 137:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 
+ 138:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// the following loop takes a 1/5 of a microsecond (4 cycles)
+ 139:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// per iteration, so execute it five times for each microsecond of
+ 140:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// delay requested.
+ 141:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	us = (us<<2) + us; // x5 us
+ 142:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 
+ 143:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// account for the time taken in the preceeding commands.
+ 144:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	us -= 2;
+ 145:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 
+ 146:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #elif F_CPU >= 16000000L
+ 147:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// for the 16 MHz clock on most Arduino boards
+ 148:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 
+ 149:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// for a one-microsecond delay, simply return.  the overhead
+ 150:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// of the function call yields a delay of approximately 1 1/8 us.
+ 151:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	if (--us == 0)
+ 416               	.LM37:
+ 417 013e 0197      		sbiw r24,1
+ 418 0140 0097      		sbiw r24,0
+ 419 0142 01F0      		breq .L19
+ 152:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 		return;
+ 153:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 
+ 154:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// the following loop takes a quarter of a microsecond (4 cycles)
+ 155:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// per iteration, so execute it four times for each microsecond of
+ 156:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// delay requested.
+ 157:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	us <<= 2;
+ 421               	.LM38:
+ 422 0144 880F      		lsl r24
+ 423 0146 991F      		rol r25
+ 424 0148 880F      		lsl r24
+ 425 014a 991F      		rol r25
+ 158:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 
+ 159:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// account for the time taken in the preceeding commands.
+ 160:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	us -= 2;
+ 427               	.LM39:
+ 428 014c 0297      		sbiw r24,2
+ 161:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #else
+ 162:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// for the 8 MHz internal clock on the ATmega168
+ 163:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 
+ 164:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// for a one- or two-microsecond delay, simply return.  the overhead of
+ 165:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// the function calls takes more than two microseconds.  can't just
+ 166:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// subtract two, since us is unsigned; we'd overflow.
+ 167:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	if (--us == 0)
+ 168:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 		return;
+ 169:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	if (--us == 0)
+ 170:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 		return;
+ 171:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 
+ 172:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// the following loop takes half of a microsecond (4 cycles)
+ 173:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// per iteration, so execute it twice for each microsecond of
+ 174:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// delay requested.
+ 175:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	us <<= 1;
+ 176:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c ****     
+ 177:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// partially compensate for the time taken by the preceeding commands.
+ 178:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// we can't subtract any more than this or we'd overflow w/ small delays.
+ 179:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	us--;
+ 180:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #endif
+ 181:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 
+ 182:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// busy wait
+ 183:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	__asm__ __volatile__ (
+ 430               	.LM40:
+ 431               	/* #APP */
+ 432               	 ;  183 "/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiri
+ 433 014e 0197      		1: sbiw r24,1
+ 434 0150 01F4      		brne 1b
+ 435               	 ;  0 "" 2
+ 436               	/* #NOAPP */
+ 437               	.L19:
+ 438 0152 0895      		ret
+ 440               	.Lscope5:
+ 442               	.global	init
+ 444               	init:
+ 184:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 		"1: sbiw %0,1" "\n\t" // 2 cycles
+ 185:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 		"brne 1b" : "=w" (us) : "0" (us) // 2 cycles
+ 186:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	);
+ 187:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** }
+ 188:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 
+ 189:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** void init()
+ 190:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** {
+ 446               	.LM41:
+ 447               	.LFBB6:
+ 448               	/* prologue: function */
+ 449               	/* frame size = 0 */
+ 450               	/* stack size = 0 */
+ 451               	.L__stack_usage = 0
+ 191:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// this needs to be called before setup() or some functions won't
+ 192:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// work there
+ 193:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	sei();
+ 453               	.LM42:
+ 454               	/* #APP */
+ 455               	 ;  193 "/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiri
+ 456 0154 7894      		sei
+ 457               	 ;  0 "" 2
+ 194:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	
+ 195:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// on the ATmega168, timer 0 is also used for fast hardware pwm
+ 196:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// (using phase-correct PWM would mean that timer 0 overflowed half as often
+ 197:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// resulting in different millis() behavior on the ATmega8 and ATmega168)
+ 198:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #if defined(TCCR0A) && defined(WGM01)
+ 199:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	sbi(TCCR0A, WGM01);
+ 459               	.LM43:
+ 460               	/* #NOAPP */
+ 461 0156 84B5      		in r24,0x24
+ 462 0158 8260      		ori r24,lo8(2)
+ 463 015a 84BD      		out 0x24,r24
+ 200:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	sbi(TCCR0A, WGM00);
+ 465               	.LM44:
+ 466 015c 84B5      		in r24,0x24
+ 467 015e 8160      		ori r24,lo8(1)
+ 468 0160 84BD      		out 0x24,r24
+ 201:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #endif  
+ 202:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 
+ 203:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// set timer 0 prescale factor to 64
+ 204:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #if defined(__AVR_ATmega128__)
+ 205:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// CPU specific: different values for the ATmega128
+ 206:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	sbi(TCCR0, CS02);
+ 207:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #elif defined(TCCR0) && defined(CS01) && defined(CS00)
+ 208:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// this combination is for the standard atmega8
+ 209:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	sbi(TCCR0, CS01);
+ 210:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	sbi(TCCR0, CS00);
+ 211:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #elif defined(TCCR0B) && defined(CS01) && defined(CS00)
+ 212:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// this combination is for the standard 168/328/1280/2560
+ 213:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	sbi(TCCR0B, CS01);
+ 470               	.LM45:
+ 471 0162 85B5      		in r24,0x25
+ 472 0164 8260      		ori r24,lo8(2)
+ 473 0166 85BD      		out 0x25,r24
+ 214:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	sbi(TCCR0B, CS00);
+ 475               	.LM46:
+ 476 0168 85B5      		in r24,0x25
+ 477 016a 8160      		ori r24,lo8(1)
+ 478 016c 85BD      		out 0x25,r24
+ 215:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #elif defined(TCCR0A) && defined(CS01) && defined(CS00)
+ 216:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// this combination is for the __AVR_ATmega645__ series
+ 217:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	sbi(TCCR0A, CS01);
+ 218:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	sbi(TCCR0A, CS00);
+ 219:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #else
+ 220:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	#error Timer 0 prescale factor 64 not set correctly
+ 221:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #endif
+ 222:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 
+ 223:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// enable timer 0 overflow interrupt
+ 224:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #if defined(TIMSK) && defined(TOIE0)
+ 225:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	sbi(TIMSK, TOIE0);
+ 226:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #elif defined(TIMSK0) && defined(TOIE0)
+ 227:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	sbi(TIMSK0, TOIE0);
+ 480               	.LM47:
+ 481 016e EEE6      		ldi r30,lo8(110)
+ 482 0170 F0E0      		ldi r31,0
+ 483 0172 8081      		ld r24,Z
+ 484 0174 8160      		ori r24,lo8(1)
+ 485 0176 8083      		st Z,r24
+ 228:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #else
+ 229:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	#error	Timer 0 overflow interrupt not set correctly
+ 230:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #endif
+ 231:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 
+ 232:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// timers 1 and 2 are used for phase-correct hardware pwm
+ 233:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// this is better for motors as it ensures an even waveform
+ 234:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// note, however, that fast pwm mode can achieve a frequency of up
+ 235:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// 8 MHz (with a 16 MHz clock) at 50% duty cycle
+ 236:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 
+ 237:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #if defined(TCCR1B) && defined(CS11) && defined(CS10)
+ 238:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	TCCR1B = 0;
+ 487               	.LM48:
+ 488 0178 E1E8      		ldi r30,lo8(-127)
+ 489 017a F0E0      		ldi r31,0
+ 490 017c 1082      		st Z,__zero_reg__
+ 239:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 
+ 240:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// set timer 1 prescale factor to 64
+ 241:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	sbi(TCCR1B, CS11);
+ 492               	.LM49:
+ 493 017e 8081      		ld r24,Z
+ 494 0180 8260      		ori r24,lo8(2)
+ 495 0182 8083      		st Z,r24
+ 242:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #if F_CPU >= 8000000L
+ 243:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	sbi(TCCR1B, CS10);
+ 497               	.LM50:
+ 498 0184 8081      		ld r24,Z
+ 499 0186 8160      		ori r24,lo8(1)
+ 500 0188 8083      		st Z,r24
+ 244:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #endif
+ 245:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #elif defined(TCCR1) && defined(CS11) && defined(CS10)
+ 246:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	sbi(TCCR1, CS11);
+ 247:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #if F_CPU >= 8000000L
+ 248:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	sbi(TCCR1, CS10);
+ 249:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #endif
+ 250:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #endif
+ 251:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// put timer 1 in 8-bit phase correct pwm mode
+ 252:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #if defined(TCCR1A) && defined(WGM10)
+ 253:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	sbi(TCCR1A, WGM10);
+ 502               	.LM51:
+ 503 018a E0E8      		ldi r30,lo8(-128)
+ 504 018c F0E0      		ldi r31,0
+ 505 018e 8081      		ld r24,Z
+ 506 0190 8160      		ori r24,lo8(1)
+ 507 0192 8083      		st Z,r24
+ 254:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #elif defined(TCCR1)
+ 255:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	#warning this needs to be finished
+ 256:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #endif
+ 257:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 
+ 258:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// set timer 2 prescale factor to 64
+ 259:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #if defined(TCCR2) && defined(CS22)
+ 260:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	sbi(TCCR2, CS22);
+ 261:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #elif defined(TCCR2B) && defined(CS22)
+ 262:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	sbi(TCCR2B, CS22);
+ 509               	.LM52:
+ 510 0194 E1EB      		ldi r30,lo8(-79)
+ 511 0196 F0E0      		ldi r31,0
+ 512 0198 8081      		ld r24,Z
+ 513 019a 8460      		ori r24,lo8(4)
+ 514 019c 8083      		st Z,r24
+ 263:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #else
+ 264:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	#warning Timer 2 not finished (may not be present on this CPU)
+ 265:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #endif
+ 266:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 
+ 267:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// configure timer 2 for phase correct pwm (8-bit)
+ 268:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #if defined(TCCR2) && defined(WGM20)
+ 269:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	sbi(TCCR2, WGM20);
+ 270:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #elif defined(TCCR2A) && defined(WGM20)
+ 271:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	sbi(TCCR2A, WGM20);
+ 516               	.LM53:
+ 517 019e E0EB      		ldi r30,lo8(-80)
+ 518 01a0 F0E0      		ldi r31,0
+ 519 01a2 8081      		ld r24,Z
+ 520 01a4 8160      		ori r24,lo8(1)
+ 521 01a6 8083      		st Z,r24
+ 272:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #else
+ 273:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	#warning Timer 2 not finished (may not be present on this CPU)
+ 274:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #endif
+ 275:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 
+ 276:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #if defined(TCCR3B) && defined(CS31) && defined(WGM30)
+ 277:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	sbi(TCCR3B, CS31);		// set timer 3 prescale factor to 64
+ 278:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	sbi(TCCR3B, CS30);
+ 279:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	sbi(TCCR3A, WGM30);		// put timer 3 in 8-bit phase correct pwm mode
+ 280:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #endif
+ 281:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 
+ 282:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #if defined(TCCR4A) && defined(TCCR4B) && defined(TCCR4D) /* beginning of timer4 block for 32U4 and
+ 283:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	sbi(TCCR4B, CS42);		// set timer4 prescale factor to 64
+ 284:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	sbi(TCCR4B, CS41);
+ 285:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	sbi(TCCR4B, CS40);
+ 286:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	sbi(TCCR4D, WGM40);		// put timer 4 in phase- and frequency-correct PWM mode	
+ 287:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	sbi(TCCR4A, PWM4A);		// enable PWM mode for comparator OCR4A
+ 288:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	sbi(TCCR4C, PWM4D);		// enable PWM mode for comparator OCR4D
+ 289:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #else /* beginning of timer4 block for ATMEGA1280 and ATMEGA2560 */
+ 290:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #if defined(TCCR4B) && defined(CS41) && defined(WGM40)
+ 291:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	sbi(TCCR4B, CS41);		// set timer 4 prescale factor to 64
+ 292:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	sbi(TCCR4B, CS40);
+ 293:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	sbi(TCCR4A, WGM40);		// put timer 4 in 8-bit phase correct pwm mode
+ 294:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #endif
+ 295:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #endif /* end timer4 block for ATMEGA1280/2560 and similar */	
+ 296:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 
+ 297:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #if defined(TCCR5B) && defined(CS51) && defined(WGM50)
+ 298:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	sbi(TCCR5B, CS51);		// set timer 5 prescale factor to 64
+ 299:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	sbi(TCCR5B, CS50);
+ 300:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	sbi(TCCR5A, WGM50);		// put timer 5 in 8-bit phase correct pwm mode
+ 301:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #endif
+ 302:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 
+ 303:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #if defined(ADCSRA)
+ 304:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// set a2d prescale factor to 128
+ 305:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// 16 MHz / 128 = 125 KHz, inside the desired 50-200 KHz range.
+ 306:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// XXX: this will not work properly for other clock speeds, and
+ 307:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// this code should use F_CPU to determine the prescale factor.
+ 308:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	sbi(ADCSRA, ADPS2);
+ 523               	.LM54:
+ 524 01a8 EAE7      		ldi r30,lo8(122)
+ 525 01aa F0E0      		ldi r31,0
+ 526 01ac 8081      		ld r24,Z
+ 527 01ae 8460      		ori r24,lo8(4)
+ 528 01b0 8083      		st Z,r24
+ 309:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	sbi(ADCSRA, ADPS1);
+ 530               	.LM55:
+ 531 01b2 8081      		ld r24,Z
+ 532 01b4 8260      		ori r24,lo8(2)
+ 533 01b6 8083      		st Z,r24
+ 310:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	sbi(ADCSRA, ADPS0);
+ 535               	.LM56:
+ 536 01b8 8081      		ld r24,Z
+ 537 01ba 8160      		ori r24,lo8(1)
+ 538 01bc 8083      		st Z,r24
+ 311:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 
+ 312:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// enable a2d conversions
+ 313:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	sbi(ADCSRA, ADEN);
+ 540               	.LM57:
+ 541 01be 8081      		ld r24,Z
+ 542 01c0 8068      		ori r24,lo8(-128)
+ 543 01c2 8083      		st Z,r24
+ 314:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #endif
+ 315:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 
+ 316:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// the bootloader connects pins 0 and 1 to the USART; disconnect them
+ 317:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// here so they can be used as normal digital i/o; they will be
+ 318:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	// reconnected in Serial.begin()
+ 319:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #if defined(UCSRB)
+ 320:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	UCSRB = 0;
+ 321:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** #elif defined(UCSR0B)
+ 322:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring.c **** 	UCSR0B = 0;
+ 545               	.LM58:
+ 546 01c4 1092 C100 		sts 193,__zero_reg__
+ 547 01c8 0895      		ret
+ 549               	.Lscope6:
+ 550               		.local	timer0_fract
+ 551               		.comm	timer0_fract,1,1
+ 552               	.global	timer0_millis
+ 553               		.section .bss
+ 556               	timer0_millis:
+ 557 0000 0000 0000 		.zero	4
+ 558               	.global	timer0_overflow_count
+ 561               	timer0_overflow_count:
+ 562 0004 0000 0000 		.zero	4
+ 580               		.text
+ 582               	.Letext0:
+ 583               		.ident	"GCC: (GNU) 4.8.1"
+ 584               	.global __do_clear_bss
+DEFINED SYMBOLS
+                            *ABS*:00000000 wiring.c
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccqoi3L5.s:2      *ABS*:0000003e __SP_H__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccqoi3L5.s:3      *ABS*:0000003d __SP_L__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccqoi3L5.s:4      *ABS*:0000003f __SREG__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccqoi3L5.s:5      *ABS*:00000000 __tmp_reg__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccqoi3L5.s:6      *ABS*:00000001 __zero_reg__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccqoi3L5.s:130    .text:00000000 __vector_16
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccqoi3L5.s:556    .bss:00000000 timer0_millis
+                             .bss:00000008 timer0_fract
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccqoi3L5.s:561    .bss:00000004 timer0_overflow_count
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccqoi3L5.s:224    .text:00000094 millis
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccqoi3L5.s:263    .text:000000ac micros
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccqoi3L5.s:339    .text:000000f2 delay
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccqoi3L5.s:407    .text:0000013e delayMicroseconds
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccqoi3L5.s:444    .text:00000154 init
+
+UNDEFINED SYMBOLS
+__do_clear_bss

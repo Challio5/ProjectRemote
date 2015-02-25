@@ -1,0 +1,236 @@
+   1               		.file	"wiring_shift.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   8               		.text
+   9               	.Ltext0:
+ 131               	.global	shiftIn
+ 133               	shiftIn:
+   1:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c **** /*
+   2:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c ****   wiring_shift.c - shiftOut() function
+   3:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c ****   Part of Arduino - http://www.arduino.cc/
+   4:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c **** 
+   5:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c ****   Copyright (c) 2005-2006 David A. Mellis
+   6:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c **** 
+   7:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c ****   This library is free software; you can redistribute it and/or
+   8:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c ****   modify it under the terms of the GNU Lesser General Public
+   9:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c ****   License as published by the Free Software Foundation; either
+  10:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c ****   version 2.1 of the License, or (at your option) any later version.
+  11:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c **** 
+  12:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c ****   This library is distributed in the hope that it will be useful,
+  13:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c ****   but WITHOUT ANY WARRANTY; without even the implied warranty of
+  14:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c ****   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  15:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c ****   Lesser General Public License for more details.
+  16:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c **** 
+  17:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c ****   You should have received a copy of the GNU Lesser General
+  18:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c ****   Public License along with this library; if not, write to the
+  19:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c ****   Free Software Foundation, Inc., 59 Temple Place, Suite 330,
+  20:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c ****   Boston, MA  02111-1307  USA
+  21:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c **** 
+  22:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c ****   $Id: wiring.c 248 2007-02-03 15:36:30Z mellis $
+  23:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c **** */
+  24:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c **** 
+  25:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c **** #include "wiring_private.h"
+  26:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c **** 
+  27:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c **** uint8_t shiftIn(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder) {
+ 135               	.LM0:
+ 136               	.LFBB1:
+ 137 0000 CF92      		push r12
+ 138 0002 DF92      		push r13
+ 139 0004 EF92      		push r14
+ 140 0006 FF92      		push r15
+ 141 0008 0F93      		push r16
+ 142 000a 1F93      		push r17
+ 143 000c CF93      		push r28
+ 144 000e DF93      		push r29
+ 145               	/* prologue: function */
+ 146               	/* frame size = 0 */
+ 147               	/* stack size = 8 */
+ 148               	.L__stack_usage = 8
+ 149 0010 D82E      		mov r13,r24
+ 150 0012 E62E      		mov r14,r22
+ 151 0014 C42E      		mov r12,r20
+ 153               	.LM1:
+ 154 0016 C7E0      		ldi r28,lo8(7)
+ 155 0018 D0E0      		ldi r29,0
+  28:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c **** 	uint8_t value = 0;
+ 157               	.LM2:
+ 158 001a F12C      		mov r15,__zero_reg__
+ 159 001c 07E0      		ldi r16,lo8(7)
+ 160 001e 10E0      		ldi r17,0
+ 161               	.L5:
+  29:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c **** 	uint8_t i;
+  30:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c **** 
+  31:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c **** 	for (i = 0; i < 8; ++i) {
+  32:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c **** 		digitalWrite(clockPin, HIGH);
+ 163               	.LM3:
+ 164 0020 61E0      		ldi r22,lo8(1)
+ 165 0022 8E2D      		mov r24,r14
+ 166 0024 0E94 0000 		call digitalWrite
+  33:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c **** 		if (bitOrder == LSBFIRST)
+  34:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c **** 			value |= digitalRead(dataPin) << i;
+ 168               	.LM4:
+ 169 0028 8D2D      		mov r24,r13
+  33:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c **** 		if (bitOrder == LSBFIRST)
+ 171               	.LM5:
+ 172 002a C110      		cpse r12,__zero_reg__
+ 173 002c 00C0      		rjmp .L2
+ 175               	.LM6:
+ 176 002e 0E94 0000 		call digitalRead
+ 177 0032 9801      		movw r18,r16
+ 178 0034 2C1B      		sub r18,r28
+ 179 0036 3D0B      		sbc r19,r29
+ 180 0038 00C0      		rjmp .L6
+ 181               	.L2:
+  35:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c **** 		else
+  36:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c **** 			value |= digitalRead(dataPin) << (7 - i);
+ 183               	.LM7:
+ 184 003a 0E94 0000 		call digitalRead
+ 185 003e 2C2F      		mov r18,r28
+ 186               	.L6:
+ 187 0040 00C0      		rjmp 2f
+ 188               		1:
+ 189 0042 880F      		lsl r24
+ 190               		2:
+ 191 0044 2A95      		dec r18
+ 192 0046 02F4      		brpl 1b
+ 193 0048 F82A      		or r15,r24
+  37:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c **** 		digitalWrite(clockPin, LOW);
+ 195               	.LM8:
+ 196 004a 60E0      		ldi r22,0
+ 197 004c 8E2D      		mov r24,r14
+ 198 004e 0E94 0000 		call digitalWrite
+ 199 0052 2197      		sbiw r28,1
+ 200 0054 00F4      		brcc .L5
+  38:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c **** 	}
+  39:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c **** 	return value;
+  40:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c **** }
+ 202               	.LM9:
+ 203 0056 8F2D      		mov r24,r15
+ 204               	/* epilogue start */
+ 205 0058 DF91      		pop r29
+ 206 005a CF91      		pop r28
+ 207 005c 1F91      		pop r17
+ 208 005e 0F91      		pop r16
+ 209 0060 FF90      		pop r15
+ 210 0062 EF90      		pop r14
+ 211 0064 DF90      		pop r13
+ 212 0066 CF90      		pop r12
+ 213 0068 0895      		ret
+ 218               	.Lscope1:
+ 224               	.global	shiftOut
+ 226               	shiftOut:
+  41:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c **** 
+  42:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c **** void shiftOut(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder, uint8_t val)
+  43:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c **** {
+ 228               	.LM10:
+ 229               	.LFBB2:
+ 230 006a BF92      		push r11
+ 231 006c CF92      		push r12
+ 232 006e DF92      		push r13
+ 233 0070 EF92      		push r14
+ 234 0072 FF92      		push r15
+ 235 0074 0F93      		push r16
+ 236 0076 1F93      		push r17
+ 237 0078 CF93      		push r28
+ 238 007a DF93      		push r29
+ 239               	/* prologue: function */
+ 240               	/* frame size = 0 */
+ 241               	/* stack size = 9 */
+ 242               	.L__stack_usage = 9
+ 243 007c C82E      		mov r12,r24
+ 244 007e D62E      		mov r13,r22
+ 245 0080 B42E      		mov r11,r20
+ 247               	.LM11:
+ 248 0082 C7E0      		ldi r28,lo8(7)
+ 249 0084 D0E0      		ldi r29,0
+ 250 0086 022F      		mov r16,r18
+ 251 0088 10E0      		ldi r17,0
+ 252 008a 87E0      		ldi r24,lo8(7)
+ 253 008c E82E      		mov r14,r24
+ 254 008e F12C      		mov r15,__zero_reg__
+ 255               	.L12:
+  44:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c **** 	uint8_t i;
+  45:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c **** 
+  46:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c **** 	for (i = 0; i < 8; i++)  {
+  47:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c **** 		if (bitOrder == LSBFIRST)
+ 257               	.LM12:
+ 258 0090 B110      		cpse r11,__zero_reg__
+ 259 0092 00C0      		rjmp .L9
+ 260 0094 F701      		movw r30,r14
+ 261 0096 EC1B      		sub r30,r28
+ 262 0098 FD0B      		sbc r31,r29
+  48:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c **** 			digitalWrite(dataPin, !!(val & (1 << i)));
+ 264               	.LM13:
+ 265 009a B801      		movw r22,r16
+ 266 009c 00C0      		rjmp 2f
+ 267               		1:
+ 268 009e 7595      		asr r23
+ 269 00a0 6795      		ror r22
+ 270               		2:
+ 271 00a2 EA95      		dec r30
+ 272 00a4 02F4      		brpl 1b
+ 273 00a6 00C0      		rjmp .L13
+ 274               	.L9:
+  49:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c **** 		else	
+  50:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c **** 			digitalWrite(dataPin, !!(val & (1 << (7 - i))));
+ 276               	.LM14:
+ 277 00a8 B801      		movw r22,r16
+ 278 00aa 0C2E      		mov r0,r28
+ 279 00ac 00C0      		rjmp 2f
+ 280               		1:
+ 281 00ae 7595      		asr r23
+ 282 00b0 6795      		ror r22
+ 283               		2:
+ 284 00b2 0A94      		dec r0
+ 285 00b4 02F4      		brpl 1b
+ 286               	.L13:
+ 287 00b6 6170      		andi r22,1
+ 288 00b8 7727      		clr r23
+ 289 00ba 8C2D      		mov r24,r12
+ 290 00bc 0E94 0000 		call digitalWrite
+  51:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c **** 			
+  52:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c **** 		digitalWrite(clockPin, HIGH);
+ 292               	.LM15:
+ 293 00c0 61E0      		ldi r22,lo8(1)
+ 294 00c2 8D2D      		mov r24,r13
+ 295 00c4 0E94 0000 		call digitalWrite
+  53:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c **** 		digitalWrite(clockPin, LOW);		
+ 297               	.LM16:
+ 298 00c8 60E0      		ldi r22,0
+ 299 00ca 8D2D      		mov r24,r13
+ 300 00cc 0E94 0000 		call digitalWrite
+ 301 00d0 2197      		sbiw r28,1
+ 302 00d2 00F4      		brcc .L12
+ 303               	/* epilogue start */
+  54:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c **** 	}
+  55:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_shift.c **** }
+ 305               	.LM17:
+ 306 00d4 DF91      		pop r29
+ 307 00d6 CF91      		pop r28
+ 308 00d8 1F91      		pop r17
+ 309 00da 0F91      		pop r16
+ 310 00dc FF90      		pop r15
+ 311 00de EF90      		pop r14
+ 312 00e0 DF90      		pop r13
+ 313 00e2 CF90      		pop r12
+ 314 00e4 BF90      		pop r11
+ 315 00e6 0895      		ret
+ 317               	.Lscope2:
+ 333               	.Letext0:
+ 334               		.ident	"GCC: (GNU) 4.8.1"
+DEFINED SYMBOLS
+                            *ABS*:00000000 wiring_shift.c
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccwlGnXY.s:2      *ABS*:0000003e __SP_H__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccwlGnXY.s:3      *ABS*:0000003d __SP_L__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccwlGnXY.s:4      *ABS*:0000003f __SREG__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccwlGnXY.s:5      *ABS*:00000000 __tmp_reg__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccwlGnXY.s:6      *ABS*:00000001 __zero_reg__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccwlGnXY.s:133    .text:00000000 shiftIn
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccwlGnXY.s:226    .text:0000006a shiftOut
+
+UNDEFINED SYMBOLS
+digitalWrite
+digitalRead

@@ -1,0 +1,303 @@
+   1               		.file	"wiring_pulse.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   8               		.text
+   9               	.Ltext0:
+ 131               	.global	pulseIn
+ 133               	pulseIn:
+   1:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** /*
+   2:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c ****   wiring_pulse.c - pulseIn() function
+   3:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c ****   Part of Arduino - http://www.arduino.cc/
+   4:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** 
+   5:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c ****   Copyright (c) 2005-2006 David A. Mellis
+   6:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** 
+   7:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c ****   This library is free software; you can redistribute it and/or
+   8:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c ****   modify it under the terms of the GNU Lesser General Public
+   9:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c ****   License as published by the Free Software Foundation; either
+  10:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c ****   version 2.1 of the License, or (at your option) any later version.
+  11:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** 
+  12:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c ****   This library is distributed in the hope that it will be useful,
+  13:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c ****   but WITHOUT ANY WARRANTY; without even the implied warranty of
+  14:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c ****   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  15:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c ****   Lesser General Public License for more details.
+  16:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** 
+  17:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c ****   You should have received a copy of the GNU Lesser General
+  18:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c ****   Public License along with this library; if not, write to the
+  19:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c ****   Free Software Foundation, Inc., 59 Temple Place, Suite 330,
+  20:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c ****   Boston, MA  02111-1307  USA
+  21:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** 
+  22:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c ****   $Id: wiring.c 248 2007-02-03 15:36:30Z mellis $
+  23:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** */
+  24:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** 
+  25:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** #include "wiring_private.h"
+  26:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** #include "pins_arduino.h"
+  27:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** 
+  28:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** /* Measures the length (in microseconds) of a pulse on the pin; state is HIGH
+  29:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c ****  * or LOW, the type of pulse to measure.  Works on pulses from 2-3 microseconds
+  30:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c ****  * to 3 minutes in length, but must be called at least a few dozen microseconds
+  31:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c ****  * before the start of the pulse. */
+  32:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** unsigned long pulseIn(uint8_t pin, uint8_t state, unsigned long timeout)
+  33:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** {
+ 135               	.LM0:
+ 136               	.LFBB1:
+ 137 0000 CF92      		push r12
+ 138 0002 DF92      		push r13
+ 139 0004 EF92      		push r14
+ 140 0006 FF92      		push r15
+ 141 0008 0F93      		push r16
+ 142 000a 1F93      		push r17
+ 143 000c CF93      		push r28
+ 144 000e DF93      		push r29
+ 145               	/* prologue: function */
+ 146               	/* frame size = 0 */
+ 147               	/* stack size = 8 */
+ 148               	.L__stack_usage = 8
+ 149               	.LBB2:
+  34:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** 	// cache the port and bit of the pin in order to speed up the
+  35:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** 	// pulse width measuring loop and achieve finer resolution.  calling
+  36:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** 	// digitalRead() instead yields much coarser resolution.
+  37:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** 	uint8_t bit = digitalPinToBitMask(pin);
+ 151               	.LM1:
+ 152 0010 90E0      		ldi r25,0
+ 153 0012 FC01      		movw r30,r24
+ 154 0014 E050      		subi r30,lo8(-(digital_pin_to_bit_mask_PGM))
+ 155 0016 F040      		sbci r31,hi8(-(digital_pin_to_bit_mask_PGM))
+ 156               	/* #APP */
+ 157               	 ;  37 "/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wirin
+ 158 0018 D491      		lpm r29, Z
+ 159               		
+ 160               	 ;  0 "" 2
+ 161               	/* #NOAPP */
+ 162               	.LBE2:
+ 163               	.LBB3:
+  38:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** 	uint8_t port = digitalPinToPort(pin);
+ 165               	.LM2:
+ 166 001a FC01      		movw r30,r24
+ 167 001c E050      		subi r30,lo8(-(digital_pin_to_port_PGM))
+ 168 001e F040      		sbci r31,hi8(-(digital_pin_to_port_PGM))
+ 169               	/* #APP */
+ 170               	 ;  38 "/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wirin
+ 171 0020 7491      		lpm r23, Z
+ 172               		
+ 173               	 ;  0 "" 2
+ 174               	/* #NOAPP */
+ 175               	.LBE3:
+  39:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** 	uint8_t stateMask = (state ? bit : 0);
+ 177               	.LM3:
+ 178 0022 6111      		cpse r22,__zero_reg__
+ 179 0024 00C0      		rjmp .L10
+ 180 0026 C0E0      		ldi r28,0
+ 181 0028 00C0      		rjmp .L2
+ 182               	.L10:
+ 183 002a CD2F      		mov r28,r29
+ 184               	.L2:
+  40:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** 	unsigned long width = 0; // keep initialization out of time critical area
+  41:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** 	
+  42:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** 	// convert the timeout from microseconds to a number of times through
+  43:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** 	// the initial loop; it takes 16 clock cycles per iteration.
+  44:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** 	unsigned long numloops = 0;
+  45:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** 	unsigned long maxloops = microsecondsToClockCycles(timeout) / 16;
+ 186               	.LM4:
+ 187 002c DA01      		movw r26,r20
+ 188 002e C901      		movw r24,r18
+ 189 0030 BF70      		andi r27,15
+ 190               	.LBB4:
+  46:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** 	
+  47:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** 	// wait for any previous pulse to end
+  48:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** 	while ((*portInputRegister(port) & bit) == stateMask)
+ 192               	.LM5:
+ 193 0032 672F      		mov r22,r23
+ 194 0034 70E0      		ldi r23,0
+ 195 0036 660F      		lsl r22
+ 196 0038 771F      		rol r23
+ 197 003a 6050      		subi r22,lo8(-(port_to_input_PGM))
+ 198 003c 7040      		sbci r23,hi8(-(port_to_input_PGM))
+ 199               	.LBE4:
+  44:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** 	unsigned long numloops = 0;
+ 201               	.LM6:
+ 202 003e 00E0      		ldi r16,0
+ 203 0040 10E0      		ldi r17,0
+ 204 0042 9801      		movw r18,r16
+ 205               	.L3:
+ 206               	.LBB5:
+ 208               	.LM7:
+ 209 0044 FB01      		movw r30,r22
+ 210               	/* #APP */
+ 211               	 ;  48 "/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wirin
+ 212 0046 E590      		lpm r14, Z+
+ 213 0048 F490      		lpm r15, Z
+ 214               		
+ 215               	 ;  0 "" 2
+ 216               	/* #NOAPP */
+ 217               	.LBE5:
+ 218 004a F701      		movw r30,r14
+ 219 004c 4081      		ld r20,Z
+ 220 004e 4D23      		and r20,r29
+ 221 0050 4C13      		cpse r20,r28
+ 222 0052 00C0      		rjmp .L6
+  49:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** 		if (numloops++ == maxloops)
+ 224               	.LM8:
+ 225 0054 6801      		movw r12,r16
+ 226 0056 7901      		movw r14,r18
+ 227 0058 4FEF      		ldi r20,-1
+ 228 005a C41A      		sub r12,r20
+ 229 005c D40A      		sbc r13,r20
+ 230 005e E40A      		sbc r14,r20
+ 231 0060 F40A      		sbc r15,r20
+ 232 0062 0817      		cp r16,r24
+ 233 0064 1907      		cpc r17,r25
+ 234 0066 2A07      		cpc r18,r26
+ 235 0068 3B07      		cpc r19,r27
+ 236 006a 01F4      		brne .+2
+ 237 006c 00C0      		rjmp .L13
+ 238 006e 9701      		movw r18,r14
+ 239 0070 8601      		movw r16,r12
+ 240 0072 00C0      		rjmp .L3
+ 241               	.L7:
+  50:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** 			return 0;
+  51:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** 	
+  52:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** 	// wait for the pulse to start
+  53:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** 	while ((*portInputRegister(port) & bit) != stateMask)
+  54:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** 		if (numloops++ == maxloops)
+ 243               	.LM9:
+ 244 0074 6801      		movw r12,r16
+ 245 0076 7901      		movw r14,r18
+ 246 0078 FFEF      		ldi r31,-1
+ 247 007a CF1A      		sub r12,r31
+ 248 007c DF0A      		sbc r13,r31
+ 249 007e EF0A      		sbc r14,r31
+ 250 0080 FF0A      		sbc r15,r31
+ 251 0082 0817      		cp r16,r24
+ 252 0084 1907      		cpc r17,r25
+ 253 0086 2A07      		cpc r18,r26
+ 254 0088 3B07      		cpc r19,r27
+ 255 008a 01F0      		breq .L13
+ 256 008c 9701      		movw r18,r14
+ 257 008e 8601      		movw r16,r12
+ 258               	.L6:
+ 259               	.LBB6:
+  53:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** 	while ((*portInputRegister(port) & bit) != stateMask)
+ 261               	.LM10:
+ 262 0090 FB01      		movw r30,r22
+ 263               	/* #APP */
+ 264               	 ;  53 "/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wirin
+ 265 0092 E590      		lpm r14, Z+
+ 266 0094 F490      		lpm r15, Z
+ 267               		
+ 268               	 ;  0 "" 2
+ 269               	/* #NOAPP */
+ 270               	.LBE6:
+ 271 0096 F701      		movw r30,r14
+ 272 0098 4081      		ld r20,Z
+ 273 009a 4D23      		and r20,r29
+ 274 009c 4C13      		cpse r20,r28
+ 275 009e 00C0      		rjmp .L7
+ 276 00a0 801B      		sub r24,r16
+ 277 00a2 910B      		sbc r25,r17
+ 278 00a4 A20B      		sbc r26,r18
+ 279 00a6 B30B      		sbc r27,r19
+  53:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** 	while ((*portInputRegister(port) & bit) != stateMask)
+ 281               	.LM11:
+ 282 00a8 20E0      		ldi r18,0
+ 283 00aa 30E0      		ldi r19,0
+ 284 00ac A901      		movw r20,r18
+ 285               	.L8:
+ 286               	.LBB7:
+  55:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** 			return 0;
+  56:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** 	
+  57:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** 	// wait for the pulse to stop
+  58:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** 	while ((*portInputRegister(port) & bit) == stateMask) {
+ 288               	.LM12:
+ 289 00ae FB01      		movw r30,r22
+ 290               	/* #APP */
+ 291               	 ;  58 "/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wirin
+ 292 00b0 E590      		lpm r14, Z+
+ 293 00b2 F490      		lpm r15, Z
+ 294               		
+ 295               	 ;  0 "" 2
+ 296               	/* #NOAPP */
+ 297               	.LBE7:
+ 298 00b4 F701      		movw r30,r14
+ 299 00b6 F080      		ld r15,Z
+ 300 00b8 FD22      		and r15,r29
+ 301 00ba FC12      		cpse r15,r28
+ 302 00bc 00C0      		rjmp .L15
+  59:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** 		if (numloops++ == maxloops)
+ 304               	.LM13:
+ 305 00be 2817      		cp r18,r24
+ 306 00c0 3907      		cpc r19,r25
+ 307 00c2 4A07      		cpc r20,r26
+ 308 00c4 5B07      		cpc r21,r27
+ 309 00c6 01F0      		breq .L13
+  60:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** 			return 0;
+  61:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** 		width++;
+ 311               	.LM14:
+ 312 00c8 2F5F      		subi r18,-1
+ 313 00ca 3F4F      		sbci r19,-1
+ 314 00cc 4F4F      		sbci r20,-1
+ 315 00ce 5F4F      		sbci r21,-1
+ 316 00d0 00C0      		rjmp .L8
+ 317               	.L15:
+  62:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** 	}
+  63:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** 
+  64:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** 	// convert the reading to microseconds. The loop has been determined
+  65:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** 	// to be 20 clock cycles long and have about 16 clocks between the edge
+  66:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** 	// and the start of the loop. There will be some error introduced by
+  67:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** 	// the interrupt handlers.
+  68:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** 	return clockCyclesToMicroseconds(width * 21 + 16); 
+ 319               	.LM15:
+ 320 00d2 A5E1      		ldi r26,lo8(21)
+ 321 00d4 B0E0      		ldi r27,0
+ 322 00d6 0E94 0000 		call __muluhisi3
+ 323 00da 605F      		subi r22,-16
+ 324 00dc 7F4F      		sbci r23,-1
+ 325 00de 8F4F      		sbci r24,-1
+ 326 00e0 9F4F      		sbci r25,-1
+ 327 00e2 24E0      		ldi r18,4
+ 328               		1:
+ 329 00e4 9695      		lsr r25
+ 330 00e6 8795      		ror r24
+ 331 00e8 7795      		ror r23
+ 332 00ea 6795      		ror r22
+ 333 00ec 2A95      		dec r18
+ 334 00ee 01F4      		brne 1b
+ 335 00f0 00C0      		rjmp .L4
+ 336               	.L13:
+  50:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** 			return 0;
+ 338               	.LM16:
+ 339 00f2 60E0      		ldi r22,0
+ 340 00f4 70E0      		ldi r23,0
+ 341 00f6 CB01      		movw r24,r22
+ 342               	.L4:
+ 343               	/* epilogue start */
+  69:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_pulse.c **** }
+ 345               	.LM17:
+ 346 00f8 DF91      		pop r29
+ 347 00fa CF91      		pop r28
+ 348 00fc 1F91      		pop r17
+ 349 00fe 0F91      		pop r16
+ 350 0100 FF90      		pop r15
+ 351 0102 EF90      		pop r14
+ 352 0104 DF90      		pop r13
+ 353 0106 CF90      		pop r12
+ 354 0108 0895      		ret
+ 361               	.Lscope1:
+ 377               	.Letext0:
+ 378               		.ident	"GCC: (GNU) 4.8.1"
+DEFINED SYMBOLS
+                            *ABS*:00000000 wiring_pulse.c
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccVTMs8i.s:2      *ABS*:0000003e __SP_H__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccVTMs8i.s:3      *ABS*:0000003d __SP_L__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccVTMs8i.s:4      *ABS*:0000003f __SREG__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccVTMs8i.s:5      *ABS*:00000000 __tmp_reg__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccVTMs8i.s:6      *ABS*:00000001 __zero_reg__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccVTMs8i.s:133    .text:00000000 pulseIn
+
+UNDEFINED SYMBOLS
+digital_pin_to_bit_mask_PGM
+digital_pin_to_port_PGM
+port_to_input_PGM
+__muluhisi3

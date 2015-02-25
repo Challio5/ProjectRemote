@@ -1,0 +1,275 @@
+   1               		.file	"tiltsensor.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   8               		.text
+   9               	.Ltext0:
+ 113               	.global	tilt_analogRead
+ 115               	tilt_analogRead:
+   1:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c **** /*
+   2:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c ****  *  tiltsensor.c
+   3:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c ****  *
+   4:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c ****  *  Dit is de .c file voor de SparkFun Tilt-a-Whirl Breakout - RPI-1031,
+   5:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c ****  *  Dit is een TiltSensor die reageert op de plaats van het balletje wat zich er binnenin bevindt.
+   6:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c ****  *  Eigenlijk is het bij deze tiltsensor enkel mogelijk om te kijken tegen welke zijde het balletje
+   7:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c ****  *  Dit omdat wanneer je hem horizontaal legt hij altijd tegen 1 kant zal gaan liggen (de kans is z
+   8:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c ****  *  Ik raad u daarom aan de Tilt-a-Whirl verticaal te plaatsen, zo kun je het alarm af laten gaan w
+   9:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c ****  *
+  10:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c ****  *  Veel Succes!
+  11:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c ****  *
+  12:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c ****  *	Created: 28-11-2014
+  13:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c ****  * 	Author: Eti2b groep 4
+  14:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c ****  */
+  15:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c **** 
+  16:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c **** #include "TiltSensor.h"
+  17:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c **** #include <avr/io.h>
+  18:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c **** #include <util/delay.h>
+  19:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c **** 
+  20:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c **** int xAs;
+  21:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c **** int yAs;
+  22:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c **** int alarmOn = 0;
+  23:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c **** 
+  24:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c **** int tilt_analogRead(uint8_t adcPin)
+  25:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c **** {
+ 117               	.LM0:
+ 118               	.LFBB1:
+ 119               	/* prologue: function */
+ 120               	/* frame size = 0 */
+ 121               	/* stack size = 0 */
+ 122               	.L__stack_usage = 0
+  26:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c ****     int ADCval;
+  27:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c ****     //ADMUX is het ADC multiplexer selection register, hier wordt de pin  gezet die wordt meegegeve
+  28:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c ****     // Dit kan gedaan worden met enkel "=", omdat dit het eerste is wat gezet wordt.
+  29:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c ****     ADMUX = adcPin;
+ 124               	.LM1:
+ 125 0000 8093 7C00 		sts 124,r24
+  30:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c ****     // De AVcc met een externe condensator wordt gezet op de AREF pin
+  31:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c ****     ADMUX |= (1 << REFS0 | 0 << REFS1);
+ 127               	.LM2:
+ 128 0004 8091 7C00 		lds r24,124
+ 129 0008 8064      		ori r24,lo8(64)
+ 130 000a 8093 7C00 		sts 124,r24
+  32:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c ****     //  maak het register weer vrij
+  33:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c ****     ADMUX &= ~(1 << ADLAR);
+ 132               	.LM3:
+ 133 000e 8091 7C00 		lds r24,124
+ 134 0012 8F7D      		andi r24,lo8(-33)
+ 135 0014 8093 7C00 		sts 124,r24
+  34:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c **** 
+  35:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c ****     // De prescaler wordt hier op 128 gezet voor de 8Mhz
+  36:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c ****     ADCSRA |= (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0);
+ 137               	.LM4:
+ 138 0018 8091 7A00 		lds r24,122
+ 139 001c 8760      		ori r24,lo8(7)
+ 140 001e 8093 7A00 		sts 122,r24
+  37:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c ****     // De ADC wordt ge-enabled
+  38:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c ****     ADCSRA |= (1 << ADEN);
+ 142               	.LM5:
+ 143 0022 8091 7A00 		lds r24,122
+ 144 0026 8068      		ori r24,lo8(-128)
+ 145 0028 8093 7A00 		sts 122,r24
+  39:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c **** 
+  40:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c ****     //De ADSC bit wordt gezet, daarmee wordt de de conversie gestart.
+  41:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c ****     ADCSRA |= (1 << ADSC);
+ 147               	.LM6:
+ 148 002c 8091 7A00 		lds r24,122
+ 149 0030 8064      		ori r24,lo8(64)
+ 150 0032 8093 7A00 		sts 122,r24
+ 151               	.L3:
+  42:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c **** 
+  43:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c ****     // Door deze regel blijft hij wachten tot de conversie klaar is.
+  44:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c ****     // zolang de bit op 1 staat wacht hij.
+  45:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c ****     while(ADCSRA & (1 << ADSC));
+ 153               	.LM7:
+ 154 0036 8091 7A00 		lds r24,122
+ 155 003a 86FD      		sbrc r24,6
+ 156 003c 00C0      		rjmp .L3
+  46:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c **** 
+  47:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c ****     // Op de plek van de ADCval wordt ADCL opgeslagen.
+  48:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c ****     // Vervolgens wordt de ADCH gelezen en opgeslagen hierdoor kan de ADC weer opnieuw gebruikt wor
+  49:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c ****     ADCval = ADCL;
+ 158               	.LM8:
+ 159 003e 2091 7800 		lds r18,120
+  50:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c ****     ADCval = (ADCH << 8) + ADCval;
+ 161               	.LM9:
+ 162 0042 8091 7900 		lds r24,121
+ 163 0046 90E0      		ldi r25,0
+ 164 0048 982F      		mov r25,r24
+ 165 004a 8827      		clr r24
+  51:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c **** 
+  52:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c ****     return ADCval;
+  53:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c **** }
+ 167               	.LM10:
+ 168 004c 820F      		add r24,r18
+ 169 004e 911D      		adc r25,__zero_reg__
+ 170 0050 0895      		ret
+ 172               	.Lscope1:
+ 174               	.global	tilt_start
+ 176               	tilt_start:
+  54:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c **** 
+  55:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c **** void tilt_start(void){
+ 178               	.LM11:
+ 179               	.LFBB2:
+ 180               	/* prologue: function */
+ 181               	/* frame size = 0 */
+ 182               	/* stack size = 0 */
+ 183               	.L__stack_usage = 0
+  56:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c **** 	xAs = tilt_analogRead(0);
+ 185               	.LM12:
+ 186 0052 80E0      		ldi r24,0
+ 187 0054 0E94 0000 		call tilt_analogRead
+ 188 0058 9093 0000 		sts xAs+1,r25
+ 189 005c 8093 0000 		sts xAs,r24
+  57:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c ****  	yAs = tilt_analogRead(1);
+ 191               	.LM13:
+ 192 0060 81E0      		ldi r24,lo8(1)
+ 193 0062 0E94 0000 		call tilt_analogRead
+ 194 0066 9093 0000 		sts yAs+1,r25
+ 195 006a 8093 0000 		sts yAs,r24
+ 196 006e 0895      		ret
+ 198               	.Lscope2:
+ 202               	.global	tilt_check
+ 204               	tilt_check:
+  58:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c **** }
+  59:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c **** 
+  60:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c **** int tilt_getAlarm(void) {
+  61:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c ****    	int x = tilt_analogRead(0);				//Lees x waarde uit
+  62:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c ****   	int y = tilt_analogRead(1);				//Lees x waarde uit
+  63:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c ****    	tilt_check(x,y);					//Kijk of er een verandering is opgetreden ten opzichte van de beginstand.
+  64:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c **** 	return alarmOn;
+  65:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c **** }
+  66:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c **** 
+  67:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c **** void tilt_check(int x, int y) {
+ 206               	.LM14:
+ 207               	.LFBB3:
+ 208               	/* prologue: function */
+ 209               	/* frame size = 0 */
+ 210               	/* stack size = 0 */
+ 211               	.L__stack_usage = 0
+  68:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c ****     int tempX = (x)-xAs;
+  69:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c ****     int tempY = (y)-yAs;
+ 213               	.LM15:
+ 214 0070 2091 0000 		lds r18,yAs
+ 215 0074 3091 0000 		lds r19,yAs+1
+  68:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c ****     int tempX = (x)-xAs;
+ 217               	.LM16:
+ 218 0078 4091 0000 		lds r20,xAs
+ 219 007c 5091 0000 		lds r21,xAs+1
+ 220 0080 841B      		sub r24,r20
+ 221 0082 950B      		sbc r25,r21
+  70:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c ****     if(tempX >50 || tempY > 50) {
+ 223               	.LM17:
+ 224 0084 C397      		sbiw r24,51
+ 225 0086 04F4      		brge .L7
+  69:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c ****     int tempY = (y)-yAs;
+ 227               	.LM18:
+ 228 0088 621B      		sub r22,r18
+ 229 008a 730B      		sbc r23,r19
+ 231               	.LM19:
+ 232 008c 6333      		cpi r22,51
+ 233 008e 7105      		cpc r23,__zero_reg__
+ 234 0090 04F0      		brlt .L6
+ 235               	.L7:
+  71:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c **** 	alarmOn = 1;
+ 237               	.LM20:
+ 238 0092 81E0      		ldi r24,lo8(1)
+ 239 0094 90E0      		ldi r25,0
+ 240 0096 9093 0000 		sts alarmOn+1,r25
+ 241 009a 8093 0000 		sts alarmOn,r24
+ 242               	.L6:
+ 243 009e 0895      		ret
+ 245               	.Lscope3:
+ 247               	.global	tilt_getAlarm
+ 249               	tilt_getAlarm:
+  60:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c **** int tilt_getAlarm(void) {
+ 251               	.LM21:
+ 252               	.LFBB4:
+ 253 00a0 CF93      		push r28
+ 254 00a2 DF93      		push r29
+ 255               	/* prologue: function */
+ 256               	/* frame size = 0 */
+ 257               	/* stack size = 2 */
+ 258               	.L__stack_usage = 2
+  61:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c ****    	int x = tilt_analogRead(0);				//Lees x waarde uit
+ 260               	.LM22:
+ 261 00a4 80E0      		ldi r24,0
+ 262 00a6 0E94 0000 		call tilt_analogRead
+ 263 00aa EC01      		movw r28,r24
+  62:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c ****   	int y = tilt_analogRead(1);				//Lees x waarde uit
+ 265               	.LM23:
+ 266 00ac 81E0      		ldi r24,lo8(1)
+ 267 00ae 0E94 0000 		call tilt_analogRead
+  63:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c ****    	tilt_check(x,y);					//Kijk of er een verandering is opgetreden ten opzichte van de beginstand.
+ 269               	.LM24:
+ 270 00b2 BC01      		movw r22,r24
+ 271 00b4 CE01      		movw r24,r28
+ 272 00b6 0E94 0000 		call tilt_check
+  65:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c **** }
+ 274               	.LM25:
+ 275 00ba 8091 0000 		lds r24,alarmOn
+ 276 00be 9091 0000 		lds r25,alarmOn+1
+ 277               	/* epilogue start */
+ 278 00c2 DF91      		pop r29
+ 279 00c4 CF91      		pop r28
+ 280 00c6 0895      		ret
+ 286               	.Lscope4:
+ 288               	.global	tilt_reset
+ 290               	tilt_reset:
+  72:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c ****     }
+  73:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c **** }
+  74:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c **** 
+  75:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c **** void tilt_reset(void) {
+ 292               	.LM26:
+ 293               	.LFBB5:
+ 294               	/* prologue: function */
+ 295               	/* frame size = 0 */
+ 296               	/* stack size = 0 */
+ 297               	.L__stack_usage = 0
+  76:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c **** 	alarmOn = 0;
+ 299               	.LM27:
+ 300 00c8 1092 0000 		sts alarmOn+1,__zero_reg__
+ 301 00cc 1092 0000 		sts alarmOn,__zero_reg__
+  77:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c **** 	xAs = tilt_analogRead(0);
+ 303               	.LM28:
+ 304 00d0 80E0      		ldi r24,0
+ 305 00d2 0E94 0000 		call tilt_analogRead
+ 306 00d6 9093 0000 		sts xAs+1,r25
+ 307 00da 8093 0000 		sts xAs,r24
+  78:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/tiltsensor.c ****  	yAs = tilt_analogRead(1);
+ 309               	.LM29:
+ 310 00de 81E0      		ldi r24,lo8(1)
+ 311 00e0 0E94 0000 		call tilt_analogRead
+ 312 00e4 9093 0000 		sts yAs+1,r25
+ 313 00e8 8093 0000 		sts yAs,r24
+ 314 00ec 0895      		ret
+ 316               	.Lscope5:
+ 317               	.global	alarmOn
+ 318               		.section .bss
+ 321               	alarmOn:
+ 322 0000 0000      		.zero	2
+ 323               		.comm	yAs,2,1
+ 324               		.comm	xAs,2,1
+ 328               		.text
+ 330               	.Letext0:
+ 331               		.ident	"GCC: (GNU) 4.8.1"
+ 332               	.global __do_clear_bss
+DEFINED SYMBOLS
+                            *ABS*:00000000 tiltsensor.c
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc3skhAa.s:2      *ABS*:0000003e __SP_H__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc3skhAa.s:3      *ABS*:0000003d __SP_L__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc3skhAa.s:4      *ABS*:0000003f __SREG__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc3skhAa.s:5      *ABS*:00000000 __tmp_reg__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc3skhAa.s:6      *ABS*:00000001 __zero_reg__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc3skhAa.s:115    .text:00000000 tilt_analogRead
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc3skhAa.s:176    .text:00000052 tilt_start
+                            *COM*:00000002 xAs
+                            *COM*:00000002 yAs
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc3skhAa.s:204    .text:00000070 tilt_check
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc3skhAa.s:321    .bss:00000000 alarmOn
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc3skhAa.s:249    .text:000000a0 tilt_getAlarm
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//cc3skhAa.s:290    .text:000000c8 tilt_reset
+
+UNDEFINED SYMBOLS
+__do_clear_bss

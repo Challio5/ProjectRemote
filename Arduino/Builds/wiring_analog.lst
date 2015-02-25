@@ -1,0 +1,530 @@
+   1               		.file	"wiring_analog.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   8               		.text
+   9               	.Ltext0:
+ 129               	.global	analogReference
+ 131               	analogReference:
+   1:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** /*
+   2:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c ****   wiring_analog.c - analog input and output
+   3:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c ****   Part of Arduino - http://www.arduino.cc/
+   4:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 
+   5:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c ****   Copyright (c) 2005-2006 David A. Mellis
+   6:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 
+   7:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c ****   This library is free software; you can redistribute it and/or
+   8:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c ****   modify it under the terms of the GNU Lesser General Public
+   9:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c ****   License as published by the Free Software Foundation; either
+  10:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c ****   version 2.1 of the License, or (at your option) any later version.
+  11:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 
+  12:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c ****   This library is distributed in the hope that it will be useful,
+  13:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c ****   but WITHOUT ANY WARRANTY; without even the implied warranty of
+  14:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c ****   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  15:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c ****   Lesser General Public License for more details.
+  16:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 
+  17:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c ****   You should have received a copy of the GNU Lesser General
+  18:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c ****   Public License along with this library; if not, write to the
+  19:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c ****   Free Software Foundation, Inc., 59 Temple Place, Suite 330,
+  20:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c ****   Boston, MA  02111-1307  USA
+  21:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 
+  22:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c ****   Modified 28 September 2010 by Mark Sproul
+  23:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 
+  24:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c ****   $Id: wiring.c 248 2007-02-03 15:36:30Z mellis $
+  25:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** */
+  26:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 
+  27:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** #include "wiring_private.h"
+  28:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** #include "pins_arduino.h"
+  29:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 
+  30:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** uint8_t analog_reference = DEFAULT;
+  31:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 
+  32:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** void analogReference(uint8_t mode)
+  33:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** {
+ 133               	.LM0:
+ 134               	.LFBB1:
+ 135               	/* prologue: function */
+ 136               	/* frame size = 0 */
+ 137               	/* stack size = 0 */
+ 138               	.L__stack_usage = 0
+  34:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	// can't actually set the register here because the default setting
+  35:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	// will connect AVCC and the AREF pin, which would cause a short if
+  36:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	// there's something connected to AREF.
+  37:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	analog_reference = mode;
+ 140               	.LM1:
+ 141 0000 8093 0000 		sts analog_reference,r24
+ 142 0004 0895      		ret
+ 144               	.Lscope1:
+ 147               	.global	analogRead
+ 149               	analogRead:
+  38:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** }
+  39:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 
+  40:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** int analogRead(uint8_t pin)
+  41:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** {
+ 151               	.LM2:
+ 152               	.LFBB2:
+ 153               	/* prologue: function */
+ 154               	/* frame size = 0 */
+ 155               	/* stack size = 0 */
+ 156               	.L__stack_usage = 0
+  42:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	uint8_t low, high;
+  43:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 
+  44:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** #if defined(analogPinToChannel)
+  45:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** #if defined(__AVR_ATmega32U4__)
+  46:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	if (pin >= 18) pin -= 18; // allow for channel or pin numbers
+  47:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** #endif
+  48:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	pin = analogPinToChannel(pin);
+  49:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** #elif defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
+  50:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	if (pin >= 54) pin -= 54; // allow for channel or pin numbers
+  51:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** #elif defined(__AVR_ATmega32U4__)
+  52:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	if (pin >= 18) pin -= 18; // allow for channel or pin numbers
+  53:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** #elif defined(__AVR_ATmega1284__) || defined(__AVR_ATmega1284P__) || defined(__AVR_ATmega644__) || 
+  54:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	if (pin >= 24) pin -= 24; // allow for channel or pin numbers
+  55:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** #else
+  56:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	if (pin >= 14) pin -= 14; // allow for channel or pin numbers
+ 158               	.LM3:
+ 159 0006 8E30      		cpi r24,lo8(14)
+ 160 0008 00F0      		brlo .L3
+ 162               	.LM4:
+ 163 000a 8E50      		subi r24,lo8(-(-14))
+ 164               	.L3:
+  57:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** #endif
+  58:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 
+  59:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** #if defined(ADCSRB) && defined(MUX5)
+  60:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	// the MUX5 bit of ADCSRB selects whether we're reading from channels
+  61:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	// 0 to 7 (MUX5 low) or 8 to 15 (MUX5 high).
+  62:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	ADCSRB = (ADCSRB & ~(1 << MUX5)) | (((pin >> 3) & 0x01) << MUX5);
+  63:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** #endif
+  64:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c ****   
+  65:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	// set the analog reference (high two bits of ADMUX) and select the
+  66:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	// channel (low 4 bits).  this also sets ADLAR (left-adjust result)
+  67:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	// to 0 (the default).
+  68:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** #if defined(ADMUX)
+  69:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	ADMUX = (analog_reference << 6) | (pin & 0x07);
+ 166               	.LM5:
+ 167 000c 8770      		andi r24,lo8(7)
+ 168 000e 2091 0000 		lds r18,analog_reference
+ 169 0012 90E4      		ldi r25,lo8(64)
+ 170 0014 299F      		mul r18,r25
+ 171 0016 9001      		movw r18,r0
+ 172 0018 1124      		clr __zero_reg__
+ 173 001a 822B      		or r24,r18
+ 174 001c 8093 7C00 		sts 124,r24
+  70:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** #endif
+  71:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 
+  72:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	// without a delay, we seem to read from the wrong channel
+  73:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	//delay(1);
+  74:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 
+  75:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** #if defined(ADCSRA) && defined(ADCL)
+  76:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	// start the conversion
+  77:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	sbi(ADCSRA, ADSC);
+ 176               	.LM6:
+ 177 0020 8091 7A00 		lds r24,122
+ 178 0024 8064      		ori r24,lo8(64)
+ 179 0026 8093 7A00 		sts 122,r24
+ 180               	.L5:
+  78:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 
+  79:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	// ADSC is cleared when the conversion finishes
+  80:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	while (bit_is_set(ADCSRA, ADSC));
+ 182               	.LM7:
+ 183 002a 8091 7A00 		lds r24,122
+ 184 002e 86FD      		sbrc r24,6
+ 185 0030 00C0      		rjmp .L5
+  81:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 
+  82:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	// we have to read ADCL first; doing so locks both ADCL
+  83:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	// and ADCH until ADCH is read.  reading ADCL second would
+  84:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	// cause the results of each conversion to be discarded,
+  85:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	// as ADCL and ADCH would be locked when it completed.
+  86:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	low  = ADCL;
+ 187               	.LM8:
+ 188 0032 8091 7800 		lds r24,120
+  87:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	high = ADCH;
+ 190               	.LM9:
+ 191 0036 2091 7900 		lds r18,121
+  88:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** #else
+  89:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	// we dont have an ADC, return 0
+  90:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	low  = 0;
+  91:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	high = 0;
+  92:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** #endif
+  93:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 
+  94:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	// combine the two bytes
+  95:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	return (high << 8) | low;
+ 193               	.LM10:
+ 194 003a 90E0      		ldi r25,0
+  96:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** }
+ 196               	.LM11:
+ 197 003c 922B      		or r25,r18
+ 198 003e 0895      		ret
+ 204               	.Lscope2:
+ 208               	.global	analogWrite
+ 210               	analogWrite:
+  97:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 
+  98:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** // Right now, PWM output only works on the pins with
+  99:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** // hardware support.  These are defined in the appropriate
+ 100:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** // pins_*.c file.  For the rest of the pins, we default
+ 101:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** // to digital output.
+ 102:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** void analogWrite(uint8_t pin, int val)
+ 103:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** {
+ 212               	.LM12:
+ 213               	.LFBB3:
+ 214 0040 1F93      		push r17
+ 215 0042 CF93      		push r28
+ 216 0044 DF93      		push r29
+ 217               	/* prologue: function */
+ 218               	/* frame size = 0 */
+ 219               	/* stack size = 3 */
+ 220               	.L__stack_usage = 3
+ 221 0046 182F      		mov r17,r24
+ 222 0048 EB01      		movw r28,r22
+ 104:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	// We need to make sure the PWM output is enabled for those pins
+ 105:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	// that support it, as we turn it off when digitally reading or
+ 106:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	// writing with them.  Also, make sure the pin is in output mode
+ 107:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	// for consistenty with Wiring, which doesn't require a pinMode
+ 108:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	// call for the analog output pins.
+ 109:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	pinMode(pin, OUTPUT);
+ 224               	.LM13:
+ 225 004a 61E0      		ldi r22,lo8(1)
+ 226 004c 0E94 0000 		call pinMode
+ 110:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	if (val == 0)
+ 228               	.LM14:
+ 229 0050 2097      		sbiw r28,0
+ 230 0052 01F4      		brne .L8
+ 231               	.L19:
+ 111:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	{
+ 112:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 		digitalWrite(pin, LOW);
+ 233               	.LM15:
+ 234 0054 60E0      		ldi r22,0
+ 235 0056 00C0      		rjmp .L21
+ 236               	.L8:
+ 113:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	}
+ 114:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	else if (val == 255)
+ 238               	.LM16:
+ 239 0058 CF3F      		cpi r28,-1
+ 240 005a D105      		cpc r29,__zero_reg__
+ 241 005c 01F4      		brne .L9
+ 242               	.L20:
+ 115:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	{
+ 116:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 		digitalWrite(pin, HIGH);
+ 244               	.LM17:
+ 245 005e 61E0      		ldi r22,lo8(1)
+ 246               	.L21:
+ 247 0060 812F      		mov r24,r17
+ 248               	/* epilogue start */
+ 117:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	}
+ 118:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	else
+ 119:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	{
+ 120:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 		switch(digitalPinToTimer(pin))
+ 121:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 		{
+ 122:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			// XXX fix needed for atmega8
+ 123:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			#if defined(TCCR0) && defined(COM00) && !defined(__AVR_ATmega8__)
+ 124:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			case TIMER0A:
+ 125:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				// connect pwm to pin on timer 0
+ 126:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				sbi(TCCR0, COM00);
+ 127:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				OCR0 = val; // set pwm duty
+ 128:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				break;
+ 129:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			#endif
+ 130:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 
+ 131:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			#if defined(TCCR0A) && defined(COM0A1)
+ 132:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			case TIMER0A:
+ 133:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				// connect pwm to pin on timer 0, channel A
+ 134:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				sbi(TCCR0A, COM0A1);
+ 135:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				OCR0A = val; // set pwm duty
+ 136:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				break;
+ 137:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			#endif
+ 138:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 
+ 139:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			#if defined(TCCR0A) && defined(COM0B1)
+ 140:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			case TIMER0B:
+ 141:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				// connect pwm to pin on timer 0, channel B
+ 142:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				sbi(TCCR0A, COM0B1);
+ 143:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				OCR0B = val; // set pwm duty
+ 144:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				break;
+ 145:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			#endif
+ 146:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 
+ 147:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			#if defined(TCCR1A) && defined(COM1A1)
+ 148:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			case TIMER1A:
+ 149:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				// connect pwm to pin on timer 1, channel A
+ 150:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				sbi(TCCR1A, COM1A1);
+ 151:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				OCR1A = val; // set pwm duty
+ 152:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				break;
+ 153:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			#endif
+ 154:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 
+ 155:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			#if defined(TCCR1A) && defined(COM1B1)
+ 156:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			case TIMER1B:
+ 157:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				// connect pwm to pin on timer 1, channel B
+ 158:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				sbi(TCCR1A, COM1B1);
+ 159:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				OCR1B = val; // set pwm duty
+ 160:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				break;
+ 161:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			#endif
+ 162:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 
+ 163:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			#if defined(TCCR2) && defined(COM21)
+ 164:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			case TIMER2:
+ 165:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				// connect pwm to pin on timer 2
+ 166:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				sbi(TCCR2, COM21);
+ 167:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				OCR2 = val; // set pwm duty
+ 168:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				break;
+ 169:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			#endif
+ 170:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 
+ 171:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			#if defined(TCCR2A) && defined(COM2A1)
+ 172:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			case TIMER2A:
+ 173:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				// connect pwm to pin on timer 2, channel A
+ 174:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				sbi(TCCR2A, COM2A1);
+ 175:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				OCR2A = val; // set pwm duty
+ 176:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				break;
+ 177:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			#endif
+ 178:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 
+ 179:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			#if defined(TCCR2A) && defined(COM2B1)
+ 180:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			case TIMER2B:
+ 181:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				// connect pwm to pin on timer 2, channel B
+ 182:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				sbi(TCCR2A, COM2B1);
+ 183:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				OCR2B = val; // set pwm duty
+ 184:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				break;
+ 185:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			#endif
+ 186:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 
+ 187:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			#if defined(TCCR3A) && defined(COM3A1)
+ 188:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			case TIMER3A:
+ 189:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				// connect pwm to pin on timer 3, channel A
+ 190:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				sbi(TCCR3A, COM3A1);
+ 191:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				OCR3A = val; // set pwm duty
+ 192:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				break;
+ 193:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			#endif
+ 194:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 
+ 195:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			#if defined(TCCR3A) && defined(COM3B1)
+ 196:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			case TIMER3B:
+ 197:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				// connect pwm to pin on timer 3, channel B
+ 198:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				sbi(TCCR3A, COM3B1);
+ 199:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				OCR3B = val; // set pwm duty
+ 200:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				break;
+ 201:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			#endif
+ 202:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 
+ 203:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			#if defined(TCCR3A) && defined(COM3C1)
+ 204:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			case TIMER3C:
+ 205:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				// connect pwm to pin on timer 3, channel C
+ 206:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				sbi(TCCR3A, COM3C1);
+ 207:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				OCR3C = val; // set pwm duty
+ 208:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				break;
+ 209:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			#endif
+ 210:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 
+ 211:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			#if defined(TCCR4A)
+ 212:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			case TIMER4A:
+ 213:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				//connect pwm to pin on timer 4, channel A
+ 214:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				sbi(TCCR4A, COM4A1);
+ 215:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				#if defined(COM4A0)		// only used on 32U4
+ 216:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				cbi(TCCR4A, COM4A0);
+ 217:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				#endif
+ 218:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				OCR4A = val;	// set pwm duty
+ 219:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				break;
+ 220:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			#endif
+ 221:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			
+ 222:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			#if defined(TCCR4A) && defined(COM4B1)
+ 223:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			case TIMER4B:
+ 224:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				// connect pwm to pin on timer 4, channel B
+ 225:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				sbi(TCCR4A, COM4B1);
+ 226:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				OCR4B = val; // set pwm duty
+ 227:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				break;
+ 228:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			#endif
+ 229:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 
+ 230:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			#if defined(TCCR4A) && defined(COM4C1)
+ 231:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			case TIMER4C:
+ 232:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				// connect pwm to pin on timer 4, channel C
+ 233:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				sbi(TCCR4A, COM4C1);
+ 234:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				OCR4C = val; // set pwm duty
+ 235:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				break;
+ 236:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			#endif
+ 237:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				
+ 238:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			#if defined(TCCR4C) && defined(COM4D1)
+ 239:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			case TIMER4D:				
+ 240:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				// connect pwm to pin on timer 4, channel D
+ 241:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				sbi(TCCR4C, COM4D1);
+ 242:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				#if defined(COM4D0)		// only used on 32U4
+ 243:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				cbi(TCCR4C, COM4D0);
+ 244:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				#endif
+ 245:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				OCR4D = val;	// set pwm duty
+ 246:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				break;
+ 247:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			#endif
+ 248:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 
+ 249:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 							
+ 250:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			#if defined(TCCR5A) && defined(COM5A1)
+ 251:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			case TIMER5A:
+ 252:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				// connect pwm to pin on timer 5, channel A
+ 253:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				sbi(TCCR5A, COM5A1);
+ 254:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				OCR5A = val; // set pwm duty
+ 255:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				break;
+ 256:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			#endif
+ 257:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 
+ 258:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			#if defined(TCCR5A) && defined(COM5B1)
+ 259:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			case TIMER5B:
+ 260:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				// connect pwm to pin on timer 5, channel B
+ 261:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				sbi(TCCR5A, COM5B1);
+ 262:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				OCR5B = val; // set pwm duty
+ 263:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				break;
+ 264:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			#endif
+ 265:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 
+ 266:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			#if defined(TCCR5A) && defined(COM5C1)
+ 267:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			case TIMER5C:
+ 268:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				// connect pwm to pin on timer 5, channel C
+ 269:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				sbi(TCCR5A, COM5C1);
+ 270:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				OCR5C = val; // set pwm duty
+ 271:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				break;
+ 272:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			#endif
+ 273:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 
+ 274:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			case NOT_ON_TIMER:
+ 275:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 			default:
+ 276:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				if (val < 128) {
+ 277:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 					digitalWrite(pin, LOW);
+ 278:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				} else {
+ 279:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 					digitalWrite(pin, HIGH);
+ 280:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				}
+ 281:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 		}
+ 282:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 	}
+ 283:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** }
+ 250               	.LM18:
+ 251 0062 DF91      		pop r29
+ 252 0064 CF91      		pop r28
+ 253 0066 1F91      		pop r17
+ 116:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 		digitalWrite(pin, HIGH);
+ 255               	.LM19:
+ 256 0068 0C94 0000 		jmp digitalWrite
+ 257               	.L9:
+ 258               	.LBB2:
+ 120:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 		switch(digitalPinToTimer(pin))
+ 260               	.LM20:
+ 261 006c E12F      		mov r30,r17
+ 262 006e F0E0      		ldi r31,0
+ 263 0070 E050      		subi r30,lo8(-(digital_pin_to_timer_PGM))
+ 264 0072 F040      		sbci r31,hi8(-(digital_pin_to_timer_PGM))
+ 265               	/* #APP */
+ 266               	 ;  120 "/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiri
+ 267 0074 E491      		lpm r30, Z
+ 268               		
+ 269               	 ;  0 "" 2
+ 270               	/* #NOAPP */
+ 271               	.LBE2:
+ 272 0076 E330      		cpi r30,lo8(3)
+ 273 0078 01F0      		breq .L11
+ 274 007a 00F4      		brsh .L12
+ 275 007c E130      		cpi r30,lo8(1)
+ 276 007e 01F0      		breq .L13
+ 277 0080 E230      		cpi r30,lo8(2)
+ 278 0082 01F4      		brne .L10
+ 142:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				sbi(TCCR0A, COM0B1);
+ 280               	.LM21:
+ 281 0084 84B5      		in r24,0x24
+ 282 0086 8062      		ori r24,lo8(32)
+ 283 0088 84BD      		out 0x24,r24
+ 143:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				OCR0B = val; // set pwm duty
+ 285               	.LM22:
+ 286 008a C8BD      		out 0x28,r28
+ 144:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				break;
+ 288               	.LM23:
+ 289 008c 00C0      		rjmp .L7
+ 290               	.L12:
+ 120:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 		switch(digitalPinToTimer(pin))
+ 292               	.LM24:
+ 293 008e E630      		cpi r30,lo8(6)
+ 294 0090 01F0      		breq .L15
+ 295 0092 E730      		cpi r30,lo8(7)
+ 296 0094 01F0      		breq .L16
+ 297 0096 E430      		cpi r30,lo8(4)
+ 298 0098 01F4      		brne .L10
+ 158:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				sbi(TCCR1A, COM1B1);
+ 300               	.LM25:
+ 301 009a 8091 8000 		lds r24,128
+ 302 009e 8062      		ori r24,lo8(32)
+ 303 00a0 8093 8000 		sts 128,r24
+ 159:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				OCR1B = val; // set pwm duty
+ 305               	.LM26:
+ 306 00a4 D093 8B00 		sts 138+1,r29
+ 307 00a8 C093 8A00 		sts 138,r28
+ 160:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				break;
+ 309               	.LM27:
+ 310 00ac 00C0      		rjmp .L7
+ 311               	.L13:
+ 134:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				sbi(TCCR0A, COM0A1);
+ 313               	.LM28:
+ 314 00ae 84B5      		in r24,0x24
+ 315 00b0 8068      		ori r24,lo8(-128)
+ 316 00b2 84BD      		out 0x24,r24
+ 135:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				OCR0A = val; // set pwm duty
+ 318               	.LM29:
+ 319 00b4 C7BD      		out 0x27,r28
+ 136:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				break;
+ 321               	.LM30:
+ 322 00b6 00C0      		rjmp .L7
+ 323               	.L11:
+ 150:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				sbi(TCCR1A, COM1A1);
+ 325               	.LM31:
+ 326 00b8 8091 8000 		lds r24,128
+ 327 00bc 8068      		ori r24,lo8(-128)
+ 328 00be 8093 8000 		sts 128,r24
+ 151:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				OCR1A = val; // set pwm duty
+ 330               	.LM32:
+ 331 00c2 D093 8900 		sts 136+1,r29
+ 332 00c6 C093 8800 		sts 136,r28
+ 152:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				break;
+ 334               	.LM33:
+ 335 00ca 00C0      		rjmp .L7
+ 336               	.L15:
+ 174:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				sbi(TCCR2A, COM2A1);
+ 338               	.LM34:
+ 339 00cc 8091 B000 		lds r24,176
+ 340 00d0 8068      		ori r24,lo8(-128)
+ 341 00d2 8093 B000 		sts 176,r24
+ 175:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				OCR2A = val; // set pwm duty
+ 343               	.LM35:
+ 344 00d6 C093 B300 		sts 179,r28
+ 176:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				break;
+ 346               	.LM36:
+ 347 00da 00C0      		rjmp .L7
+ 348               	.L16:
+ 182:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				sbi(TCCR2A, COM2B1);
+ 350               	.LM37:
+ 351 00dc 8091 B000 		lds r24,176
+ 352 00e0 8062      		ori r24,lo8(32)
+ 353 00e2 8093 B000 		sts 176,r24
+ 183:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				OCR2B = val; // set pwm duty
+ 355               	.LM38:
+ 356 00e6 C093 B400 		sts 180,r28
+ 184:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				break;
+ 358               	.LM39:
+ 359 00ea 00C0      		rjmp .L7
+ 360               	.L10:
+ 276:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/wiring_analog.c **** 				if (val < 128) {
+ 362               	.LM40:
+ 363 00ec C038      		cpi r28,-128
+ 364 00ee D105      		cpc r29,__zero_reg__
+ 365 00f0 04F0      		brlt .+2
+ 366 00f2 00C0      		rjmp .L20
+ 367 00f4 00C0      		rjmp .L19
+ 368               	.L7:
+ 369               	/* epilogue start */
+ 371               	.LM41:
+ 372 00f6 DF91      		pop r29
+ 373 00f8 CF91      		pop r28
+ 374 00fa 1F91      		pop r17
+ 375 00fc 0895      		ret
+ 377               	.Lscope3:
+ 378               	.global	analog_reference
+ 379               		.data
+ 382               	analog_reference:
+ 383 0000 01        		.byte	1
+ 399               		.text
+ 401               	.Letext0:
+ 402               		.ident	"GCC: (GNU) 4.8.1"
+ 403               	.global __do_copy_data
+DEFINED SYMBOLS
+                            *ABS*:00000000 wiring_analog.c
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccB1JRgv.s:2      *ABS*:0000003e __SP_H__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccB1JRgv.s:3      *ABS*:0000003d __SP_L__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccB1JRgv.s:4      *ABS*:0000003f __SREG__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccB1JRgv.s:5      *ABS*:00000000 __tmp_reg__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccB1JRgv.s:6      *ABS*:00000001 __zero_reg__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccB1JRgv.s:131    .text:00000000 analogReference
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccB1JRgv.s:382    .data:00000000 analog_reference
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccB1JRgv.s:149    .text:00000006 analogRead
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccB1JRgv.s:210    .text:00000040 analogWrite
+
+UNDEFINED SYMBOLS
+pinMode
+digitalWrite
+digital_pin_to_timer_PGM
+__do_copy_data

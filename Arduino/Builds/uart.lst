@@ -1,0 +1,195 @@
+   1               		.file	"uart.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   8               		.text
+   9               	.Ltext0:
+ 111               	.global	usart_init
+ 113               	usart_init:
+   1:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c **** //
+   2:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c **** //  uart.c
+   3:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c **** //  Arduino
+   4:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c **** //
+   5:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c **** //  Created by Projectgroep TI2.4 on 10-12-14.
+   6:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c **** //  Copyright (c) 2014 Projectgroep TI2.4. All rights reserved.
+   7:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c **** //
+   8:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c **** 
+   9:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c **** #include <stdio.h>
+  10:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c **** #include <avr/io.h>
+  11:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c **** 
+  12:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c **** #include "uart.h"
+  13:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c **** 
+  14:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c **** // Methode voor het opzetten van de USART verbinding
+  15:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c **** // Zet de baudrate, rx/tx en het frame formaat
+  16:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c **** void usart_init(uint16_t baudRate) {
+ 115               	.LM0:
+ 116               	.LFBB1:
+ 117               	/* prologue: function */
+ 118               	/* frame size = 0 */
+ 119               	/* stack size = 0 */
+ 120               	.L__stack_usage = 0
+  17:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c ****     uint16_t ubrr = ((F_CPU / 16) / baudRate) - 1;         // Berekent de baudrate voor de usart
+ 122               	.LM1:
+ 123 0000 9C01      		movw r18,r24
+ 124 0002 40E0      		ldi r20,0
+ 125 0004 50E0      		ldi r21,0
+ 126 0006 60E4      		ldi r22,lo8(64)
+ 127 0008 72E4      		ldi r23,lo8(66)
+ 128 000a 8FE0      		ldi r24,lo8(15)
+ 129 000c 90E0      		ldi r25,0
+ 130 000e 0E94 0000 		call __udivmodsi4
+ 131 0012 2150      		subi r18,1
+ 132 0014 3109      		sbc r19,__zero_reg__
+  18:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c ****     UBRR0H = ubrr >> 8;                                    // Zet de hig byte in het usart baudrate
+ 134               	.LM2:
+ 135 0016 3093 C500 		sts 197,r19
+  19:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c ****     UBRR0L = ubrr;                                         // Zet de low byte in het usart baudrate
+ 137               	.LM3:
+ 138 001a 2093 C400 		sts 196,r18
+  20:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c ****     UCSR0B = (1 << RXEN0) | (1 << TXEN0);                  // Zet zowel tx (transmit) als rx (recei
+ 140               	.LM4:
+ 141 001e 88E1      		ldi r24,lo8(24)
+ 142 0020 8093 C100 		sts 193,r24
+  21:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c ****     UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);                // Frame formaat(8N1), 8 bits, geen par,
+ 144               	.LM5:
+ 145 0024 86E0      		ldi r24,lo8(6)
+ 146 0026 8093 C200 		sts 194,r24
+ 147 002a 0895      		ret
+ 152               	.Lscope1:
+ 156               	.global	usart_transmit
+ 158               	usart_transmit:
+  22:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c **** }
+  23:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c **** 
+  24:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c **** // Methode om met behulp van USART data te transmitten
+  25:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c **** // Wordt gebruikt door de stream om character mee te verzenden
+  26:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c **** int usart_transmit(char data, FILE *stream) {
+ 160               	.LM6:
+ 161               	.LFBB2:
+ 162 002c CF93      		push r28
+ 163               	/* prologue: function */
+ 164               	/* frame size = 0 */
+ 165               	/* stack size = 1 */
+ 166               	.L__stack_usage = 1
+ 167 002e C82F      		mov r28,r24
+  27:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c ****     // Als er een newline character binnenkomt wordt hier een carriage return aan toegevoegd
+  28:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c ****     if (data == '\n') usart_transmit('\r', stream);
+ 169               	.LM7:
+ 170 0030 8A30      		cpi r24,lo8(10)
+ 171 0032 01F4      		brne .L5
+ 173               	.LM8:
+ 174 0034 8DE0      		ldi r24,lo8(13)
+ 175 0036 0E94 0000 		call usart_transmit
+ 176               	.L5:
+  29:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c ****     
+  30:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c ****     // Wachten op een lege buffer door het checken op de empty flag
+  31:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c ****     while (!(UCSR0A & (1 << UDRE0)));
+ 178               	.LM9:
+ 179 003a 8091 C000 		lds r24,192
+ 180 003e 85FF      		sbrs r24,5
+ 181 0040 00C0      		rjmp .L5
+  32:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c ****     
+  33:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c ****     // Zet de data in het data register om te transmitten
+  34:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c ****     UDR0 = data;
+ 183               	.LM10:
+ 184 0042 C093 C600 		sts 198,r28
+  35:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c ****     
+  36:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c ****     // Geen errors
+  37:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c ****     return 0;
+  38:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c **** }
+ 186               	.LM11:
+ 187 0046 80E0      		ldi r24,0
+ 188 0048 90E0      		ldi r25,0
+ 189               	/* epilogue start */
+ 190 004a CF91      		pop r28
+ 191 004c 0895      		ret
+ 193               	.Lscope2:
+ 196               	.global	usart_receive
+ 198               	usart_receive:
+  39:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c **** 
+  40:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c **** // Methode om met behulp USART data te ontvangen
+  41:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c **** // Wordt gebruikt door de stream om character mee te ontvangen
+  42:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c **** char usart_receive(FILE *stream) {
+ 200               	.LM12:
+ 201               	.LFBB3:
+ 202 004e CF93      		push r28
+ 203               	/* prologue: function */
+ 204               	/* frame size = 0 */
+ 205               	/* stack size = 1 */
+ 206               	.L__stack_usage = 1
+ 207 0050 BC01      		movw r22,r24
+ 208               	.L9:
+  43:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c ****     // Character om data op te slaan
+  44:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c ****     char data;
+  45:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c ****     
+  46:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c ****     // Wachten op binnenkomende data door te checken op de complete flag
+  47:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c ****     while (!(UCSR0A & (1 << RXC0)));
+ 210               	.LM13:
+ 211 0052 8091 C000 		lds r24,192
+ 212 0056 87FF      		sbrs r24,7
+ 213 0058 00C0      		rjmp .L9
+  48:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c ****     
+  49:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c ****     // Haal de data op uit het register
+  50:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c ****     data = UDR0;
+ 215               	.LM14:
+ 216 005a C091 C600 		lds r28,198
+  51:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c ****     
+  52:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c ****     // Echo input naar de seriele monitor
+  53:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c ****     usart_transmit(data, stream);
+ 218               	.LM15:
+ 219 005e 8C2F      		mov r24,r28
+ 220 0060 0E94 0000 		call usart_transmit
+  54:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c ****     
+  55:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c ****     // Return de data
+  56:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c ****     return data;
+  57:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c **** }
+ 222               	.LM16:
+ 223 0064 8C2F      		mov r24,r28
+ 224               	/* epilogue start */
+ 225 0066 CF91      		pop r28
+ 226 0068 0895      		ret
+ 231               	.Lscope3:
+ 233               	.global	usart_flush
+ 235               	usart_flush:
+  58:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c **** 
+  59:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c **** // Methode om de buffer te flusen
+  60:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c **** void usart_flush(void) {
+ 237               	.LM17:
+ 238               	.LFBB4:
+ 239               	/* prologue: function */
+ 240               	/* frame size = 0 */
+ 241               	/* stack size = 0 */
+ 242               	.L__stack_usage = 0
+ 243               	.L11:
+  61:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c ****     unsigned char dummy;
+  62:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c ****     while ( UCSR0A & (1<<RXC0) ) dummy = UDR0;
+ 245               	.LM18:
+ 246 006a 8091 C000 		lds r24,192
+ 247 006e 87FF      		sbrs r24,7
+ 248 0070 00C0      		rjmp .L13
+ 250               	.LM19:
+ 251 0072 8091 C600 		lds r24,198
+ 252 0076 00C0      		rjmp .L11
+ 253               	.L13:
+ 254               	/* epilogue start */
+  63:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/uart.c **** }
+ 256               	.LM20:
+ 257 0078 0895      		ret
+ 262               	.Lscope4:
+ 264               	.Letext0:
+ 265               		.ident	"GCC: (GNU) 4.8.1"
+DEFINED SYMBOLS
+                            *ABS*:00000000 uart.c
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccokNeZl.s:2      *ABS*:0000003e __SP_H__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccokNeZl.s:3      *ABS*:0000003d __SP_L__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccokNeZl.s:4      *ABS*:0000003f __SREG__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccokNeZl.s:5      *ABS*:00000000 __tmp_reg__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccokNeZl.s:6      *ABS*:00000001 __zero_reg__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccokNeZl.s:113    .text:00000000 usart_init
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccokNeZl.s:158    .text:0000002c usart_transmit
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccokNeZl.s:198    .text:0000004e usart_receive
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccokNeZl.s:235    .text:0000006a usart_flush
+
+UNDEFINED SYMBOLS
+__udivmodsi4

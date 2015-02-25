@@ -1,0 +1,1490 @@
+   1               		.file	"main.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   8               		.text
+   9               	.Ltext0:
+ 121               		.section	.rodata.str1.1,"aMS",@progbits,1
+ 122               	.LC0:
+ 123 0000 6172 6D65 		.string	"armed"
+ 123      6400 
+ 124               	.LC1:
+ 125 0006 6469 7361 		.string	"disarmed"
+ 125      726D 6564 
+ 125      00
+ 126               	.LC2:
+ 127 000f 5544 5020 		.string	"UDP socket gesloten"
+ 127      736F 636B 
+ 127      6574 2067 
+ 127      6573 6C6F 
+ 127      7465 6E00 
+ 128               	.LC3:
+ 129 0023 5544 5020 		.string	"UDP socket geopend"
+ 129      736F 636B 
+ 129      6574 2067 
+ 129      656F 7065 
+ 129      6E64 00
+ 130               	.LC4:
+ 131 0036 5443 5020 		.string	"TCP socket gesloten"
+ 131      736F 636B 
+ 131      6574 2067 
+ 131      6573 6C6F 
+ 131      7465 6E00 
+ 132               	.LC5:
+ 133 004a 5443 5020 		.string	"TCP socket geopend"
+ 133      736F 636B 
+ 133      6574 2067 
+ 133      656F 7065 
+ 133      6E64 00
+ 134               	.LC6:
+ 135 005d 5443 5053 		.string	"TCPServer luisteren"
+ 135      6572 7665 
+ 135      7220 6C75 
+ 135      6973 7465 
+ 135      7265 6E00 
+ 136               	.LC7:
+ 137 0071 5443 5020 		.string	"TCP verbinding opgezet"
+ 137      7665 7262 
+ 137      696E 6469 
+ 137      6E67 206F 
+ 137      7067 657A 
+ 138               	.LC8:
+ 139 0088 0A54 4350 		.string	"\nTCP data ontvangen: %s\n"
+ 139      2064 6174 
+ 139      6120 6F6E 
+ 139      7476 616E 
+ 139      6765 6E3A 
+ 140               	.LC9:
+ 141 00a1 4765 6272 		.string	"Gebruiker ingelogd"
+ 141      7569 6B65 
+ 141      7220 696E 
+ 141      6765 6C6F 
+ 141      6764 00
+ 142               	.LC10:
+ 143 00b4 496E 636F 		.string	"Incorrect wachtwoord"
+ 143      7272 6563 
+ 143      7420 7761 
+ 143      6368 7477 
+ 143      6F6F 7264 
+ 144               	.LC11:
+ 145 00c9 6275 7A7A 		.string	"buzzertest"
+ 145      6572 7465 
+ 145      7374 00
+ 146               	.LC12:
+ 147 00d4 6C61 6D70 		.string	"lamptest"
+ 147      7465 7374 
+ 147      00
+ 148               	.LC13:
+ 149 00dd 7265 7365 		.string	"reset"
+ 149      7400 
+ 150               	.LC14:
+ 151 00e3 7069 6E67 		.string	"ping"
+ 151      00
+ 152               	.LC15:
+ 153 00e8 5443 5020 		.string	"TCP close request ontvangen"
+ 153      636C 6F73 
+ 153      6520 7265 
+ 153      7175 6573 
+ 153      7420 6F6E 
+ 154               		.section	.text.startup,"ax",@progbits
+ 156               	.global	main
+ 158               	main:
+   1:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** // Tilt bibliotheek
+   2:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** #include "tiltsensor.h"
+   3:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** 
+   4:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** // c bibliotheken
+   5:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** #include <stdio.h>
+   6:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** #include <string.h>
+   7:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** #include <inttypes.h>
+   8:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** 
+   9:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** // avr bibliotheken
+  10:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** #include <avr/io.h>
+  11:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** #include <avr/interrupt.h>
+  12:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** #include <util/delay.h>
+  13:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** 
+  14:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** // gebruikers bibliotheken
+  15:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** #include "lcd.h"
+  16:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** #include "uart.h"
+  17:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** #include "spi.h"
+  18:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** #include "eth.h"
+  19:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** 
+  20:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** // udp/tcp bibliotheken
+  21:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** #include "udp.h"
+  22:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** #include "tcp.h"
+  23:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** 
+  24:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** #define DEBUG   1               // Debug mode, print naar de monitor
+  25:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** #define F_CPU   16000000UL      // Clock snelheid van de Arduino
+  26:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** 
+  27:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** #define BUZZER  PORTB0          // Poort waar de buzzer op is aangesloten
+  28:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** #define LED     PORTB1          // Poort waar de led op is aangesloten
+  29:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** 
+  30:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** // Opent een stream voor seriele communicatie
+  31:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** FILE uart = FDEV_SETUP_STREAM(usart_transmit, usart_receive, _FDEV_SETUP_RW);
+  32:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** 
+  33:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** // Wachtwoord voor tcp, verandert bij elke nieuwe verbinding
+  34:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** char * password[] = {"6Ic1_894", "hkj0K&l5", "7M|I#p96", "82Q018!h", "X96!$M35"
+  35:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                      "9K16&p52", ">-$}u85Q", "93C213H1", "769!cK0O", "1H355Q9}"};
+  36:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** int password_index = 0;
+  37:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** int counter = 0;
+  38:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** 
+  39:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** // Geeft aan met nul en 1 of iemand geauthoriseerd is
+  40:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** uint8_t authorised = 0;
+  41:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** 
+  42:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** // Geeft aan met nul en 1 of de node gearmed is
+  43:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** uint8_t armed = 1;
+  44:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** 
+  45:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** // De main methode voor het uitvoeren van de acties
+  46:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** int main(void) {
+ 160               	.LM0:
+ 161               	.LFBB1:
+ 162 0000 CF93      		push r28
+ 163 0002 DF93      		push r29
+ 164 0004 CDB7      		in r28,__SP_L__
+ 165 0006 DEB7      		in r29,__SP_H__
+ 166 0008 C150      		subi r28,1
+ 167 000a D240      		sbci r29,2
+ 168 000c 0FB6      		in __tmp_reg__,__SREG__
+ 169 000e F894      		cli
+ 170 0010 DEBF      		out __SP_H__,r29
+ 171 0012 0FBE      		out __SREG__,__tmp_reg__
+ 172 0014 CDBF      		out __SP_L__,r28
+ 173               	/* prologue: function */
+ 174               	/* frame size = 513 */
+ 175               	/* stack size = 515 */
+ 176               	.L__stack_usage = 515
+  47:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     // Geen interrupts voor het instellen van de node
+  48:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     cli();
+ 178               	.LM1:
+ 179               	/* #APP */
+ 180               	 ;  48 "/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.
+ 181 0016 F894      		cli
+ 182               	 ;  0 "" 2
+  49:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** 
+  50:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     // Zet USART op
+  51:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     usart_init(9600);
+ 184               	.LM2:
+ 185               	/* #NOAPP */
+ 186 0018 80E8      		ldi r24,lo8(-128)
+ 187 001a 95E2      		ldi r25,lo8(37)
+ 188 001c 0E94 0000 		call usart_init
+  52:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     
+  53:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****      // Stdin/stdout lezen en schrijven via uart
+  54:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     stdout = stdin = &uart;
+ 190               	.LM3:
+ 191 0020 80E0      		ldi r24,lo8(uart)
+ 192 0022 90E0      		ldi r25,hi8(uart)
+ 193 0024 9093 0000 		sts __iob+1,r25
+ 194 0028 8093 0000 		sts __iob,r24
+ 195 002c 9093 0000 		sts __iob+2+1,r25
+ 196 0030 8093 0000 		sts __iob+2,r24
+  55:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** 	
+  56:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     // Kalibreer de tiltsensor
+  57:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     tilt_start();
+ 198               	.LM4:
+ 199 0034 0E94 0000 		call tilt_start
+  58:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     
+  59:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     // Zet SPI op
+  60:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     spi_init();
+ 201               	.LM5:
+ 202 0038 0E94 0000 		call spi_init
+  61:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     
+  62:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     // Zet en configureer het lcd display
+  63:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     lcd_init();
+ 204               	.LM6:
+ 205 003c 0E94 0000 		call lcd_init
+  64:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     
+  65:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****      // Configureert de wiznet
+  66:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     initWiznet();
+ 207               	.LM7:
+ 208 0040 0E94 0000 		call initWiznet
+  67:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     
+  68:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     // Configureert de netwerk instellingen
+  69:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     set_gateway();
+ 210               	.LM8:
+ 211 0044 0E94 0000 		call set_gateway
+  70:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     set_submask();
+ 213               	.LM9:
+ 214 0048 0E94 0000 		call set_submask
+  71:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     set_macaddress();
+ 216               	.LM10:
+ 217 004c 0E94 0000 		call set_macaddress
+  72:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     set_ipaddress();
+ 219               	.LM11:
+ 220 0050 0E94 0000 		call set_ipaddress
+  73:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** 	
+  74:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     // Print de instellingen
+  75:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     print_status();
+ 222               	.LM12:
+ 223 0054 0E94 0000 		call print_status
+  76:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** 
+  77:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     // Buffer voor het ontvangen en versturen van data
+  78:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     uint8_t receiveddata[512];
+  79:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     
+  80:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     // Zend een register bij startup en print op lcd
+  81:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     udp_broadcast(reg, 8);
+ 225               	.LM13:
+ 226 0058 68E0      		ldi r22,lo8(8)
+ 227 005a 70E0      		ldi r23,0
+ 228 005c 83E0      		ldi r24,lo8(3)
+ 229 005e 0E94 0000 		call udp_broadcast
+  82:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     
+  83:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     // Led poort op output
+  84:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     DDRB |= (1 << LED);
+ 231               	.LM14:
+ 232 0062 219A      		sbi 0x4,1
+  85:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     
+  86:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     // Buzzer poort op output
+  87:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     DDRB |= (1 << BUZZER);
+ 234               	.LM15:
+ 235 0064 209A      		sbi 0x4,0
+  88:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     
+  89:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     // Schakel timer overflow interrupts in
+  90:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     TIMSK1 |= (1 << TOIE1);
+ 237               	.LM16:
+ 238 0066 8091 6F00 		lds r24,111
+ 239 006a 8160      		ori r24,lo8(1)
+ 240 006c 8093 6F00 		sts 111,r24
+  91:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     
+  92:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     // Stel de timer in met prescaler 1024
+  93:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     TCCR1B |= ((1 << CS12) | (1 << CS10));
+ 242               	.LM17:
+ 243 0070 8091 8100 		lds r24,129
+ 244 0074 8560      		ori r24,lo8(5)
+ 245 0076 8093 8100 		sts 129,r24
+  94:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     
+  95:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     // Zet interrupts aan voor het alarm
+  96:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     sei();
+ 247               	.LM18:
+ 248               	/* #APP */
+ 249               	 ;  96 "/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.
+ 250 007a 7894      		sei
+ 251               	 ;  0 "" 2
+  97:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     
+  98:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     // Print de status
+  99:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     armed ? lcd_print("armed") : lcd_print("disarmed");
+ 253               	.LM19:
+ 254               	/* #NOAPP */
+ 255 007c 8091 0000 		lds r24,armed
+ 256 0080 8823      		tst r24
+ 257 0082 01F0      		breq .L2
+ 259               	.LM20:
+ 260 0084 80E0      		ldi r24,lo8(.LC0)
+ 261 0086 90E0      		ldi r25,hi8(.LC0)
+ 262               	.L57:
+ 263 0088 0E94 0000 		call lcd_print
+ 264               	.LBB19:
+ 265               	.LBB20:
+ 100:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     
+ 101:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     while(1) {
+ 102:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****         // Lees de status van zowel de udp als tcp socket
+ 103:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****         uint8_t udpstatus = spi_receive(S0SR);
+ 104:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****         uint8_t tcpstatus = spi_receive(S1SR);
+ 105:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****         
+ 106:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****         switch (udpstatus) {
+ 107:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****             // Gesloten socket
+ 108:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****             case SOCK_CLOSED:
+ 109:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** #if DEBUG
+ 110:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 printf("UDP socket gesloten\n");
+ 111:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** #endif
+ 112:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 // Maak een udp socket aan
+ 113:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 udp_create_socket();
+ 114:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 break;
+ 115:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****             
+ 116:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****             // Werkende UDP socket
+ 117:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****             case SOCK_UDP:
+ 118:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** #if DEBUG
+ 119:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 printf("UDP socket geopend\n");
+ 120:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** #endif
+ 121:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 /* MONITOR VERSTUURD NIETS VIA UDP
+ 122:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 // Checkt op binenkomende data
+ 123:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 if(spi_receive(S0RXRSRH) || spi_receive(S0RXRSRL)){
+ 124:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                     // Schrijft de binnenkomende data weg in de meegegeven buffer
+ 125:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                     udp_from_monitor(receiveddata);
+ 126:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                     
+ 127:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** #if DEBUG           // Print de data in de buffer
+ 128:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                     printf("\nUDP data ontvangen: %s\n", receiveddata);
+ 129:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** #endif                
+ 130:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 }
+ 131:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 */
+ 132:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                  
+ 133:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 break;
+ 134:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****         }
+ 135:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****         
+ 136:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****         switch (tcpstatus) {
+ 137:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****             // Gesloten socket
+ 138:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****             case SOCK_CLOSED:
+ 139:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** #if DEBUG
+ 140:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 printf("TCP socket gesloten\n");
+ 141:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** #endif
+ 142:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 // Maak een tcp socket aan
+ 143:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 tcp_create_socket();
+ 144:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 
+ 145:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 break;
+ 146:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****        
+ 147:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****             // TCP socket geinitialiseerd
+ 148:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****             case SOCK_INIT:
+ 149:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** #if DEBUG
+ 150:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 printf("TCP socket geopend\n");
+ 151:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** #endif
+ 152:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 // Luister naar binnenkomende request
+ 153:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 tcp_listen();
+ 154:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 
+ 155:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 break;
+ 156:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****             
+ 157:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****             // TCP serversocket listen
+ 158:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****             case SOCK_LISTEN:
+ 159:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** #if DEBUG
+ 160:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 printf("TCPServer luisteren\n");
+ 161:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** #endif
+ 162:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 break;
+ 163:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****             
+ 164:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****             // TCP verbinding opgezet
+ 165:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****             case SOCK_ESTABLISHED:
+ 166:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** #if DEBUG
+ 167:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 printf("TCP verbinding opgezet\n");
+ 168:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** #endif
+ 169:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 // Checkt op binenkomende data
+ 170:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 if(spi_receive(S1RXRSRH) || spi_receive(S1RXRSRL)) {
+ 171:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                     // Schrijft de binnenkomende data weg in de meegegeven buffer
+ 172:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                     tcp_from_monitor(receiveddata);
+ 267               	.LM21:
+ 268 008c 8E01      		movw r16,r28
+ 269 008e 0F5F      		subi r16,-1
+ 270 0090 1F4F      		sbci r17,-1
+ 173:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                     
+ 174:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** #if DEBUG           // Print de data in de buffer
+ 175:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                     printf("\nTCP data ontvangen: %s\n", receiveddata);
+ 272               	.LM22:
+ 273 0092 40E0      		ldi r20,lo8(.LC8)
+ 274 0094 E42E      		mov r14,r20
+ 275 0096 40E0      		ldi r20,hi8(.LC8)
+ 276 0098 F42E      		mov r15,r20
+ 277               	.LBB21:
+ 176:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** #endif
+ 177:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                     // Stuur een acknowledge
+ 178:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                     uint8_t flag = receiveddata[0];
+ 179:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                     uint16_t messagenumber = (receiveddata[1] << 8) | receiveddata[2];
+ 180:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                     
+ 181:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                     switch (flag) {
+ 182:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                         case tcpres:
+ 183:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                             // ??
+ 184:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                             if(authorised) {
+ 185:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 
+ 186:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                             }
+ 187:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                             break;
+ 188:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                         case login:
+ 189:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                             // Telt het aantal matchende characters
+ 190:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                             while (password[password_index % 10][counter] == receiveddata[counter +
+ 191:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 ++counter;
+ 192:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                             }
+ 193:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                             
+ 194:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                             // Checkt of er 9 characters zijn geteld
+ 195:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                             // 8 van het wachtwoord + 1 niet matchend character
+ 196:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                             if (counter == 9) {
+ 197:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 authorised = 1;
+ 198:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** #if DEBUG
+ 199:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 printf("Gebruiker ingelogd\n");
+ 200:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** #endif
+ 201:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 // Verhoogt de index voor een volgende wachtwoord
+ 202:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 ++password_index;
+ 203:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                             } else {
+ 204:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 // Laat de buzzer afgaan met 3 korte beeps
+ 205:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 printf("Incorrect wachtwoord\n");
+ 206:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 
+ 207:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 // Laat de buzzer 3 keer afgaan
+ 208:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 for (int i = 0; i < 6; ++i) {
+ 209:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                     PORTB ^= (1 << BUZZER);
+ 210:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                     _delay_ms(500);
+ 211:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 }
+ 212:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                             }
+ 213:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                             
+ 214:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                             break;
+ 215:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                         case buzz:
+ 216:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                             if(authorised) {
+ 217:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 // Print de status
+ 218:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 lcd_print("buzzertest");
+ 219:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 
+ 220:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 // Lees de timer waarde uit
+ 221:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 uint32_t time = ((uint32_t) receiveddata[3]) << 24;
+ 222:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 time |= ((uint32_t) receiveddata[4]) << 16;
+ 223:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 time |= receiveddata[5] << 8;
+ 224:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 time |= receiveddata[6];
+ 225:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 
+ 226:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 // Zet de buzzer aan
+ 227:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 PORTB |= (1 << BUZZER);
+ 228:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 
+ 229:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 // Voert een delay uit met de timer waarde
+ 230:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 for (uint32_t i = 0; i < time; ++i) {
+ 231:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                     _delay_ms(1);
+ 232:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 }
+ 233:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 
+ 234:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 // Zet de buzzer uit
+ 235:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 PORTB &= ~(1 << BUZZER);
+ 236:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 
+ 237:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 // Reset status
+ 238:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 armed ? lcd_print("armed") : lcd_print("disarmed");
+ 239:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                             }
+ 240:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                             break;
+ 241:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                         case lamp:
+ 242:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                             if(authorised) {
+ 243:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 // Print de status
+ 244:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 lcd_print("lamptest");
+ 245:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                
+ 246:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 uint8_t on = receiveddata[3];
+ 247:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 if (on) {
+ 248:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                     // Zet de led aan
+ 249:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                     PORTB |= (1 << LED);
+ 250:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 } else {
+ 251:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                     // Zet de led uit
+ 252:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                     PORTB &= ~(1 << LED);
+ 253:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 }
+ 254:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 
+ 255:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 // Print delay
+ 256:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 _delay_ms(1000);
+ 257:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 
+ 258:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 // Reset status
+ 259:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 armed ? lcd_print("armed") : lcd_print("disarmed");
+ 260:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                             }
+ 261:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                             break;
+ 262:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                         case arm:
+ 263:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                             if(authorised) {
+ 264:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 uint8_t on = receiveddata[3];
+ 265:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 if (on) {
+ 266:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                     lcd_print("armed");
+ 267:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                     // Armed de node en schakelt het alarm in
+ 268:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                     armed = 1;
+ 279               	.LM23:
+ 280 009a DD24      		clr r13
+ 281 009c D394      		inc r13
+ 282 009e 00C0      		rjmp .L3
+ 283               	.L2:
+ 284               	.LBE21:
+ 285               	.LBE20:
+ 286               	.LBE19:
+  99:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     armed ? lcd_print("armed") : lcd_print("disarmed");
+ 288               	.LM24:
+ 289 00a0 80E0      		ldi r24,lo8(.LC1)
+ 290 00a2 90E0      		ldi r25,hi8(.LC1)
+ 291 00a4 00C0      		rjmp .L57
+ 292               	.L6:
+ 293               	.LBB39:
+ 110:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 printf("UDP socket gesloten\n");
+ 295               	.LM25:
+ 296 00a6 80E0      		ldi r24,lo8(.LC2)
+ 297 00a8 90E0      		ldi r25,hi8(.LC2)
+ 298 00aa CF5F      		subi r28,lo8(-513)
+ 299 00ac DD4F      		sbci r29,hi8(-513)
+ 300 00ae 2883      		st Y,r18
+ 301 00b0 C150      		subi r28,lo8(513)
+ 302 00b2 D240      		sbci r29,hi8(513)
+ 303 00b4 0E94 0000 		call puts
+ 113:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 udp_create_socket();
+ 305               	.LM26:
+ 306 00b8 0E94 0000 		call udp_create_socket
+ 307               	.L58:
+ 119:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 printf("UDP socket geopend\n");
+ 309               	.LM27:
+ 310 00bc CF5F      		subi r28,lo8(-513)
+ 311 00be DD4F      		sbci r29,hi8(-513)
+ 312 00c0 2881      		ld r18,Y
+ 313 00c2 C150      		subi r28,lo8(513)
+ 314 00c4 D240      		sbci r29,hi8(513)
+ 315               	.L5:
+ 136:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****         switch (tcpstatus) {
+ 317               	.LM28:
+ 318 00c6 2431      		cpi r18,lo8(20)
+ 319 00c8 01F0      		breq .L9
+ 320 00ca 00F4      		brsh .L10
+ 321 00cc 2111      		cpse r18,__zero_reg__
+ 322 00ce 00C0      		rjmp .L64
+ 140:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 printf("TCP socket gesloten\n");
+ 324               	.LM29:
+ 325 00d0 80E0      		ldi r24,lo8(.LC4)
+ 326 00d2 90E0      		ldi r25,hi8(.LC4)
+ 327 00d4 0E94 0000 		call puts
+ 143:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 tcp_create_socket();
+ 329               	.LM30:
+ 330 00d8 0E94 0000 		call tcp_create_socket
+ 331               	.L8:
+ 332               	.LBB35:
+ 333               	.LBB36:
+ 335               	.Ltext1:
+   1:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** /* Copyright (c) 2002, Marek Michalkiewicz
+   2:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Copyright (c) 2004,2005,2007 Joerg Wunsch
+   3:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Copyright (c) 2007  Florin-Viorel Petrov
+   4:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    All rights reserved.
+   5:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+   6:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Redistribution and use in source and binary forms, with or without
+   7:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    modification, are permitted provided that the following conditions are met:
+   8:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+   9:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    * Redistributions of source code must retain the above copyright
+  10:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****      notice, this list of conditions and the following disclaimer.
+  11:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  12:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    * Redistributions in binary form must reproduce the above copyright
+  13:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****      notice, this list of conditions and the following disclaimer in
+  14:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****      the documentation and/or other materials provided with the
+  15:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****      distribution.
+  16:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  17:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    * Neither the name of the copyright holders nor the names of
+  18:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****      contributors may be used to endorse or promote products derived
+  19:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****      from this software without specific prior written permission.
+  20:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  21:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  22:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  23:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+  24:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+  25:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+  26:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+  27:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+  28:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+  29:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+  30:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+  31:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   POSSIBILITY OF SUCH DAMAGE. */
+  32:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  33:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** /* $Id$ */
+  34:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  35:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #ifndef _UTIL_DELAY_H_
+  36:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #define _UTIL_DELAY_H_ 1
+  37:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  38:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #ifndef __HAS_DELAY_CYCLES
+  39:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #define __HAS_DELAY_CYCLES 1
+  40:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #endif
+  41:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  42:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #include <inttypes.h>
+  43:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #include <util/delay_basic.h>
+  44:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #include <math.h>
+  45:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  46:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** /** \file */
+  47:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** /** \defgroup util_delay <util/delay.h>: Convenience functions for busy-wait delay loops
+  48:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     \code
+  49:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     #define F_CPU 1000000UL  // 1 MHz
+  50:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     //#define F_CPU 14.7456E6
+  51:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     #include <util/delay.h>
+  52:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     \endcode
+  53:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  54:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     \note As an alternative method, it is possible to pass the
+  55:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     F_CPU macro down to the compiler from the Makefile.
+  56:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     Obviously, in that case, no \c \#define statement should be
+  57:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     used.
+  58:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  59:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     The functions in this header file are wrappers around the basic
+  60:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     busy-wait functions from <util/delay_basic.h>.  They are meant as
+  61:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     convenience functions where actual time values can be specified
+  62:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     rather than a number of cycles to wait for.  The idea behind is
+  63:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     that compile-time constant expressions will be eliminated by
+  64:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     compiler optimization so floating-point expressions can be used
+  65:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     to calculate the number of delay cycles needed based on the CPU
+  66:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     frequency passed by the macro F_CPU.
+  67:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  68:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     \note In order for these functions to work as intended, compiler
+  69:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     optimizations <em>must</em> be enabled, and the delay time
+  70:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     <em>must</em> be an expression that is a known constant at
+  71:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     compile-time.  If these requirements are not met, the resulting
+  72:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     delay will be much longer (and basically unpredictable), and
+  73:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     applications that otherwise do not use floating-point calculations
+  74:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     will experience severe code bloat by the floating-point library
+  75:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     routines linked into the application.
+  76:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  77:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     The functions available allow the specification of microsecond, and
+  78:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     millisecond delays directly, using the application-supplied macro
+  79:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     F_CPU as the CPU clock frequency (in Hertz).
+  80:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  81:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** */
+  82:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  83:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #if !defined(__DOXYGEN__)
+  84:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** static inline void _delay_us(double __us) __attribute__((always_inline));
+  85:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** static inline void _delay_ms(double __ms) __attribute__((always_inline));
+  86:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #endif
+  87:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  88:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #ifndef F_CPU
+  89:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** /* prevent compiler error by supplying a default */
+  90:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** # warning "F_CPU not defined for <util/delay.h>"
+  91:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** # define F_CPU 1000000UL
+  92:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #endif
+  93:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  94:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #ifndef __OPTIMIZE__
+  95:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** # warning "Compiler optimizations disabled; functions from <util/delay.h> won't work as designed"
+  96:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #endif
+  97:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+  98:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #if __HAS_DELAY_CYCLES && defined(__OPTIMIZE__) && \
+  99:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   !defined(__DELAY_BACKWARD_COMPATIBLE__) &&	   \
+ 100:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   __STDC_HOSTED__
+ 101:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #  include <math.h>
+ 102:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #endif
+ 103:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 104:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** /**
+ 105:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    \ingroup util_delay
+ 106:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 107:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Perform a delay of \c __ms milliseconds, using _delay_loop_2().
+ 108:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 109:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    The macro F_CPU is supposed to be defined to a
+ 110:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    constant defining the CPU clock frequency (in Hertz).
+ 111:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 112:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    The maximal possible delay is 262.14 ms / F_CPU in MHz.
+ 113:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 114:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    When the user request delay which exceed the maximum possible one,
+ 115:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    _delay_ms() provides a decreased resolution functionality. In this
+ 116:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    mode _delay_ms() will work with a resolution of 1/10 ms, providing
+ 117:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    delays up to 6.5535 seconds (independent from CPU frequency).  The
+ 118:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    user will not be informed about decreased resolution.
+ 119:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 120:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    If the avr-gcc toolchain has __builtin_avr_delay_cycles(unsigned long)
+ 121:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    support, maximal possible delay is 4294967.295 ms/ F_CPU in MHz. For
+ 122:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    values greater than the maximal possible delay, overflows results in
+ 123:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    no delay i.e., 0ms.
+ 124:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 125:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Conversion of __us into clock cycles may not always result in integer.
+ 126:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    By default, the clock cycles rounded up to next integer. This ensures that
+ 127:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    the user gets atleast __us microseconds of delay.
+ 128:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 129:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Alternatively, user can define __DELAY_ROUND_DOWN__ and __DELAY_ROUND_CLOSEST__
+ 130:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    to round down and round to closest integer.
+ 131:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 132:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Note: The new implementation of _delay_ms(double __ms) with 
+ 133:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****     __builtin_avr_delay_cycles(unsigned long) support is not backward compatible. 
+ 134:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    User can define __DELAY_BACKWARD_COMPATIBLE__ to get a backward compatible delay.
+ 135:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Also, the backward compatible
+ 136:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    algorithm will be chosen if the code is compiled in a <em>freestanding
+ 137:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    environment</em> (GCC option \c -ffreestanding), as the math functions
+ 138:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    required for rounding are not available to the compiler then.
+ 139:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 140:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****  */
+ 141:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** void
+ 142:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** _delay_ms(double __ms)
+ 143:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** {
+ 144:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	double __tmp ; 
+ 145:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #if __HAS_DELAY_CYCLES && defined(__OPTIMIZE__) && \
+ 146:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   !defined(__DELAY_BACKWARD_COMPATIBLE__) &&	   \
+ 147:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****   __STDC_HOSTED__
+ 148:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	uint32_t __ticks_dc;
+ 149:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	extern void __builtin_avr_delay_cycles(unsigned long);
+ 150:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	__tmp = ((F_CPU) / 1e3) * __ms;
+ 151:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 152:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	#if defined(__DELAY_ROUND_DOWN__)
+ 153:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 		__ticks_dc = (uint32_t)fabs(__tmp);
+ 154:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 155:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	#elif defined(__DELAY_ROUND_CLOSEST__)
+ 156:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 		__ticks_dc = (uint32_t)(fabs(__tmp)+0.5);
+ 157:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 158:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	#else
+ 159:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 		//round up by default
+ 160:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
+ 161:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	#endif
+ 162:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
+ 163:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	__builtin_avr_delay_cycles(__ticks_dc);
+ 337               	.LM31:
+ 338 00dc EFEF      		ldi r30,lo8(3199999)
+ 339 00de F3ED      		ldi r31,hi8(3199999)
+ 340 00e0 20E3      		ldi r18,hlo8(3199999)
+ 341 00e2 E150      		1: subi r30,1
+ 342 00e4 F040      		sbci r31,0
+ 343 00e6 2040      		sbci r18,0
+ 344 00e8 01F4      		brne 1b
+ 345 00ea 00C0      		rjmp .
+ 346 00ec 0000      		nop
+ 347               	.L3:
+ 348               	.LBE36:
+ 349               	.LBE35:
+ 351               	.Ltext2:
+ 103:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****         uint8_t udpstatus = spi_receive(S0SR);
+ 353               	.LM32:
+ 354 00ee 83E0      		ldi r24,lo8(3)
+ 355 00f0 94E0      		ldi r25,lo8(4)
+ 356 00f2 0E94 0000 		call spi_receive
+ 357 00f6 C82E      		mov r12,r24
+ 104:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****         uint8_t tcpstatus = spi_receive(S1SR);
+ 359               	.LM33:
+ 360 00f8 83E0      		ldi r24,lo8(3)
+ 361 00fa 95E0      		ldi r25,lo8(5)
+ 362 00fc 0E94 0000 		call spi_receive
+ 363 0100 282F      		mov r18,r24
+ 106:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****         switch (udpstatus) {
+ 365               	.LM34:
+ 366 0102 CC20      		tst r12
+ 367 0104 01F0      		breq .L6
+ 368 0106 32E2      		ldi r19,lo8(34)
+ 369 0108 C312      		cpse r12,r19
+ 370 010a 00C0      		rjmp .L5
+ 119:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 printf("UDP socket geopend\n");
+ 372               	.LM35:
+ 373 010c 80E0      		ldi r24,lo8(.LC3)
+ 374 010e 90E0      		ldi r25,hi8(.LC3)
+ 375 0110 CF5F      		subi r28,lo8(-513)
+ 376 0112 DD4F      		sbci r29,hi8(-513)
+ 377 0114 2883      		st Y,r18
+ 378 0116 C150      		subi r28,lo8(513)
+ 379 0118 D240      		sbci r29,hi8(513)
+ 380 011a 0E94 0000 		call puts
+ 381 011e 00C0      		rjmp .L58
+ 382               	.L64:
+ 136:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****         switch (tcpstatus) {
+ 384               	.LM36:
+ 385 0120 2331      		cpi r18,lo8(19)
+ 386 0122 01F4      		brne .L8
+ 150:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 printf("TCP socket geopend\n");
+ 388               	.LM37:
+ 389 0124 80E0      		ldi r24,lo8(.LC5)
+ 390 0126 90E0      		ldi r25,hi8(.LC5)
+ 391 0128 0E94 0000 		call puts
+ 392 012c 00C0      		rjmp .L60
+ 393               	.L10:
+ 136:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****         switch (tcpstatus) {
+ 395               	.LM38:
+ 396 012e 2731      		cpi r18,lo8(23)
+ 397 0130 01F0      		breq .L13
+ 398 0132 2C31      		cpi r18,lo8(28)
+ 399 0134 01F4      		brne .L8
+ 269:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 } else {
+ 270:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                     lcd_print("disarmed");
+ 271:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                     // Disarmed de node en schakelt het alarm uit
+ 272:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                     armed = 0;
+ 273:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 }
+ 274:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                             }
+ 275:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                             break;
+ 276:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                         case reset:
+ 277:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                             if(authorised) {
+ 278:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 // Print de status
+ 279:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 lcd_print("reset");
+ 280:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 
+ 281:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 // Unregister de node
+ 282:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 udp_broadcast(unr, 10);
+ 283:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 
+ 284:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 // Reset de node, instellingen worden hersteld
+ 285:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 WDTCSR |= (1 << WDE);
+ 286:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                             }
+ 287:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                             break;
+ 288:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                         case ping:
+ 289:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                             if(authorised) {
+ 290:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 // Print de status
+ 291:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 lcd_print("ping");
+ 292:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 
+ 293:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 // Broadcast een acknowledge
+ 294:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 udp_broadcast(udpack, 3);
+ 295:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 
+ 296:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 // Print delay
+ 297:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 _delay_ms(1000);
+ 298:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 
+ 299:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 // Reset status
+ 300:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 armed ? lcd_print("armed") : lcd_print("disarmed");
+ 301:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                             }
+ 302:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                             break;
+ 303:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                         case tcpack:
+ 304:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                             // Bericht door monitor goed ontvangen
+ 305:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                             // DEPRECATED Ingebakken in TCP
+ 306:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                             break;
+ 307:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                         case tcpnak:
+ 308:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                             // bericht door monitor niet goed ontvangen
+ 309:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                             // DEPRECATED Ingebakken in TCP
+ 310:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                             break;
+ 311:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                         case receive:
+ 312:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                             if(authorised) {
+ 313:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 // stuur status
+ 314:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 // DEPRECATED
+ 315:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                             }
+ 316:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                             break;
+ 317:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                     }
+ 318:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 }
+ 319:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 // Anders stuur eventueel test data
+ 320:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 else {
+ 321:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                     // Stuur hallo monitor
+ 322:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                     // tcp_to_monitor(tcpack, "Hallo Monitor", 13);
+ 323:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 }
+ 324:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 
+ 325:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 break;
+ 326:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****             
+ 327:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****             // TCP sluit request
+ 328:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****             case SOCK_CLOSE_WAIT:
+ 329:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** #if DEBUG
+ 330:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 printf("TCP close request ontvangen\n");
+ 401               	.LM39:
+ 402 0136 80E0      		ldi r24,lo8(.LC15)
+ 403 0138 90E0      		ldi r25,hi8(.LC15)
+ 404 013a 0E94 0000 		call puts
+ 331:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** #endif
+ 332:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 // Monitor wordt uitgelogd
+ 333:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 authorised = 0;
+ 406               	.LM40:
+ 407 013e 1092 0000 		sts authorised,__zero_reg__
+ 408 0142 00C0      		rjmp .L60
+ 409               	.L9:
+ 160:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 printf("TCPServer luisteren\n");
+ 411               	.LM41:
+ 412 0144 80E0      		ldi r24,lo8(.LC6)
+ 413 0146 90E0      		ldi r25,hi8(.LC6)
+ 414 0148 0E94 0000 		call puts
+ 162:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 break;
+ 416               	.LM42:
+ 417 014c 00C0      		rjmp .L8
+ 418               	.L13:
+ 167:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 printf("TCP verbinding opgezet\n");
+ 420               	.LM43:
+ 421 014e 80E0      		ldi r24,lo8(.LC7)
+ 422 0150 90E0      		ldi r25,hi8(.LC7)
+ 423 0152 0E94 0000 		call puts
+ 170:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 if(spi_receive(S1RXRSRH) || spi_receive(S1RXRSRL)) {
+ 425               	.LM44:
+ 426 0156 86E2      		ldi r24,lo8(38)
+ 427 0158 95E0      		ldi r25,lo8(5)
+ 428 015a 0E94 0000 		call spi_receive
+ 429 015e 8823      		tst r24
+ 430 0160 01F0      		breq .L15
+ 431               	.L23:
+ 432               	.LBB37:
+ 172:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                     tcp_from_monitor(receiveddata);
+ 434               	.LM45:
+ 435 0162 C801      		movw r24,r16
+ 436 0164 0E94 0000 		call tcp_from_monitor
+ 175:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                     printf("\nTCP data ontvangen: %s\n", receiveddata);
+ 438               	.LM46:
+ 439 0168 1F93      		push r17
+ 440 016a 0F93      		push r16
+ 441 016c FF92      		push r15
+ 442 016e EF92      		push r14
+ 443 0170 0E94 0000 		call printf
+ 181:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                     switch (flag) {
+ 445               	.LM47:
+ 446 0174 0F90      		pop __tmp_reg__
+ 447 0176 0F90      		pop __tmp_reg__
+ 448 0178 0F90      		pop __tmp_reg__
+ 449 017a 0F90      		pop __tmp_reg__
+ 450 017c 8981      		ldd r24,Y+1
+ 451 017e 8330      		cpi r24,lo8(3)
+ 452 0180 01F4      		brne .+2
+ 453 0182 00C0      		rjmp .L16
+ 454 0184 00F4      		brsh .L17
+ 455 0186 8130      		cpi r24,lo8(1)
+ 456 0188 01F0      		breq .L18
+ 457 018a 8230      		cpi r24,lo8(2)
+ 458 018c 01F4      		brne .+2
+ 459 018e 00C0      		rjmp .L19
+ 460 0190 00C0      		rjmp .L8
+ 461               	.L17:
+ 462 0192 8530      		cpi r24,lo8(5)
+ 463 0194 01F4      		brne .+2
+ 464 0196 00C0      		rjmp .L20
+ 465 0198 00F4      		brsh .+2
+ 466 019a 00C0      		rjmp .L21
+ 467 019c 8630      		cpi r24,lo8(6)
+ 468 019e 01F4      		brne .+2
+ 469 01a0 00C0      		rjmp .L22
+ 470 01a2 00C0      		rjmp .L8
+ 471               	.L15:
+ 472               	.LBE37:
+ 170:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 if(spi_receive(S1RXRSRH) || spi_receive(S1RXRSRL)) {
+ 474               	.LM48:
+ 475 01a4 87E2      		ldi r24,lo8(39)
+ 476 01a6 95E0      		ldi r25,lo8(5)
+ 477 01a8 0E94 0000 		call spi_receive
+ 478 01ac 8111      		cpse r24,__zero_reg__
+ 479 01ae 00C0      		rjmp .L23
+ 480 01b0 00C0      		rjmp .L8
+ 481               	.L18:
+ 482               	.LBB38:
+ 190:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                             while (password[password_index % 10][counter] == receiveddata[counter +
+ 484               	.LM49:
+ 485 01b2 8091 0000 		lds r24,password_index
+ 486 01b6 9091 0000 		lds r25,password_index+1
+ 487 01ba 6AE0      		ldi r22,lo8(10)
+ 488 01bc 70E0      		ldi r23,0
+ 489 01be 0E94 0000 		call __divmodhi4
+ 490 01c2 880F      		lsl r24
+ 491 01c4 991F      		rol r25
+ 492 01c6 8050      		subi r24,lo8(-(password))
+ 493 01c8 9040      		sbci r25,hi8(-(password))
+ 494 01ca FC01      		movw r30,r24
+ 495 01cc 2081      		ld r18,Z
+ 496 01ce 3181      		ldd r19,Z+1
+ 497               	.L24:
+ 190:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                             while (password[password_index % 10][counter] == receiveddata[counter +
+ 499               	.LM50:
+ 500 01d0 8091 0000 		lds r24,counter
+ 501 01d4 9091 0000 		lds r25,counter+1
+ 502 01d8 D901      		movw r26,r18
+ 503 01da A80F      		add r26,r24
+ 504 01dc B91F      		adc r27,r25
+ 505 01de E4E0      		ldi r30,lo8(4)
+ 506 01e0 F0E0      		ldi r31,0
+ 507 01e2 EC0F      		add r30,r28
+ 508 01e4 FD1F      		adc r31,r29
+ 509 01e6 E80F      		add r30,r24
+ 510 01e8 F91F      		adc r31,r25
+ 511 01ea 5C91      		ld r21,X
+ 512 01ec 4081      		ld r20,Z
+ 513 01ee 5413      		cpse r21,r20
+ 514 01f0 00C0      		rjmp .L65
+ 191:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 ++counter;
+ 516               	.LM51:
+ 517 01f2 0196      		adiw r24,1
+ 518 01f4 9093 0000 		sts counter+1,r25
+ 519 01f8 8093 0000 		sts counter,r24
+ 520 01fc 00C0      		rjmp .L24
+ 521               	.L65:
+ 196:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                             if (counter == 9) {
+ 523               	.LM52:
+ 524 01fe 0997      		sbiw r24,9
+ 525 0200 01F4      		brne .L26
+ 197:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 authorised = 1;
+ 527               	.LM53:
+ 528 0202 D092 0000 		sts authorised,r13
+ 199:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 printf("Gebruiker ingelogd\n");
+ 530               	.LM54:
+ 531 0206 80E0      		ldi r24,lo8(.LC9)
+ 532 0208 90E0      		ldi r25,hi8(.LC9)
+ 533 020a 0E94 0000 		call puts
+ 202:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 ++password_index;
+ 535               	.LM55:
+ 536 020e 8091 0000 		lds r24,password_index
+ 537 0212 9091 0000 		lds r25,password_index+1
+ 538 0216 0196      		adiw r24,1
+ 539 0218 9093 0000 		sts password_index+1,r25
+ 540 021c 8093 0000 		sts password_index,r24
+ 541 0220 00C0      		rjmp .L8
+ 542               	.L26:
+ 205:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 printf("Incorrect wachtwoord\n");
+ 544               	.LM56:
+ 545 0222 80E0      		ldi r24,lo8(.LC10)
+ 546 0224 90E0      		ldi r25,hi8(.LC10)
+ 547 0226 0E94 0000 		call puts
+ 548 022a 86E0      		ldi r24,lo8(6)
+ 549 022c 90E0      		ldi r25,0
+ 550               	.L28:
+ 551               	.LBB22:
+ 209:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                     PORTB ^= (1 << BUZZER);
+ 553               	.LM57:
+ 554 022e 25B1      		in r18,0x5
+ 555 0230 2D25      		eor r18,r13
+ 556 0232 25B9      		out 0x5,r18
+ 557               	.LBB23:
+ 558               	.LBB24:
+ 560               	.Ltext3:
+ 562               	.LM58:
+ 563 0234 FFEF      		ldi r31,lo8(1599999)
+ 564 0236 29E6      		ldi r18,hi8(1599999)
+ 565 0238 38E1      		ldi r19,hlo8(1599999)
+ 566 023a F150      		1: subi r31,1
+ 567 023c 2040      		sbci r18,0
+ 568 023e 3040      		sbci r19,0
+ 569 0240 01F4      		brne 1b
+ 570 0242 00C0      		rjmp .
+ 571 0244 0000      		nop
+ 572 0246 0197      		sbiw r24,1
+ 573               	.LBE24:
+ 574               	.LBE23:
+ 576               	.Ltext4:
+ 208:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 for (int i = 0; i < 6; ++i) {
+ 578               	.LM59:
+ 579 0248 0097      		sbiw r24,0
+ 580 024a 01F4      		brne .L28
+ 581 024c 00C0      		rjmp .L8
+ 582               	.L19:
+ 583               	.LBE22:
+ 216:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                             if(authorised) {
+ 585               	.LM60:
+ 586 024e 8091 0000 		lds r24,authorised
+ 587 0252 8823      		tst r24
+ 588 0254 01F4      		brne .+2
+ 589 0256 00C0      		rjmp .L8
+ 590               	.LBB25:
+ 218:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 lcd_print("buzzertest");
+ 592               	.LM61:
+ 593 0258 80E0      		ldi r24,lo8(.LC11)
+ 594 025a 90E0      		ldi r25,hi8(.LC11)
+ 595 025c 0E94 0000 		call lcd_print
+ 221:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 uint32_t time = ((uint32_t) receiveddata[3]) << 24;
+ 597               	.LM62:
+ 598 0260 8C81      		ldd r24,Y+4
+ 222:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 time |= ((uint32_t) receiveddata[4]) << 16;
+ 600               	.LM63:
+ 601 0262 4D81      		ldd r20,Y+5
+ 602 0264 50E0      		ldi r21,0
+ 603 0266 60E0      		ldi r22,0
+ 604 0268 70E0      		ldi r23,0
+ 605 026a BA01      		movw r22,r20
+ 606 026c 5527      		clr r21
+ 607 026e 4427      		clr r20
+ 608 0270 782B      		or r23,r24
+ 224:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 time |= receiveddata[6];
+ 610               	.LM64:
+ 611 0272 8F81      		ldd r24,Y+7
+ 223:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 time |= receiveddata[5] << 8;
+ 613               	.LM65:
+ 614 0274 482B      		or r20,r24
+ 615 0276 8E81      		ldd r24,Y+6
+ 616 0278 90E0      		ldi r25,0
+ 617 027a 982F      		mov r25,r24
+ 618 027c 8827      		clr r24
+ 619 027e AA27      		clr r26
+ 620 0280 97FD      		sbrc r25,7
+ 621 0282 A095      		com r26
+ 622 0284 BA2F      		mov r27,r26
+ 224:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 time |= receiveddata[6];
+ 624               	.LM66:
+ 625 0286 482B      		or r20,r24
+ 626 0288 592B      		or r21,r25
+ 627 028a 6A2B      		or r22,r26
+ 628 028c 7B2B      		or r23,r27
+ 227:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 PORTB |= (1 << BUZZER);
+ 630               	.LM67:
+ 631 028e 289A      		sbi 0x5,0
+ 632               	.LBB26:
+ 230:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 for (uint32_t i = 0; i < time; ++i) {
+ 634               	.LM68:
+ 635 0290 80E0      		ldi r24,0
+ 636 0292 90E0      		ldi r25,0
+ 637 0294 DC01      		movw r26,r24
+ 638               	.L29:
+ 230:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 for (uint32_t i = 0; i < time; ++i) {
+ 640               	.LM69:
+ 641 0296 8417      		cp r24,r20
+ 642 0298 9507      		cpc r25,r21
+ 643 029a A607      		cpc r26,r22
+ 644 029c B707      		cpc r27,r23
+ 645 029e 01F0      		breq .L66
+ 646               	.LBB27:
+ 647               	.LBB28:
+ 649               	.Ltext5:
+ 651               	.LM70:
+ 652 02a0 EFE9      		ldi r30,lo8(3999)
+ 653 02a2 FFE0      		ldi r31,hi8(3999)
+ 654 02a4 3197      		1: sbiw r30,1
+ 655 02a6 01F4      		brne 1b
+ 656 02a8 00C0      		rjmp .
+ 657 02aa 0000      		nop
+ 658               	.LBE28:
+ 659               	.LBE27:
+ 661               	.Ltext6:
+ 230:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 for (uint32_t i = 0; i < time; ++i) {
+ 663               	.LM71:
+ 664 02ac 0196      		adiw r24,1
+ 665 02ae A11D      		adc r26,__zero_reg__
+ 666 02b0 B11D      		adc r27,__zero_reg__
+ 667 02b2 00C0      		rjmp .L29
+ 668               	.L66:
+ 669               	.LBE26:
+ 235:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 PORTB &= ~(1 << BUZZER);
+ 671               	.LM72:
+ 672 02b4 2898      		cbi 0x5,0
+ 673               	.L59:
+ 238:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 armed ? lcd_print("armed") : lcd_print("disarmed");
+ 675               	.LM73:
+ 676 02b6 8091 0000 		lds r24,armed
+ 677 02ba 8823      		tst r24
+ 678 02bc 01F0      		breq .L31
+ 238:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 armed ? lcd_print("armed") : lcd_print("disarmed");
+ 680               	.LM74:
+ 681 02be 80E0      		ldi r24,lo8(.LC0)
+ 682 02c0 90E0      		ldi r25,hi8(.LC0)
+ 683 02c2 00C0      		rjmp .L61
+ 684               	.L31:
+ 238:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 armed ? lcd_print("armed") : lcd_print("disarmed");
+ 686               	.LM75:
+ 687 02c4 80E0      		ldi r24,lo8(.LC1)
+ 688 02c6 90E0      		ldi r25,hi8(.LC1)
+ 689               	.L61:
+ 690 02c8 0E94 0000 		call lcd_print
+ 691 02cc 00C0      		rjmp .L8
+ 692               	.L16:
+ 693               	.LBE25:
+ 242:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                             if(authorised) {
+ 695               	.LM76:
+ 696 02ce 8091 0000 		lds r24,authorised
+ 697 02d2 8823      		tst r24
+ 698 02d4 01F4      		brne .+2
+ 699 02d6 00C0      		rjmp .L8
+ 700               	.LBB29:
+ 244:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 lcd_print("lamptest");
+ 702               	.LM77:
+ 703 02d8 80E0      		ldi r24,lo8(.LC12)
+ 704 02da 90E0      		ldi r25,hi8(.LC12)
+ 705 02dc 0E94 0000 		call lcd_print
+ 247:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 if (on) {
+ 707               	.LM78:
+ 708 02e0 8C81      		ldd r24,Y+4
+ 709 02e2 8823      		tst r24
+ 710 02e4 01F0      		breq .L32
+ 249:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                     PORTB |= (1 << LED);
+ 712               	.LM79:
+ 713 02e6 299A      		sbi 0x5,1
+ 714 02e8 00C0      		rjmp .L33
+ 715               	.L32:
+ 252:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                     PORTB &= ~(1 << LED);
+ 717               	.LM80:
+ 718 02ea 2998      		cbi 0x5,1
+ 719               	.L33:
+ 720               	.LBB30:
+ 721               	.LBB31:
+ 723               	.Ltext7:
+ 725               	.LM81:
+ 726 02ec FFEF      		ldi r31,lo8(3199999)
+ 727 02ee 23ED      		ldi r18,hi8(3199999)
+ 728 02f0 30E3      		ldi r19,hlo8(3199999)
+ 729 02f2 F150      		1: subi r31,1
+ 730 02f4 2040      		sbci r18,0
+ 731 02f6 3040      		sbci r19,0
+ 732 02f8 01F4      		brne 1b
+ 733 02fa 00C0      		rjmp .L62
+ 734               	.L21:
+ 735               	.LBE31:
+ 736               	.LBE30:
+ 737               	.LBE29:
+ 739               	.Ltext8:
+ 263:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                             if(authorised) {
+ 741               	.LM82:
+ 742 02fc 8091 0000 		lds r24,authorised
+ 743 0300 8823      		tst r24
+ 744 0302 01F4      		brne .+2
+ 745 0304 00C0      		rjmp .L8
+ 746               	.LBB32:
+ 265:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 if (on) {
+ 748               	.LM83:
+ 749 0306 8C81      		ldd r24,Y+4
+ 750 0308 8823      		tst r24
+ 751 030a 01F0      		breq .L35
+ 266:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                     lcd_print("armed");
+ 753               	.LM84:
+ 754 030c 80E0      		ldi r24,lo8(.LC0)
+ 755 030e 90E0      		ldi r25,hi8(.LC0)
+ 756 0310 0E94 0000 		call lcd_print
+ 268:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                     armed = 1;
+ 758               	.LM85:
+ 759 0314 D092 0000 		sts armed,r13
+ 760 0318 00C0      		rjmp .L8
+ 761               	.L35:
+ 270:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                     lcd_print("disarmed");
+ 763               	.LM86:
+ 764 031a 80E0      		ldi r24,lo8(.LC1)
+ 765 031c 90E0      		ldi r25,hi8(.LC1)
+ 766 031e 0E94 0000 		call lcd_print
+ 272:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                     armed = 0;
+ 768               	.LM87:
+ 769 0322 1092 0000 		sts armed,__zero_reg__
+ 770 0326 00C0      		rjmp .L8
+ 771               	.L20:
+ 772               	.LBE32:
+ 277:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                             if(authorised) {
+ 774               	.LM88:
+ 775 0328 8091 0000 		lds r24,authorised
+ 776 032c 8823      		tst r24
+ 777 032e 01F4      		brne .+2
+ 778 0330 00C0      		rjmp .L8
+ 279:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 lcd_print("reset");
+ 780               	.LM89:
+ 781 0332 80E0      		ldi r24,lo8(.LC13)
+ 782 0334 90E0      		ldi r25,hi8(.LC13)
+ 783 0336 0E94 0000 		call lcd_print
+ 282:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 udp_broadcast(unr, 10);
+ 785               	.LM90:
+ 786 033a 6AE0      		ldi r22,lo8(10)
+ 787 033c 70E0      		ldi r23,0
+ 788 033e 84E0      		ldi r24,lo8(4)
+ 789 0340 0E94 0000 		call udp_broadcast
+ 285:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 WDTCSR |= (1 << WDE);
+ 791               	.LM91:
+ 792 0344 8091 6000 		lds r24,96
+ 793 0348 8860      		ori r24,lo8(8)
+ 794 034a 8093 6000 		sts 96,r24
+ 795 034e 00C0      		rjmp .L8
+ 796               	.L22:
+ 289:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                             if(authorised) {
+ 798               	.LM92:
+ 799 0350 8091 0000 		lds r24,authorised
+ 800 0354 8823      		tst r24
+ 801 0356 01F4      		brne .+2
+ 802 0358 00C0      		rjmp .L8
+ 291:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 lcd_print("ping");
+ 804               	.LM93:
+ 805 035a 80E0      		ldi r24,lo8(.LC14)
+ 806 035c 90E0      		ldi r25,hi8(.LC14)
+ 807 035e 0E94 0000 		call lcd_print
+ 294:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                                 udp_broadcast(udpack, 3);
+ 809               	.LM94:
+ 810 0362 63E0      		ldi r22,lo8(3)
+ 811 0364 70E0      		ldi r23,0
+ 812 0366 81E0      		ldi r24,lo8(1)
+ 813 0368 0E94 0000 		call udp_broadcast
+ 814               	.LBB33:
+ 815               	.LBB34:
+ 817               	.Ltext9:
+ 819               	.LM95:
+ 820 036c 4FEF      		ldi r20,lo8(3199999)
+ 821 036e 83ED      		ldi r24,hi8(3199999)
+ 822 0370 90E3      		ldi r25,hlo8(3199999)
+ 823 0372 4150      		1: subi r20,1
+ 824 0374 8040      		sbci r24,0
+ 825 0376 9040      		sbci r25,0
+ 826 0378 01F4      		brne 1b
+ 827               	.L62:
+ 828 037a 00C0      		rjmp .
+ 829 037c 0000      		nop
+ 830 037e 00C0      		rjmp .L59
+ 831               	.L60:
+ 832               	.LBE34:
+ 833               	.LBE33:
+ 834               	.LBE38:
+ 836               	.Ltext10:
+ 334:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 
+ 335:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 // Socket luistert naar nieuwe requests
+ 336:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 tcp_listen();
+ 838               	.LM96:
+ 839 0380 0E94 0000 		call tcp_listen
+ 337:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 
+ 338:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****                 break;
+ 841               	.LM97:
+ 842 0384 00C0      		rjmp .L8
+ 843               	.LBE39:
+ 859               	.Lscope1:
+ 860               		.section	.rodata.str1.1
+ 861               	.LC16:
+ 862 0104 414C 4152 		.string	"ALARM"
+ 862      4D00 
+ 863               	.LC17:
+ 864 010a 616C 6172 		.string	"alarm"
+ 864      6D00 
+ 865               	.LC18:
+ 866 0110 4252 4F41 		.string	"BROADCAST"
+ 866      4443 4153 
+ 866      5400 
+ 867               		.text
+ 869               	.global	__vector_13
+ 871               	__vector_13:
+ 339:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****         }
+ 340:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** #if DEBUG
+ 341:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****         // Delay voor het uitlezen van de seriele communicatie
+ 342:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****         _delay_ms(1000);
+ 343:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** #endif
+ 344:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****         // Verwerkingstijd
+ 345:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****         // _delay_ms(1);
+ 346:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     }
+ 347:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     
+ 348:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** 	return 0;
+ 349:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** }
+ 350:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** 
+ 351:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** // Timer interrupt, checkt of er op basis van de tiltsensor een alarm moet worden gegenereerd
+ 352:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** ISR(TIMER1_OVF_vect) {
+ 873               	.LM98:
+ 874               	.LFBB2:
+ 875 0000 1F92      		push r1
+ 876 0002 0F92      		push r0
+ 877 0004 0FB6      		in r0,__SREG__
+ 878 0006 0F92      		push r0
+ 879 0008 1124      		clr __zero_reg__
+ 880 000a 2F93      		push r18
+ 881 000c 3F93      		push r19
+ 882 000e 4F93      		push r20
+ 883 0010 5F93      		push r21
+ 884 0012 6F93      		push r22
+ 885 0014 7F93      		push r23
+ 886 0016 8F93      		push r24
+ 887 0018 9F93      		push r25
+ 888 001a AF93      		push r26
+ 889 001c BF93      		push r27
+ 890 001e EF93      		push r30
+ 891 0020 FF93      		push r31
+ 892               	/* prologue: Signal */
+ 893               	/* frame size = 0 */
+ 894               	/* stack size = 15 */
+ 895               	.L__stack_usage = 15
+ 353:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     // Leest de tiltsensor uit
+ 354:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     if(tilt_getAlarm() && armed) {
+ 897               	.LM99:
+ 898 0022 0E94 0000 		call tilt_getAlarm
+ 899 0026 892B      		or r24,r25
+ 900 0028 01F0      		breq .L68
+ 902               	.LM100:
+ 903 002a 8091 0000 		lds r24,armed
+ 904 002e 8823      		tst r24
+ 905 0030 01F0      		breq .L68
+ 355:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** #if DEBUG
+ 356:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****         printf("ALARM\n");
+ 907               	.LM101:
+ 908 0032 80E0      		ldi r24,lo8(.LC16)
+ 909 0034 90E0      		ldi r25,hi8(.LC16)
+ 910 0036 0E94 0000 		call puts
+ 357:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** #endif
+ 358:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****         // Print alarm op de lcd
+ 359:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****         lcd_print("alarm");
+ 912               	.LM102:
+ 913 003a 80E0      		ldi r24,lo8(.LC17)
+ 914 003c 90E0      		ldi r25,hi8(.LC17)
+ 915 003e 0E94 0000 		call lcd_print
+ 360:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****         
+ 361:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****         // Broadcast een alarm
+ 362:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****         udp_broadcast(alarm, 3);
+ 917               	.LM103:
+ 918 0042 63E0      		ldi r22,lo8(3)
+ 919 0044 70E0      		ldi r23,0
+ 920 0046 86E0      		ldi r24,lo8(6)
+ 921 0048 0E94 0000 		call udp_broadcast
+ 363:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****         
+ 364:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****         // Zet de led aan
+ 365:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****         PORTB |= (1 << LED);
+ 923               	.LM104:
+ 924 004c 299A      		sbi 0x5,1
+ 366:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****         
+ 367:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****         // Zet de buzzer aan
+ 368:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****         PORTB |= (1 << BUZZER);
+ 926               	.LM105:
+ 927 004e 289A      		sbi 0x5,0
+ 928 0050 00C0      		rjmp .L67
+ 929               	.L68:
+ 369:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     } else {
+ 370:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** #if DEBUG
+ 371:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****         printf("BROADCAST\n");
+ 931               	.LM106:
+ 932 0052 80E0      		ldi r24,lo8(.LC18)
+ 933 0054 90E0      		ldi r25,hi8(.LC18)
+ 934 0056 0E94 0000 		call puts
+ 372:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** #endif
+ 373:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****         // Broadcast een alive
+ 374:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****         udp_broadcast(alive, 3);
+ 936               	.LM107:
+ 937 005a 63E0      		ldi r22,lo8(3)
+ 938 005c 70E0      		ldi r23,0
+ 939 005e 85E0      		ldi r24,lo8(5)
+ 940 0060 0E94 0000 		call udp_broadcast
+ 941               	.L67:
+ 942               	/* epilogue start */
+ 375:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c ****     }
+ 376:/Users/Rob/Dropbox/school/jaar2/kwartiel2.2/projectnetwerken/Software/Arduino/Arduino/main.c **** }
+ 944               	.LM108:
+ 945 0064 FF91      		pop r31
+ 946 0066 EF91      		pop r30
+ 947 0068 BF91      		pop r27
+ 948 006a AF91      		pop r26
+ 949 006c 9F91      		pop r25
+ 950 006e 8F91      		pop r24
+ 951 0070 7F91      		pop r23
+ 952 0072 6F91      		pop r22
+ 953 0074 5F91      		pop r21
+ 954 0076 4F91      		pop r20
+ 955 0078 3F91      		pop r19
+ 956 007a 2F91      		pop r18
+ 957 007c 0F90      		pop r0
+ 958 007e 0FBE      		out __SREG__,r0
+ 959 0080 0F90      		pop r0
+ 960 0082 1F90      		pop r1
+ 961 0084 1895      		reti
+ 963               	.Lscope2:
+ 964               	.global	armed
+ 965               		.data
+ 968               	armed:
+ 969 0000 01        		.byte	1
+ 970               	.global	authorised
+ 971               		.section .bss
+ 974               	authorised:
+ 975 0000 00        		.zero	1
+ 976               	.global	counter
+ 979               	counter:
+ 980 0001 0000      		.zero	2
+ 981               	.global	password_index
+ 984               	password_index:
+ 985 0003 0000      		.zero	2
+ 986               	.global	password
+ 987               		.section	.rodata.str1.1
+ 988               	.LC19:
+ 989 011a 3649 6331 		.string	"6Ic1_894"
+ 989      5F38 3934 
+ 989      00
+ 990               	.LC20:
+ 991 0123 686B 6A30 		.string	"hkj0K&l5"
+ 991      4B26 6C35 
+ 991      00
+ 992               	.LC21:
+ 993 012c 374D 7C49 		.string	"7M|I#p96"
+ 993      2370 3936 
+ 993      00
+ 994               	.LC22:
+ 995 0135 3832 5130 		.string	"82Q018!h"
+ 995      3138 2168 
+ 995      00
+ 996               	.LC23:
+ 997 013e 5839 3621 		.string	"X96!$M359K16&p52"
+ 997      244D 3335 
+ 997      394B 3136 
+ 997      2670 3532 
+ 997      00
+ 998               	.LC24:
+ 999 014f 3E2D 247D 		.string	">-$}u85Q"
+ 999      7538 3551 
+ 999      00
+ 1000               	.LC25:
+ 1001 0158 3933 4332 		.string	"93C213H1"
+ 1001      3133 4831 
+ 1001      00
+ 1002               	.LC26:
+ 1003 0161 3736 3921 		.string	"769!cK0O"
+ 1003      634B 304F 
+ 1003      00
+ 1004               	.LC27:
+ 1005 016a 3148 3335 		.string	"1H355Q9}"
+ 1005      3551 397D 
+ 1005      00
+ 1006               		.data
+ 1009               	password:
+ 1010 0001 0000      		.word	.LC19
+ 1011 0003 0000      		.word	.LC20
+ 1012 0005 0000      		.word	.LC21
+ 1013 0007 0000      		.word	.LC22
+ 1014 0009 0000      		.word	.LC23
+ 1015 000b 0000      		.word	.LC24
+ 1016 000d 0000      		.word	.LC25
+ 1017 000f 0000      		.word	.LC26
+ 1018 0011 0000      		.word	.LC27
+ 1019               	.global	uart
+ 1022               	uart:
+ 1023 0013 0000 00   		.zero	3
+ 1024 0016 03        		.byte	3
+ 1025 0017 0000 0000 		.zero	4
+ 1026 001b 0000      		.word	gs(usart_transmit)
+ 1027 001d 0000      		.word	gs(usart_receive)
+ 1028 001f 0000      		.word	0
+ 1035               		.text
+ 1037               	.Letext0:
+ 1038               		.ident	"GCC: (GNU) 4.8.1"
+ 1039               	.global __do_copy_data
+ 1040               	.global __do_clear_bss
+DEFINED SYMBOLS
+                            *ABS*:00000000 main.c
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccRKWJVk.s:2      *ABS*:0000003e __SP_H__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccRKWJVk.s:3      *ABS*:0000003d __SP_L__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccRKWJVk.s:4      *ABS*:0000003f __SREG__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccRKWJVk.s:5      *ABS*:00000000 __tmp_reg__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccRKWJVk.s:6      *ABS*:00000001 __zero_reg__
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccRKWJVk.s:158    .text.startup:00000000 main
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccRKWJVk.s:1022   .data:00000013 uart
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccRKWJVk.s:968    .data:00000000 armed
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccRKWJVk.s:974    .bss:00000000 authorised
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccRKWJVk.s:984    .bss:00000003 password_index
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccRKWJVk.s:1009   .data:00000001 password
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccRKWJVk.s:979    .bss:00000001 counter
+/var/folders/s2/130xhc4d2slcgdx1yc5b_3h80000gn/T//ccRKWJVk.s:871    .text:00000000 __vector_13
+
+UNDEFINED SYMBOLS
+usart_init
+__iob
+tilt_start
+spi_init
+lcd_init
+initWiznet
+set_gateway
+set_submask
+set_macaddress
+set_ipaddress
+print_status
+udp_broadcast
+lcd_print
+puts
+udp_create_socket
+tcp_create_socket
+spi_receive
+tcp_from_monitor
+printf
+__divmodhi4
+tcp_listen
+tilt_getAlarm
+usart_transmit
+usart_receive
+__do_copy_data
+__do_clear_bss
